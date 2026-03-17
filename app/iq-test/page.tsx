@@ -120,7 +120,7 @@ export default function IQTest() {
           {q.options.map((opt, i) => (
             <button
               key={i}
-              onClick={() => handleAnswer(opt.correct)}
+              onClick={() => handleAnswer((opt.points ?? 0) > 0)}
               className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-left text-gray-900 transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
             >
               {opt.text}
