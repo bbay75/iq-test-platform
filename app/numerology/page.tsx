@@ -41,7 +41,7 @@ export default function NumerologyTest() {
           ← Back to Home
         </Link>
 
-        <ResultPaywall result={savedResult || ""} />
+        <ResultPaywall result={result} testName="Numerology" />
 
         <button
           onClick={() => setResult(null)}

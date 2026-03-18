@@ -1,40 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ensureSessionId,
-  getFreeCredits,
-  getTestsCompleted,
-} from "@/lib/rewardSystem";
 
 export default function ProfileCard() {
   const [name, setName] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [input, setInput] = useState("");
 
-  const [iq, setIq] = useState<string | null>(null);
-  const [mbti, setMbti] = useState<string | null>(null);
-  const [love, setLove] = useState<string | null>(null);
-  const [numerology, setNumerology] = useState<string | null>(null);
-  const [palm, setPalm] = useState<string | null>(null);
-
-  const [testsCompleted, setTestsCompleted] = useState(0);
   const [freeCredits, setFreeCredits] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    ensureSessionId();
-
     const savedName = localStorage.getItem("username");
     if (savedName) setName(savedName);
 
-    setIq(localStorage.getItem("iqResult"));
-    setMbti(localStorage.getItem("mbtiResult"));
-    setLove(localStorage.getItem("loveResult"));
-    setNumerology(localStorage.getItem("numerologyResult"));
-    setPalm(localStorage.getItem("palmResult"));
+    const savedCredits = Number(
+      localStorage.getItem("free_result_credits") || 0,
+    );
+    const savedProgress = Number(localStorage.getItem("results_unlocked") || 0);
 
-    setTestsCompleted(getTestsCompleted());
-    setFreeCredits(getFreeCredits());
+    setFreeCredits(savedCredits);
+    setProgress(savedProgress);
   }, []);
 
   const saveName = () => {
@@ -46,7 +32,7 @@ export default function ProfileCard() {
     setInput("");
   };
 
-  const progressPercent = (testsCompleted / 3) * 100;
+  const progressPercent = (progress / 3) * 100;
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -58,7 +44,7 @@ export default function ProfileCard() {
         <div className="flex justify-center">
           <button
             onClick={() => setEditing(true)}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Set Name
           </button>
@@ -75,7 +61,7 @@ export default function ProfileCard() {
           />
           <button
             onClick={saveName}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Save
           </button>
@@ -83,26 +69,18 @@ export default function ProfileCard() {
       )}
 
       {name && (
-        <p className="mb-4 text-gray-700 dark:text-gray-300">
+        <p className="mb-5 text-gray-700 dark:text-gray-300">
           Welcome, <b>{name}</b>
         </p>
       )}
 
-      <div className="mb-6 space-y-2 text-center text-sm text-gray-700 dark:text-gray-300">
-        {iq && <p>🧠 IQ: {iq}</p>}
-        {mbti && <p>🧩 MBTI: {mbti}</p>}
-        {love && <p>❤️ Love: {love}</p>}
-        {numerology && <p>🔢 Numerology: {numerology}</p>}
-        {palm && <p>✋ Palm: saved</p>}
-      </div>
-
       <div className="rounded-xl bg-gray-100 p-4 dark:bg-gray-900">
         <p className="text-sm font-semibold text-gray-900 dark:text-white">
-          Free Test Credits: {freeCredits}
+          Free Result Credits: {freeCredits}
         </p>
 
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          Progress to next free test: {testsCompleted} / 3
+          Progress to next free result: {progress} / 3
         </p>
 
         <div className="mt-3 h-2 w-full rounded bg-gray-300 dark:bg-gray-700">

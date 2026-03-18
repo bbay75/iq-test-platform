@@ -65,7 +65,7 @@ export default function PalmReadingPage() {
           ← Back to Home
         </Link>
 
-        <ResultPaywall result={result} />
+        <ResultPaywall result={savedResult || ""} testName="Palm Reading" />
 
         <button
           onClick={() => {

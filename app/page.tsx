@@ -1,35 +1,56 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import TestCard from "@/components/TestCard";
-import ResultCard from "@/components/ResultCard";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Leaderboard from "@/components/Leaderboard";
 import ProfileCard from "@/components/ProfileCard";
-import { ensureSessionId } from "@/lib/rewardSystem";
+import TestCard from "@/components/TestCard";
+import Leaderboard from "@/components/Leaderboard";
+
+type RecentResult = {
+  id: string;
+  test: string;
+  value: string;
+  createdAt: string;
+};
 
 export default function Home() {
-  const [loveSaved, setLoveSaved] = useState<string | null>(null);
-  const [iqSaved, setIqSaved] = useState<string | null>(null);
-  const [mbtiSaved, setMbtiSaved] = useState<string | null>(null);
-  const [numerologySaved, setNumerologySaved] = useState<string | null>(null);
-  const [palmSaved, setPalmSaved] = useState<string | null>(null);
+  const [recentResults, setRecentResults] = useState<RecentResult[]>([]);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    ensureSessionId();
+    const savedHistory = localStorage.getItem("recent_results");
 
-    setLoveSaved(localStorage.getItem("loveResult"));
-    setIqSaved(localStorage.getItem("iqResult"));
-    setMbtiSaved(localStorage.getItem("mbtiResult"));
-    setNumerologySaved(localStorage.getItem("numerologyResult"));
-    setPalmSaved(localStorage.getItem("palmResult"));
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        setRecentResults(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        setRecentResults([]);
+      }
+    }
   }, []);
 
+  const scrollLeft = () => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({
+      left: -320,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollRight = () => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({
+      left: 320,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-16 text-center">
-          <p className="inline-block rounded-full bg-gray-200 px-4 py-1 text-sm font-semibold text-blue-700 shadow-sm dark:bg-gray-800 dark:text-blue-300">
+    <main className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="mx-auto max-w-6xl space-y-8">
+        <section className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <p className="inline-block rounded-full bg-gray-100 px-4 py-1 text-sm font-semibold text-blue-700 shadow-sm dark:bg-gray-700 dark:text-blue-300">
             Personality • Fun • Insight
           </p>
 
@@ -45,48 +66,49 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               href="/iq-test"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
               🧠 IQ Test
             </Link>
 
             <Link
               href="/mbti-test"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
               🧩 MBTI Personality
             </Link>
 
             <Link
               href="/love-test"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
               ❤️ Love Compatibility
             </Link>
 
             <Link
               href="/numerology"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
               🔢 Numerology
             </Link>
 
             <Link
               href="/palm-reading"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
               ✋ Palm Reading
             </Link>
           </div>
-          <div className="mt-10 grid grid-cols-3 gap-4 max-w-xl mx-auto">
-            <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
+
+          <div className="mx-auto mt-10 grid max-w-xl grid-cols-3 gap-4">
+            <div className="rounded-xl bg-gray-50 p-4 shadow-sm dark:bg-gray-900">
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 5+
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-300">Tests</p>
             </div>
 
-            <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
+            <div className="rounded-xl bg-gray-50 p-4 shadow-sm dark:bg-gray-900">
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 AI
               </p>
@@ -95,115 +117,123 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
+            <div className="rounded-xl bg-gray-50 p-4 shadow-sm dark:bg-gray-900">
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 100%
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-300">Fun</p>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="mb-16 flex justify-center">
+        <div className="flex justify-center">
           <div className="w-full max-w-md">
             <ProfileCard />
           </div>
         </div>
 
-        <section className="mt-14">
-          <div className="mb-6 flex flex-col items-center justify-center gap-4 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Previous Results
+        <div className="flex justify-center">
+          <div className="w-full max-w-md">
+            <Leaderboard />
+          </div>
+        </div>
+
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              📊 Recent Results
             </h2>
 
-            <button
-              onClick={() => {
-                localStorage.removeItem("loveResult");
-                localStorage.removeItem("iqResult");
-                localStorage.removeItem("mbtiResult");
-                localStorage.removeItem("numerologyResult");
-                localStorage.removeItem("palmResult");
+            {recentResults.length > 0 && (
+              <div className="flex gap-2">
+                <button
+                  onClick={scrollLeft}
+                  className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                >
+                  ←
+                </button>
 
-                setLoveSaved(null);
-                setIqSaved(null);
-                setMbtiSaved(null);
-                setNumerologySaved(null);
-                setPalmSaved(null);
-              }}
-              className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
+                <button
+                  onClick={scrollRight}
+                  className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                >
+                  →
+                </button>
+              </div>
+            )}
+          </div>
+
+          {recentResults.length === 0 ? (
+            <p className="text-center text-gray-500 dark:text-gray-400">
+              No results yet
+            </p>
+          ) : (
+            <div
+              ref={scrollRef}
+              className="scrollbar-hide flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2"
             >
-              Clear Results
-            </button>
-          </div>
+              {recentResults.map((item, index) => (
+                <Link
+                  href={`/result/${item.id || index}`}
+                  key={`${item.id}-${index}`}
+                  className="block"
+                >
+                  <div className="h-[190px] w-[320px] flex-shrink-0 snap-start rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800">
+                    <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {item.test}
+                    </p>
 
-          {!loveSaved &&
-            !iqSaved &&
-            !mbtiSaved &&
-            !numerologySaved &&
-            !palmSaved && (
-              <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-gray-300 bg-white/70 p-8 text-center text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-800/70 dark:text-gray-200">
-                Одоогоор хадгалсан үр дүн алга байна. Аль нэг тестийг хийгээд
-                энд хараарай.
-              </div>
-            )}
+                    <p className="mt-3 line-clamp-2 overflow-hidden text-2xl font-bold text-blue-600 dark:text-blue-300">
+                      {item.value}
+                    </p>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 justify-items-center">
-            {loveSaved && (
-              <div className="w-full max-w-sm">
-                <ResultCard
-                  title="Love Test Result"
-                  result={loveSaved}
-                  description="Your saved love compatibility result"
-                />
-              </div>
-            )}
-
-            {iqSaved && (
-              <div className="w-full max-w-sm">
-                <ResultCard
-                  title="IQ Test Result"
-                  result={iqSaved}
-                  description="Your latest IQ test score"
-                />
-              </div>
-            )}
-
-            {mbtiSaved && (
-              <div className="w-full max-w-sm">
-                <ResultCard
-                  title="MBTI Result"
-                  result={mbtiSaved}
-                  description="Your saved MBTI personality type"
-                />
-              </div>
-            )}
-
-            {numerologySaved && (
-              <div className="w-full max-w-sm">
-                <ResultCard
-                  title="Numerology Result"
-                  result={numerologySaved}
-                  description="Your saved life path number"
-                />
-              </div>
-            )}
-
-            {palmSaved && (
-              <div className="w-full max-w-sm">
-                <ResultCard
-                  title="Palm Reading Result"
-                  result={palmSaved}
-                  description="Your saved palm reading result"
-                />
-              </div>
-            )}
-          </div>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                      {item.createdAt}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
-        <div className="mt-8">
-          <Leaderboard />
-        </div>
-      </section>
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <TestCard
+            title="Love Test"
+            link="/love-test"
+            emoji="❤️"
+            description="Check your romantic compatibility score"
+          />
+
+          <TestCard
+            title="IQ Test"
+            link="/iq-test"
+            emoji="🧠"
+            description="Measure your score with quick logic questions"
+          />
+
+          <TestCard
+            title="MBTI Test"
+            link="/mbti-test"
+            emoji="🧩"
+            description="Discover your personality type"
+          />
+
+          <TestCard
+            title="Numerology"
+            link="/numerology"
+            emoji="🔢"
+            description="Find your life path number"
+          />
+
+          <TestCard
+            title="Palm Reading"
+            link="/palm-reading"
+            emoji="✋"
+            description="Upload your palm and get a fun reading"
+          />
+        </section>
+      </div>
     </main>
   );
 }

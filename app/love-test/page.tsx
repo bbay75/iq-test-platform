@@ -52,7 +52,7 @@ export default function LoveTest() {
           ← Back to Home
         </Link>
 
-        <ResultPaywall result={`${result}%`} />
+        <ResultPaywall result={`${result}%`} testName="Love Test" />
 
         <button
           onClick={() => setResult(null)}
