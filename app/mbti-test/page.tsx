@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ResultPaywall from "@/components/ResultPaywall";
 import { mbtiQuestions, MbtiDimension } from "@/data/mbtiQuestions";
-import { mbtiDescriptions } from "@/data/mbtiDescriptions";
+import { mbtiProfiles } from "@/data/mbtiProfiles";
 
 const scaleOptions = [
   { label: "Огт санал нийлэхгүй", value: -2 },
@@ -43,13 +43,14 @@ export default function MBTITest() {
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+
   useEffect(() => {
     const saved = localStorage.getItem("mbtiResult");
     if (saved) setSavedResult(saved);
   }, []);
 
   const handleAnswer = (dimension: MbtiDimension, value: number) => {
-    setSelected(value); // 🔥 highlight хийх
+    setSelected(value);
 
     setTimeout(() => {
       const updatedScores = { ...scores };
@@ -65,7 +66,7 @@ export default function MBTITest() {
 
       if (index + 1 < mbtiQuestions.length) {
         setIndex(index + 1);
-        setSelected(null); // reset
+        setSelected(null);
       } else {
         const personality = [
           updatedScores.E >= updatedScores.I ? "E" : "I",
@@ -78,99 +79,108 @@ export default function MBTITest() {
         setSavedResult(personality);
         setFinished(true);
       }
-    }, 150); // бага delay → UX гоё болно
+    }, 150);
   };
+
   const q = mbtiQuestions[index];
   const progress = ((index + 1) / mbtiQuestions.length) * 100;
 
-  const description = useMemo(() => {
-    if (!savedResult) return null;
-    return mbtiDescriptions[savedResult] || null;
-  }, [savedResult]);
-
   if (finished && savedResult) {
+    const profile = mbtiProfiles[savedResult];
+
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
         <Link
           href="/"
-          className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-300"
+          className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
         >
           ← Back to Home
         </Link>
 
-        <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
-            MBTI Personality Result
-          </h1>
+        <div className="w-full max-w-4xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-500 p-8 text-center text-white shadow-lg">
+            <p className="text-sm uppercase tracking-[0.2em] text-indigo-200">
+              MBTI Result
+            </p>
 
-          <ResultPaywall
-            result={`${savedResult} - ${description?.title || "Personality Type"}`}
-            testName="MBTI Test"
-          >
-            {description && (
-              <div className="space-y-5">
-                <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Summary
-                  </h2>
-                  <p className="mt-2 text-gray-700 dark:text-gray-300">
-                    {description.summary}
-                  </p>
+            <h1 className="mt-4 text-4xl font-bold md:text-5xl">
+              {savedResult}
+            </h1>
+
+            <p className="mt-3 text-lg text-indigo-100">{profile?.name}</p>
+          </div>
+
+          <ResultPaywall result={savedResult} testName="MBTI Test">
+            <div className="mt-6 space-y-6">
+              <div className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 p-5 dark:border-indigo-900 dark:from-gray-900 dark:to-gray-900">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                  Summary
+                </h2>
+                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                  {profile?.summary}
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    Strengths
+                  </h3>
+                  <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                    {profile?.strengths.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="font-bold text-green-600 dark:text-green-400">
+                          ✓
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      Strengths
-                    </h3>
-                    <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {description.strengths.map((item) => (
-                        <li key={item}>• {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      Weaknesses
-                    </h3>
-                    <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {description.weaknesses.map((item) => (
-                        <li key={item}>• {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      Career Fit
-                    </h3>
-                    <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {description.careers.map((item) => (
-                        <li key={item}>• {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      Relationship Style
-                    </h3>
-                    <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                      {description.relationships}
-                    </p>
-                  </div>
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    Weaknesses
+                  </h3>
+                  <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                    {profile?.weaknesses.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="font-bold text-amber-600 dark:text-amber-400">
+                          !
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            )}
+
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  Career Fit
+                </h3>
+                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                  {profile?.careers.join(", ")}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900 dark:bg-purple-950/20">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  Relationship Style
+                </h3>
+                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                  {profile?.relationships}
+                </p>
+              </div>
+            </div>
           </ResultPaywall>
 
           <div className="mt-6 flex justify-center">
             <button
               onClick={() => {
+                setFinished(false);
                 setIndex(0);
+                setSelected(null);
                 setScores({
                   E: 0,
                   I: 0,
@@ -181,11 +191,10 @@ export default function MBTITest() {
                   J: 0,
                   P: 0,
                 });
-                setFinished(false);
               }}
-              className="rounded-lg bg-gray-600 px-6 py-2 text-white transition hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="rounded-lg bg-gray-600 px-6 py-2 text-white transition hover:bg-gray-700"
             >
-              Дахин эхлэх
+              Дахин хийх
             </button>
           </div>
         </div>
@@ -197,7 +206,7 @@ export default function MBTITest() {
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
       <Link
         href="/"
-        className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-300"
+        className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
       >
         ← Back to Home
       </Link>
@@ -220,7 +229,7 @@ export default function MBTITest() {
           </p>
         </div>
 
-        <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900 text-center">
+        <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
           <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
             {q.question}
           </h2>
@@ -234,14 +243,11 @@ export default function MBTITest() {
               <button
                 key={option.label}
                 onClick={() => handleAnswer(q.dimension, option.value)}
-                className={`rounded-2xl border px-5 py-4 text-center text-base font-medium transition-all duration-200
-          
-          ${
-            isSelected
-              ? "border-purple-500 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-              : "border-gray-300 bg-white text-gray-900 hover:scale-[1.02] hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
-          }
-        `}
+                className={`rounded-2xl border px-5 py-4 text-center text-base font-medium transition-all duration-200 ${
+                  isSelected
+                    ? "border-purple-500 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                    : "border-gray-300 bg-white text-gray-900 hover:scale-[1.02] hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
+                }`}
               >
                 {option.label}
               </button>

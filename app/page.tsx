@@ -232,6 +232,12 @@ export default function Home() {
             emoji="✋"
             description="Upload your palm and get a fun reading"
           />
+          <TestCard
+            title="Personal Color AI"
+            link="/personal-color"
+            emoji="🎨"
+            description="Upload your photo and get AI recolored outfit previews"
+          />
         </section>
       </div>
     </main>
