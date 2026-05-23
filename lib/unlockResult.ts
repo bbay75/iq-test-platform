@@ -1,34 +1,31 @@
 import { supabase } from "@/lib/supabase";
 
-export async function unlockResult(
-  resultId: string,
-  mode: "credit" | "paid_demo",
-) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+function getDeviceId() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("test_device_id");
+}
 
-  console.log("SESSION:", session); // 👈 debug
+export async function unlockResult(resultId: string) {
+  const deviceId = getDeviceId();
 
-  const res = await fetch("/api/unlock", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session?.access_token}`, // 👈 ЧУХАЛ
-    },
-    body: JSON.stringify({
-      resultId,
-      mode,
-    }),
-  });
-
-  const data = await res.json();
-
-  console.log("API RESPONSE:", data); // 👈 debug
-
-  if (!res.ok) {
-    throw new Error(data.error || "Unlock failed");
+  if (!deviceId) {
+    throw new Error("Device ID олдсонгүй.");
   }
 
-  return data;
+  const { data, error } = await supabase
+    .from("test_results")
+    .update({ is_unlocked: true })
+    .eq("id", resultId)
+    .eq("device_id", deviceId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return {
+    result: data,
+    profile: null,
+  };
 }
