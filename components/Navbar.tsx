@@ -3,119 +3,104 @@
 import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useLang } from "@/lib/LanguageProvider";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   const closeMenu = () => setOpen(false);
+  const { lang, switchLang, t } = useLang();
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-      <div className="mx-auto max-w-6xl px-6 py-4">
+      <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="text-xl font-bold text-gray-900 dark:text-white"
+            className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl"
             onClick={closeMenu}
           >
             Test Platform
           </Link>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
+          <div className="flex items-center gap-2 md:gap-3">
+            <ThemeToggle />
+
+            <button
+              onClick={switchLang}
+              className="flex h-10 w-12 items-center justify-center rounded-lg border border-gray-300 bg-white shadow-sm transition hover:scale-105 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+              title={
+                lang === "mn" ? "Switch to English" : "Монгол хэл рүү шилжих"
+              }
+            >
+              <img
+                src={
+                  lang === "mn"
+                    ? "https://flagcdn.com/gb.svg"
+                    : "https://flagcdn.com/mn.svg"
+                }
+                alt="lang"
+                className="h-5 w-8 object-contain"
+              />
+            </button>
 
             <nav className="hidden items-center gap-6 md:flex">
               <Link
-                href="/iq-test"
+                href="/my-results"
                 className="text-sm font-semibold text-gray-700 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-300"
               >
-                IQ
-              </Link>
-              <Link
-                href="/mbti-test"
-                className="text-sm font-semibold text-gray-700 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-300"
-              >
-                MBTI
-              </Link>
-              <Link
-                href="/love-test"
-                className="text-sm font-semibold text-gray-700 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-300"
-              >
-                Love
-              </Link>
-              <Link
-                href="/numerology"
-                className="text-sm font-semibold text-gray-700 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-300"
-              >
-                Numerology
-              </Link>
-              <Link
-                href="/palm-reading"
-                className="text-sm font-semibold text-gray-700 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-300"
-              >
-                Palm
+                {t("nav_results")}
               </Link>
             </nav>
-
             <button
               onClick={() => setOpen(!open)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800 md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-lg text-gray-700 shadow-sm transition hover:scale-105 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 md:hidden"
               aria-label="Toggle menu"
             >
-              {open ? "✕" : "☰"}
+              ☰
             </button>
           </div>
         </div>
 
         {open && (
-          <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:hidden">
-            <div className="mb-4">
-              <ThemeToggle />
+          <div className="fixed inset-0 z-[60] md:hidden">
+            {/* Backdrop */}
+            <button
+              type="button"
+              aria-label="Close menu"
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              onClick={closeMenu}
+            />
+
+            {/* Popup menu */}
+            <div className="absolute right-4 top-16 w-[220px] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t("menu")}
+                </h2>
+
+                <button
+                  type="button"
+                  onClick={closeMenu}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-lg text-gray-700 shadow-sm transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+                  aria-label="Close menu"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
+                <nav className="flex flex-col gap-2">
+                  <Link
+                    href="/my-results"
+                    className="rounded-xl px-3 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-800"
+                    onClick={closeMenu}
+                  >
+                    {t("nav_results")}
+                  </Link>
+                </nav>
+              </div>
             </div>
-
-            <nav className="flex flex-col gap-3">
-              <Link
-                href="/iq-test"
-                onClick={closeMenu}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-              >
-                🧠 IQ Test
-              </Link>
-
-              <Link
-                href="/mbti-test"
-                onClick={closeMenu}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-              >
-                🧩 MBTI Test
-              </Link>
-
-              <Link
-                href="/love-test"
-                onClick={closeMenu}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-              >
-                ❤️ Love Test
-              </Link>
-
-              <Link
-                href="/numerology"
-                onClick={closeMenu}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-              >
-                🔢 Numerology
-              </Link>
-
-              <Link
-                href="/palm-reading"
-                onClick={closeMenu}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-              >
-                ✋ Palm Reading
-              </Link>
-            </nav>
           </div>
         )}
       </div>

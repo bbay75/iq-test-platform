@@ -4,12 +4,15 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import ResultPaywall from "@/components/ResultPaywall";
 import { generatePalmReading } from "@/data/palmReadingGenerator";
+import { saveTestResult } from "@/lib/saveResult";
+import { useRouter } from "next/navigation";
 
 export default function PalmReadingPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageSeed, setImageSeed] = useState<string>("");
   const [analyzing, setAnalyzing] = useState(false);
   const [finished, setFinished] = useState(false);
+  const router = useRouter();
 
   const reading = useMemo(() => {
     if (!imageSeed) return null;
@@ -31,12 +34,12 @@ export default function PalmReadingPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!imagePreview || !imageSeed) return;
 
     setAnalyzing(true);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const generated = generatePalmReading(imageSeed);
 
       localStorage.setItem(
@@ -47,8 +50,20 @@ export default function PalmReadingPage() {
         }),
       );
 
-      setAnalyzing(false);
-      setFinished(true);
+      try {
+        const saved = await saveTestResult({
+          test_type: "palm",
+          result_json: generated,
+          score: null,
+        });
+
+        router.push(`/my-results/${saved.id}`);
+        return;
+      } catch (error) {
+        console.error("Palm save error:", error);
+        setAnalyzing(false);
+        setFinished(true);
+      }
     }, 1800);
   };
 

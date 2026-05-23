@@ -5,6 +5,8 @@ import Link from "next/link";
 import ResultPaywall from "@/components/ResultPaywall";
 import { mbtiQuestions, MbtiDimension } from "@/data/mbtiQuestions";
 import { mbtiProfiles } from "@/data/mbtiProfiles";
+import { saveTestResult } from "@/lib/saveResult";
+import { useRouter } from "next/navigation";
 
 const scaleOptions = [
   { label: "Огт санал нийлэхгүй", value: -2 },
@@ -43,16 +45,17 @@ export default function MBTITest() {
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const saved = localStorage.getItem("mbtiResult");
     if (saved) setSavedResult(saved);
   }, []);
 
-  const handleAnswer = (dimension: MbtiDimension, value: number) => {
+  const handleAnswer = async (dimension: MbtiDimension, value: number) => {
     setSelected(value);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const updatedScores = { ...scores };
 
       if (value > 0) {
@@ -75,9 +78,32 @@ export default function MBTITest() {
           updatedScores.J >= updatedScores.P ? "J" : "P",
         ].join("");
 
+        const profile = mbtiProfiles[personality];
+
         localStorage.setItem("mbtiResult", personality);
         setSavedResult(personality);
-        setFinished(true);
+
+        try {
+          const saved = await saveTestResult({
+            test_type: "mbti",
+            result_json: {
+              type: personality,
+              name: profile?.name ?? personality,
+              summary: profile?.summary ?? "",
+              strengths: profile?.strengths ?? [],
+              weaknesses: profile?.weaknesses ?? [],
+              careers: profile?.careers ?? [],
+              relationships: profile?.relationships ?? "",
+            },
+            score: null,
+          });
+
+          router.push(`/my-results/${saved.id}`);
+          return;
+        } catch (error) {
+          console.error("MBTI save error:", error);
+          setFinished(true);
+        }
       }
     }, 150);
   };

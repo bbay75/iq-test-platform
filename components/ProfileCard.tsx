@@ -1,91 +1,219 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useLang } from "@/lib/LanguageProvider";
 
 export default function ProfileCard() {
+  const { t } = useLang();
+
   const [name, setName] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [input, setInput] = useState("");
-
-  const [freeCredits, setFreeCredits] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [credits, setCredits] = useState(0);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const savedName = localStorage.getItem("username");
-    if (savedName) setName(savedName);
-
-    const savedCredits = Number(
-      localStorage.getItem("free_result_credits") || 0,
-    );
-    const savedProgress = Number(localStorage.getItem("results_unlocked") || 0);
-
-    setFreeCredits(savedCredits);
-    setProgress(savedProgress);
+    if (savedName) {
+      setName(savedName);
+    }
   }, []);
 
-  const saveName = () => {
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("free_credits, reward_progress")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Profile load error:", error.message);
+        return;
+      }
+
+      if (!data) {
+        const { error: insertError } = await supabase.from("profiles").insert({
+          id: user.id,
+          free_credits: 1,
+          reward_progress: 0,
+        });
+
+        if (insertError) {
+          console.error("Profile create error:", insertError.message);
+          return;
+        }
+
+        setCredits(1);
+        setProgress(0);
+        return;
+      }
+
+      setCredits(data.free_credits || 0);
+      setProgress(data.reward_progress || 0);
+    };
+
+    loadProfile();
+  }, []);
+
+  const saveName = async () => {
     if (!input.trim()) return;
 
-    localStorage.setItem("username", input.trim());
-    setName(input.trim());
-    setEditing(false);
-    setInput("");
+    try {
+      setSaving(true);
+      const clean = input.trim();
+
+      localStorage.setItem("username", clean);
+      setName(clean);
+      setEditing(false);
+      setInput("");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const progressPercent = (progress / 3) * 100;
+  const progressPercent = useMemo(() => {
+    return Math.min((progress / 3) * 100, 100);
+  }, [progress]);
+
+  const progressLeft = Math.max(3 - progress, 0);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-        👤 My Profile
-      </h2>
+    <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-[0_10px_30px_rgba(0,0,0,0.15)] dark:backdrop-blur-sm sm:p-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {t("rewards_title")}
+          </h2>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+            {t("rewards_subtitle")}
+          </p>
+        </div>
 
+        {name && !editing && (
+          <button
+            onClick={() => {
+              setEditing(true);
+              setInput(name);
+            }}
+            className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+          >
+            {t("edit_name")}
+          </button>
+        )}
+      </div>
+
+      {/* Name */}
       {!name && !editing && (
-        <div className="flex justify-center">
+        <div className="mt-5">
           <button
             onClick={() => setEditing(true)}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
-            Set Name
+            {t("set_name")}
           </button>
         </div>
       )}
 
       {editing && (
-        <div className="flex flex-col items-center gap-3">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Your name"
-            className="w-full max-w-xs rounded-lg border border-gray-300 px-3 py-2 text-center dark:border-gray-600 dark:bg-gray-900 dark:text-white"
-          />
-          <button
-            onClick={saveName}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Save
-          </button>
+        <div className="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-black/10">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Your name"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            />
+
+            <div className="flex gap-2">
+              <button
+                onClick={saveName}
+                disabled={saving || !input.trim()}
+                className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? t("saving") : t("save")}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditing(false);
+                  setInput("");
+                }}
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+              >
+                {t("cancel")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {name && (
-        <p className="mb-5 text-gray-700 dark:text-gray-300">
-          Welcome, <b>{name}</b>
-        </p>
+      {name && !editing && (
+        <div className="mt-4 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-white/10 dark:bg-black/10">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {t("welcome_back")},{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {name}
+            </span>
+          </p>
+        </div>
       )}
 
-      <div className="rounded-xl bg-gray-100 p-4 dark:bg-gray-900">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-          Free Result Credits: {freeCredits}
-        </p>
+      {/* Stats */}
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-black/10">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {t("free_credits")}
+          </p>
+          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+            {credits}
+          </p>
+        </div>
 
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          Progress to next free result: {progress} / 3
-        </p>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-black/10">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {t("progress")}
+          </p>
+          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+            {progress}
+            <span className="text-lg text-gray-500 dark:text-gray-400">
+              {" "}
+              / 3
+            </span>
+          </p>
+        </div>
+      </div>
 
-        <div className="mt-3 h-2 w-full rounded bg-gray-300 dark:bg-gray-700">
+      {/* Reward Progress */}
+      <div className="mt-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 dark:border-blue-500/20 dark:from-blue-500/10 dark:to-indigo-500/10">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              {t("reward_progress")}
+            </p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              {progressLeft > 0
+                ? `${progressLeft} ${t("more_results")}`
+                : t("free_credit_ready")}
+            </p>
+          </div>
+
+          <div className="rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-white/10 dark:bg-white/10 dark:text-blue-200">
+            {Math.round(progressPercent)}%
+          </div>
+        </div>
+
+        <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
           <div
-            className="h-2 rounded bg-green-500 transition-all"
+            className="h-3 rounded-full bg-green-500 transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

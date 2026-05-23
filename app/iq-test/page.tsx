@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ResultPaywall from "@/components/ResultPaywall";
 import { iqQuestions } from "@/data/iqQuestions";
+import { saveTestResult } from "@/lib/saveResult";
+import { useLang } from "@/lib/LanguageProvider";
 
 function calculateIQDetails(totalScore: number) {
   if (totalScore <= 16) {
@@ -90,28 +93,41 @@ function calculateIQDetails(totalScore: number) {
 }
 
 export default function IQTest() {
+  const { t } = useLang();
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState<string | null>(null);
+  const [resultId, setResultId] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("iqResult");
     if (saved) setSavedResult(saved);
   }, []);
 
-  const handleAnswer = (points: number) => {
+  const handleAnswer = async (points: number) => {
     const newScore = score + (Number(points) || 0);
     setScore(newScore);
 
     if (index + 1 < iqQuestions.length) {
       setIndex(index + 1);
-    } else {
-      const result = calculateIQDetails(newScore);
-      const finalText = `${result.iq} (${result.label})`;
-      localStorage.setItem("iqResult", finalText);
-      setSavedResult(finalText);
-      setFinished(true);
+      return;
+    }
+
+    const result = calculateIQDetails(newScore);
+
+    try {
+      const saved = await saveTestResult({
+        test_type: "iq",
+        result_json: result,
+        score: result.iq,
+      });
+
+      router.push(`/my-results/${saved.id}`);
+      return;
+    } catch (error) {
+      console.error("Save result error:", error);
     }
   };
 
@@ -136,59 +152,34 @@ export default function IQTest() {
           href="/"
           className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-300"
         >
-          ← Back to Home
+          ← {t("iq_back_home")}
         </Link>
 
         <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
-            IQ Test Result
+            {t("iq_result_title")}
           </h1>
 
-          <ResultPaywall result={savedResult} testName="IQ Test">
-            <div className="space-y-5">
-              <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Summary
-                </h2>
-                <p className="mt-2 text-gray-700 dark:text-gray-300">
-                  {resultDetails.summary}
-                </p>
-              </div>
+          <div className="mt-4 rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
+            <p className="text-center text-lg font-semibold text-gray-900 dark:text-white">
+              {savedResult}
+            </p>
+          </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                  <h3 className="font-bold text-gray-900 dark:text-white">
-                    Strengths
-                  </h3>
-                  <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    {resultDetails.strengths.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
+          <ResultPaywall
+            isUnlocked={false}
+            title={t("iq_unlock_title")}
+            description={t("iq_unlock_desc")}
+            priceLabel={t("iq_unlock_price")}
+            onUnlock={async () => {
+              if (!resultId) {
+                alert("Result ID олдсонгүй");
+                return;
+              }
 
-                <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                  <h3 className="font-bold text-gray-900 dark:text-white">
-                    Weaknesses
-                  </h3>
-                  <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    {resultDetails.weaknesses.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                <h3 className="font-bold text-gray-900 dark:text-white">
-                  Recommendation
-                </h3>
-                <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                  {resultDetails.recommendation}
-                </p>
-              </div>
-            </div>
-          </ResultPaywall>
+              router.push(`/my-results/${resultId}`);
+            }}
+          />
 
           <div className="mt-6 flex justify-center">
             <button
@@ -196,10 +187,13 @@ export default function IQTest() {
                 setIndex(0);
                 setScore(0);
                 setFinished(false);
+                setSavedResult(null);
+                setResultId(null);
+                localStorage.removeItem("iqResult");
               }}
               className="rounded-lg bg-gray-600 px-6 py-2 text-white transition hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
-              Дахин эхлэх
+              {t("iq_restart")}
             </button>
           </div>
         </div>
@@ -213,17 +207,23 @@ export default function IQTest() {
         href="/"
         className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-300"
       >
-        ← Back to Home
+        ← {t("iq_back_home")}
       </Link>
 
       <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            IQ Test
+            {t("iq_title")}
           </h1>
 
           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-            {q.type}
+            {q.type === "visual"
+              ? t("iq_type_visual")
+              : q.type === "number"
+                ? t("iq_type_number")
+                : q.type === "logic"
+                  ? t("iq_type_logic")
+                  : t("iq_type_verbal")}
           </span>
         </div>
 
@@ -236,35 +236,52 @@ export default function IQTest() {
           </div>
 
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            Question {index + 1} / {iqQuestions.length}
+            {t("iq_question_count")} {index + 1} / {iqQuestions.length}
           </p>
         </div>
 
         <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
           <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
-            {q.question}
+            {t(q.question)}
           </h2>
+
+          {q.image && (
+            <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+              <img
+                src={q.image}
+                alt={t(q.question)}
+                className="mx-auto max-h-[360px] w-full object-contain"
+              />
+            </div>
+          )}
         </div>
 
-        <div className="mt-6 grid gap-4">
+        <div
+          className={`mt-6 grid gap-4 ${
+            q.type === "visual" ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"
+          }`}
+        >
           {q.options.map((opt, i) => (
             <button
-              key={`${q.question}-${i}`}
+              key={`${q.id}-${i}`}
               onClick={() => handleAnswer(opt.points)}
-              className={`rounded-xl border border-gray-300 bg-white px-5 py-4 text-center font-medium text-gray-900 transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700 ${
-                q.type === "visual"
-                  ? "text-3xl leading-[1.8]"
-                  : "text-base leading-6"
-              }`}
+              className="rounded-xl border border-gray-300 bg-white px-4 py-4 text-center font-medium text-gray-900 transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
             >
-              {opt.text}
+              {opt.image ? (
+                <img
+                  src={opt.image}
+                  alt={`Option ${i + 1}`}
+                  className="w-full h-[120px] object-contain"
+                />
+              ) : (
+                <span>{opt.text ? t(opt.text) : ""}</span>
+              )}
             </button>
           ))}
         </div>
 
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          Энэ тест нь reasoning болон логик чадварыг ерөнхий байдлаар үнэлэхэд
-          зориулагдсан.
+          {t("iq_notice")}
         </p>
       </div>
     </div>

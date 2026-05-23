@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Providers from "./providers";
+import { LanguageProvider } from "@/lib/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "Test Platform",
@@ -10,15 +12,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 text-gray-900">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <LanguageProvider>
+          <Navbar />
+          <Providers>{children}</Providers>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

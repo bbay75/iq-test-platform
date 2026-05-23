@@ -1,245 +1,120 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ProfileCard from "@/components/ProfileCard";
-import TestCard from "@/components/TestCard";
-import Leaderboard from "@/components/Leaderboard";
+import { useLang } from "@/lib/LanguageProvider";
 
-type RecentResult = {
-  id: string;
-  test: string;
-  value: string;
-  createdAt: string;
-};
+export default function HomePage() {
+  const { t } = useLang();
 
-export default function Home() {
-  const [recentResults, setRecentResults] = useState<RecentResult[]>([]);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const savedHistory = localStorage.getItem("recent_results");
-
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory);
-        setRecentResults(Array.isArray(parsed) ? parsed : []);
-      } catch {
-        setRecentResults([]);
-      }
-    }
-  }, []);
-
-  const scrollLeft = () => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollBy({
-      left: -320,
-      behavior: "smooth",
-    });
-  };
-
-  const scrollRight = () => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollBy({
-      left: 320,
-      behavior: "smooth",
-    });
-  };
+  const tests = [
+    {
+      name: t("home_personal_color_title"),
+      desc: t("home_personal_color_desc"),
+      href: "/personal-color",
+    },
+    {
+      name: t("home_iq_title"),
+      desc: t("home_iq_desc"),
+      href: "/iq-test",
+    },
+    {
+      name: t("home_mbti_title"),
+      desc: t("home_mbti_desc"),
+      href: "/mbti-test",
+    },
+    {
+      name: t("home_love_title"),
+      desc: t("home_love_desc"),
+      href: "/love-test",
+    },
+    {
+      name: t("home_numerology_title"),
+      desc: t("home_numerology_desc"),
+      href: "/numerology",
+    },
+    {
+      name: t("home_palm_title"),
+      desc: t("home_palm_desc"),
+      href: "/palm-reading",
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <section className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="inline-block rounded-full bg-gray-100 px-4 py-1 text-sm font-semibold text-blue-700 shadow-sm dark:bg-gray-700 dark:text-blue-300">
-            Personality • Fun • Insight
-          </p>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      {/* HERO */}
+      <div className="mx-auto max-w-6xl px-6 py-16 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white sm:text-5xl">
+          {t("discover_title")}
+        </h1>
 
-          <h1 className="mt-6 text-4xl font-bold tracking-tight text-gray-900 dark:text-white md:text-5xl">
-            Discover Your Personality
-          </h1>
+        <p className="mt-4 text-base text-gray-600 dark:text-gray-300 sm:text-lg">
+          {t("discover_desc")}
+        </p>
 
-          <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-gray-700 dark:text-gray-300">
-            IQ, MBTI, Love Compatibility, Numerology болон Palm Reading
-            тестүүдийг нэг дороос хийж өөрийгөө илүү сайн таньж мэдээрэй.
-          </p>
+        <Link
+          href="/personal-color"
+          className="mt-8 inline-block rounded-xl bg-blue-600 px-7 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
+        >
+          {t("start_personal_color")}
+        </Link>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/iq-test"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              🧠 IQ Test
-            </Link>
-
-            <Link
-              href="/mbti-test"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              🧩 MBTI Personality
-            </Link>
-
-            <Link
-              href="/love-test"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              ❤️ Love Compatibility
-            </Link>
-
-            <Link
-              href="/numerology"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              🔢 Numerology
-            </Link>
-
-            <Link
-              href="/palm-reading"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              ✋ Palm Reading
-            </Link>
-          </div>
-
-          <div className="mx-auto mt-10 grid max-w-xl grid-cols-3 gap-4">
-            <div className="rounded-xl bg-gray-50 p-4 shadow-sm dark:bg-gray-900">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                5+
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">Tests</p>
-            </div>
-
-            <div className="rounded-xl bg-gray-50 p-4 shadow-sm dark:bg-gray-900">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                AI
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Palm Analysis
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-gray-50 p-4 shadow-sm dark:bg-gray-900">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                100%
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">Fun</p>
-            </div>
-          </div>
-        </section>
-
-        <div className="flex justify-center">
-          <div className="w-full max-w-md">
-            <ProfileCard />
-          </div>
-        </div>
-
-        <div className="flex justify-center">
-          <div className="w-full max-w-md">
-            <Leaderboard />
-          </div>
-        </div>
-
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              📊 Recent Results
-            </h2>
-
-            {recentResults.length > 0 && (
-              <div className="flex gap-2">
-                <button
-                  onClick={scrollLeft}
-                  className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                >
-                  ←
-                </button>
-
-                <button
-                  onClick={scrollRight}
-                  className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                >
-                  →
-                </button>
-              </div>
-            )}
-          </div>
-
-          {recentResults.length === 0 ? (
-            <p className="text-center text-gray-500 dark:text-gray-400">
-              No results yet
-            </p>
-          ) : (
-            <div
-              ref={scrollRef}
-              className="scrollbar-hide flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2"
-            >
-              {recentResults.map((item, index) => (
-                <Link
-                  href={`/result/${item.id || index}`}
-                  key={`${item.id}-${index}`}
-                  className="block"
-                >
-                  <div className="h-[190px] w-[320px] flex-shrink-0 snap-start rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                      {item.test}
-                    </p>
-
-                    <p className="mt-3 line-clamp-2 overflow-hidden text-2xl font-bold text-blue-600 dark:text-blue-300">
-                      {item.value}
-                    </p>
-
-                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                      {item.createdAt}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          <TestCard
-            title="Love Test"
-            link="/love-test"
-            emoji="❤️"
-            description="Check your romantic compatibility score"
-          />
-
-          <TestCard
-            title="IQ Test"
-            link="/iq-test"
-            emoji="🧠"
-            description="Measure your score with quick logic questions"
-          />
-
-          <TestCard
-            title="MBTI Test"
-            link="/mbti-test"
-            emoji="🧩"
-            description="Discover your personality type"
-          />
-
-          <TestCard
-            title="Numerology"
-            link="/numerology"
-            emoji="🔢"
-            description="Find your life path number"
-          />
-
-          <TestCard
-            title="Palm Reading"
-            link="/palm-reading"
-            emoji="✋"
-            description="Upload your palm and get a fun reading"
-          />
-          <TestCard
-            title="Personal Color AI"
-            link="/personal-color"
-            emoji="🎨"
-            description="Upload your photo and get AI recolored outfit previews"
-          />
-        </section>
+        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          {t("unlock_anytime")}
+        </p>
       </div>
-    </main>
+
+      <div className="mx-auto max-w-3xl px-6 pb-10">
+        <ProfileCard />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-6 pb-16">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+          {tests.map((test) => {
+            const isPopular = test.href === "/personal-color";
+
+            return (
+              <Link
+                key={test.name}
+                href={test.href}
+                className={isPopular ? "lg:col-span-1" : ""}
+              >
+                {isPopular ? (
+                  <div className="relative rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 p-5 shadow-lg transition hover:-translate-y-1 hover:shadow-xl">
+                    <span className="absolute right-3 top-3 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white">
+                      {t("popular")}
+                    </span>
+
+                    <h2 className="pr-20 text-3xl font-bold text-white">
+                      {test.name}
+                    </h2>
+
+                    <p className="mt-3 text-sm text-white/85">{test.desc}</p>
+
+                    <div className="mt-6 text-base font-semibold text-white">
+                      {t("start_arrow")}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:bg-gray-800">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {test.name}
+                    </h2>
+
+                    <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                      {test.desc}
+                    </p>
+
+                    <div className="mt-6 text-base font-medium text-blue-600 dark:text-blue-400">
+                      {t("start_arrow")}
+                    </div>
+                  </div>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

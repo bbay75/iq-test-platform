@@ -8,6 +8,8 @@ import {
   buildPairLoveResult,
   buildSoloLoveResult,
 } from "@/data/loveCalculator";
+import { saveTestResult } from "@/lib/saveResult";
+import { useRouter } from "next/navigation";
 
 const scaleOptions = [
   { label: "Огт санал нийлэхгүй", value: 1 },
@@ -36,6 +38,7 @@ export default function LoveTestPage() {
 
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const saved = localStorage.getItem("loveResult");
@@ -54,7 +57,7 @@ export default function LoveTestPage() {
     return buildPairLoveResult(name1, name2, answers1, answers2);
   }, [finished, mode, name1, name2, answers1, answers2]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (mode === "solo") {
       if (selected1 === null) return;
 
@@ -67,9 +70,23 @@ export default function LoveTestPage() {
       } else {
         const result = buildSoloLoveResult(name1, name2, updatedAnswers1);
         const finalText = `${result.finalScore}%`;
+
         localStorage.setItem("loveResult", finalText);
         setSavedResult(finalText);
-        setFinished(true);
+
+        try {
+          const saved = await saveTestResult({
+            test_type: "love",
+            result_json: result,
+            score: result.finalScore,
+          });
+
+          router.push(`/my-results/${saved.id}`);
+          return;
+        } catch (error) {
+          console.error("Love save error:", error);
+          setFinished(true);
+        }
       }
 
       return;
@@ -94,10 +111,25 @@ export default function LoveTestPage() {
         updatedAnswers1,
         updatedAnswers2,
       );
+
       const finalText = `${result.finalScore}%`;
+
       localStorage.setItem("loveResult", finalText);
       setSavedResult(finalText);
-      setFinished(true);
+
+      try {
+        const saved = await saveTestResult({
+          test_type: "love",
+          result_json: result,
+          score: result.finalScore,
+        });
+
+        router.push(`/my-results/${saved.id}`);
+        return;
+      } catch (error) {
+        console.error("Love save error:", error);
+        setFinished(true);
+      }
     }
   };
 
