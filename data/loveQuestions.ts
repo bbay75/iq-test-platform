@@ -7,53 +7,52 @@ export type LoveQuestion = {
 export const loveQuestions: LoveQuestion[] = [
   {
     id: 1,
-    question: "Би асуудлаа илэн далангүй ярилцах дуртай.",
+    question: "love_q_1",
     category: "communication",
   },
   {
     id: 2,
-    question: "Маргааны үед тайван байж чаддаг.",
+    question: "love_q_2",
     category: "conflict",
   },
   {
     id: 3,
-    question: "Хамтрагчдаа амархан итгэдэг.",
+    question: "love_q_3",
     category: "trust",
   },
   {
     id: 4,
-    question: "Хайраа үгээр илэрхийлэх нь надад чухал.",
+    question: "love_q_4",
     category: "emotion",
   },
   {
     id: 5,
-    question: "Ирээдүйн зорилгоо хамтдаа төлөвлөх дуртай.",
+    question: "love_q_5",
     category: "future",
   },
   {
     id: 6,
-    question: "Хувийн орон зай надад чухал.",
+    question: "love_q_6",
     category: "communication",
   },
   {
     id: 7,
-    question: "Би хамтрагчаа сэтгэл санааны хувьд дэмжихийг чухалчилдаг.",
+    question: "love_q_7",
     category: "emotion",
   },
   {
     id: 8,
-    question:
-      "Шийдвэр гаргахдаа хоёр талын бодлыг тэнцвэртэй сонсох хэрэгтэй гэж боддог.",
+    question: "love_q_8",
     category: "communication",
   },
   {
     id: 9,
-    question: "Харилцаанд үнэнч байдал хамгийн чухал зүйлсийн нэг.",
+    question: "love_q_9",
     category: "trust",
   },
   {
     id: 10,
-    question: "Урт хугацааны тогтвортой харилцаа надад чухал.",
+    question: "love_q_10",
     category: "future",
   },
 ];

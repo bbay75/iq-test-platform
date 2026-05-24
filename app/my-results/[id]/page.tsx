@@ -239,7 +239,7 @@ function getDisplayData(
   };
 }
 export default function ResultDetailPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const params = useParams();
   const id = params.id as string;
 
@@ -419,6 +419,20 @@ export default function ResultDetailPage() {
         : Math.round(result.result_json.confidence * 100)
       : 0;
   const displayData = getDisplayData(result, isUnlocked, t);
+
+  const rawResultData = result.result_json;
+
+  const resultData =
+    result.test_type === "love"
+      ? (rawResultData?.localized?.[lang] ?? rawResultData)
+      : rawResultData;
+
+  const weaknesses = resultData?.weaknesses ?? resultData?.challenges ?? [];
+
+  const recommendation = resultData?.recommendation ?? resultData?.advice ?? "";
+  const summary = resultData?.summary ?? displayData.summary ?? "";
+
+  const strengths = resultData?.strengths ?? displayData.strengths ?? [];
   return (
     <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
       {showToast && (
@@ -1068,7 +1082,7 @@ export default function ResultDetailPage() {
                     {t("summary")}
                   </h2>
                   <p className="mt-2 text-gray-700 dark:text-gray-300">
-                    {result.result_json?.summary ?? t("no_summary")}
+                    {summary || t("no_summary")}
                   </p>
                 </div>
 
@@ -1077,10 +1091,9 @@ export default function ResultDetailPage() {
                     <h3 className="font-bold text-gray-900 dark:text-white">
                       {t("strengths")}
                     </h3>
-
                     <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {result.result_json?.strengths?.length ? (
-                        result.result_json.strengths.map((item: string) => (
+                      {strengths.length ? (
+                        strengths.map((item: string) => (
                           <li key={item}>• {item}</li>
                         ))
                       ) : (
@@ -1094,8 +1107,8 @@ export default function ResultDetailPage() {
                       {t("weaknesses")}
                     </h3>
                     <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {result.result_json?.weaknesses?.length ? (
-                        result.result_json.weaknesses.map((item: string) => (
+                      {weaknesses.length ? (
+                        weaknesses.map((item: string) => (
                           <li key={item}>• {item}</li>
                         ))
                       ) : (
@@ -1110,10 +1123,61 @@ export default function ResultDetailPage() {
                     {t("recommendation")}
                   </h3>
                   <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                    {result.result_json?.recommendation ??
-                      t("no_recommendation")}
+                    {recommendation || t("no_recommendation")}
                   </p>
                 </div>
+
+                {result.test_type === "love" &&
+                  resultData?.nameCompatibilityTitle && (
+                    <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
+                      <h3 className="font-bold text-gray-900 dark:text-white">
+                        {resultData.nameCompatibilityTitle}
+                      </h3>
+
+                      <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                        {resultData.nameCompatibilitySummary}
+                      </p>
+
+                      <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                        {resultData.nameCompatibilityAdvice}
+                      </p>
+                    </div>
+                  )}
+
+                {result.test_type === "love" &&
+                  Array.isArray(resultData?.detailedSections) &&
+                  resultData.detailedSections.length > 0 && (
+                    <div className="space-y-4">
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {t("detailed_compatibility")}
+                      </h2>
+
+                      {resultData.detailedSections.map((section: any) => (
+                        <div
+                          key={section.key}
+                          className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900"
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <h3 className="font-bold text-gray-900 dark:text-white">
+                              {section.title}
+                            </h3>
+
+                            <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">
+                              {section.score}%
+                            </span>
+                          </div>
+
+                          <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                            {section.description}
+                          </p>
+
+                          <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                            {section.advice}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </div>
             )}
           </div>

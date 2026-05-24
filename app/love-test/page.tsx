@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import ResultPaywall from "@/components/ResultPaywall";
 import { loveQuestions } from "@/data/loveQuestions";
 import {
   buildPairLoveResult,
@@ -10,18 +9,19 @@ import {
 } from "@/data/loveCalculator";
 import { saveTestResult } from "@/lib/saveResult";
 import { useRouter } from "next/navigation";
-
-const scaleOptions = [
-  { label: "Огт санал нийлэхгүй", value: 1 },
-  { label: "Санал нийлэхгүй", value: 2 },
-  { label: "Дундаж", value: 3 },
-  { label: "Санал нийлнэ", value: 4 },
-  { label: "Бүрэн санал нийлнэ", value: 5 },
-];
+import { useLang } from "@/lib/LanguageProvider";
 
 type LoveMode = "solo" | "both" | null;
 
 export default function LoveTestPage() {
+  const { t } = useLang();
+  const scaleOptions = [
+    { label: t("love_scale_strongly_disagree"), value: 1 },
+    { label: t("love_scale_disagree"), value: 2 },
+    { label: t("love_scale_neutral"), value: 3 },
+    { label: t("love_scale_agree"), value: 4 },
+    { label: t("love_scale_strongly_agree"), value: 5 },
+  ];
   const [mode, setMode] = useState<LoveMode>(null);
 
   const [name1, setName1] = useState("");
@@ -153,13 +153,13 @@ export default function LoveTestPage() {
           href="/"
           className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
         >
-          ← Back to Home
+          ← {t("back_home")}
         </Link>
 
         <div className="w-full max-w-4xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <div className="rounded-3xl bg-gradient-to-br from-pink-500 via-rose-500 to-fuchsia-500 p-8 text-center text-white shadow-lg">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-pink-100">
-              Love Compatibility Result
+              {t("love_result_title")}
             </p>
 
             <h1 className="mt-4 text-3xl font-bold md:text-4xl">
@@ -168,8 +168,8 @@ export default function LoveTestPage() {
 
             <p className="mt-3 text-pink-100">
               {mode === "solo"
-                ? "Solo mode • Estimated compatibility"
-                : "Both mode • More accurate compatibility"}
+                ? t("love_solo_mode_hint")
+                : t("love_both_mode_hint")}
             </p>
 
             <div className="mt-6 inline-flex rounded-full bg-white/15 px-6 py-3 backdrop-blur">
@@ -177,114 +177,114 @@ export default function LoveTestPage() {
             </div>
           </div>
 
-          <ResultPaywall result={savedResult} testName="Love Test">
-            <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-pink-200 bg-pink-50 p-5 text-center dark:border-pink-800 dark:bg-pink-950/30">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Name Match
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-pink-600 dark:text-pink-300">
-                    {resultData.nameScore}%
-                  </p>
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Нэрний энерги дээр суурилсан
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-center dark:border-rose-800 dark:bg-rose-950/30">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {mode === "solo" ? "Estimated Match" : "Psychology Match"}
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-rose-600 dark:text-rose-300">
-                    {resultData.psychologyScore}%
-                  </p>
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    {mode === "solo"
-                      ? "Таны хариултаас тооцсон"
-                      : "Хоёр хүний хариултаас тооцсон"}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-fuchsia-200 bg-fuchsia-50 p-5 text-center dark:border-fuchsia-800 dark:bg-fuchsia-950/30">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Name Energy
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-fuchsia-600 dark:text-fuchsia-300">
-                    {resultData.reduced1} + {resultData.reduced2}
-                  </p>
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Нэрний бууруулсан тоо
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 to-rose-50 p-5 dark:border-pink-900 dark:from-gray-900 dark:to-gray-900">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Summary
-                </h2>
-                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                  {resultData.summary}
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-pink-200 bg-pink-50 p-5 text-center dark:border-pink-800 dark:bg-pink-950/30">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t("love_name_match")}
+                </p>
+                <p className="mt-3 text-3xl font-bold text-pink-600 dark:text-pink-300">
+                  {resultData.nameScore}%
+                </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {t("love_name_energy_based")}
                 </p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Strengths
-                  </h3>
-                  <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                    {resultData.strengths.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span className="font-bold text-green-600 dark:text-green-400">
-                          ✓
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Challenges
-                  </h3>
-                  <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                    {resultData.challenges.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span className="font-bold text-amber-600 dark:text-amber-400">
-                          !
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Advice
-                </h3>
-                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                  {resultData.advice}
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-center dark:border-rose-800 dark:bg-rose-950/30">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {mode === "solo"
+                    ? t("love_estimated_match")
+                    : t("love_psychology_match")}
+                </p>
+                <p className="mt-3 text-3xl font-bold text-rose-600 dark:text-rose-300">
+                  {resultData.psychologyScore}%
+                </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {mode === "solo"
+                    ? t("love_answer_based")
+                    : t("love_pair_answer_based")}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
-                {mode === "solo"
-                  ? "Ганцаараа бөглөсөн тул psychology score нь estimated result юм."
-                  : "Хоёулаа бөглөсөн тул psychology score нь илүү accurate result юм."}
+              <div className="rounded-2xl border border-fuchsia-200 bg-fuchsia-50 p-5 text-center dark:border-fuchsia-800 dark:bg-fuchsia-950/30">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t("love_name_energy")}
+                </p>
+                <p className="mt-3 text-3xl font-bold text-fuchsia-600 dark:text-fuchsia-300">
+                  {resultData.reduced1} + {resultData.reduced2}
+                </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Нэрний бууруулсан тоо
+                </p>
               </div>
             </div>
-          </ResultPaywall>
+
+            <div className="rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 to-rose-50 p-5 dark:border-pink-900 dark:from-gray-900 dark:to-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                {t("love_summary")}
+              </h2>
+              <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                {resultData.summary}
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  {t("love_strengths")}
+                </h3>
+                <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  {resultData.strengths.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="font-bold text-green-600 dark:text-green-400">
+                        ✓
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  {t("love_challenges")}
+                </h3>
+                <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  {resultData.challenges.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="font-bold text-amber-600 dark:text-amber-400">
+                        !
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                {t("love_advice")}
+              </h3>
+              <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                {resultData.advice}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
+              {mode === "solo"
+                ? t("love_solo_result_note")
+                : t("love_both_result_note")}
+            </div>
+          </div>
 
           <div className="mt-6 flex justify-center">
             <button
               onClick={resetTest}
               className="rounded-lg bg-gray-600 px-6 py-2 text-white transition hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
-              Дахин эхлэх
+              {t("love_restart")}
             </button>
           </div>
         </div>
@@ -299,17 +299,16 @@ export default function LoveTestPage() {
           href="/"
           className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
         >
-          ← Back to Home
+          ← {t("back_home")}
         </Link>
 
         <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-            Love Compatibility Test
+            {t("love_test_title")}
           </h1>
 
           <p className="mb-6 text-center text-sm text-gray-600 dark:text-gray-300">
-            Нэрний зохицол + relationship psychology дээр суурилсан үр дүн
-            гаргана.
+            {t("love_test_desc")}
           </p>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -321,10 +320,8 @@ export default function LoveTestPage() {
                   : "border-gray-300 bg-white text-gray-900 hover:bg-pink-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
               }`}
             >
-              <p className="text-lg font-bold">Ганцаараа бөглөх</p>
-              <p className="mt-2 text-sm">
-                1 хүн хариулна • Estimated compatibility
-              </p>
+              <p className="text-lg font-bold">{t("love_solo_title")}</p>
+              <p className="mt-2 text-sm">{t("love_solo_desc")}</p>
             </button>
 
             <button
@@ -335,17 +332,15 @@ export default function LoveTestPage() {
                   : "border-gray-300 bg-white text-gray-900 hover:bg-pink-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
               }`}
             >
-              <p className="text-lg font-bold">Хоёулаа бөглөх</p>
-              <p className="mt-2 text-sm">
-                2 хүн хариулна • More accurate compatibility
-              </p>
+              <p className="text-lg font-bold">{t("love_both_title")}</p>
+              <p className="mt-2 text-sm">{t("love_both_desc")}</p>
             </button>
           </div>
 
           <div className="mt-6 grid gap-4">
             <input
               type="text"
-              placeholder="Эхний хүний нэр"
+              placeholder={t("love_name1_placeholder")}
               value={name1}
               onChange={(e) => setName1(e.target.value)}
               className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
@@ -353,7 +348,7 @@ export default function LoveTestPage() {
 
             <input
               type="text"
-              placeholder="Хоёр дахь хүний нэр"
+              placeholder={t("love_name2_placeholder")}
               value={name2}
               onChange={(e) => setName2(e.target.value)}
               className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
@@ -366,7 +361,7 @@ export default function LoveTestPage() {
               }}
               className="rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-500"
             >
-              Test Start
+              {t("love_start_button")}
             </button>
           </div>
         </div>
@@ -385,7 +380,9 @@ export default function LoveTestPage() {
 
       <div className="w-full max-w-3xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-          {mode === "solo" ? "Solo Love Test" : "Love Psychology Test"}
+          {mode === "solo"
+            ? t("love_solo_page_title")
+            : t("love_both_page_title")}
         </h1>
 
         <div className="mb-6">
@@ -397,13 +394,13 @@ export default function LoveTestPage() {
           </div>
 
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            Question {index + 1} / {loveQuestions.length}
+            {t("love_question_count")} {index + 1} / {loveQuestions.length}
           </p>
         </div>
 
         <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
           <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
-            {currentQuestion.question}
+            {t(currentQuestion.question)}
           </h2>
         </div>
 
@@ -487,14 +484,14 @@ export default function LoveTestPage() {
             }
             className="rounded-xl bg-pink-500 px-8 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-pink-600 dark:hover:bg-pink-500"
           >
-            Next
+            {t("love_next")}
           </button>
         </div>
 
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
           {mode === "solo"
-            ? "Solo mode нь estimated result гаргана."
-            : "Both mode нь илүү accurate result гаргана."}
+            ? t("love_solo_result_note")
+            : t("love_both_result_note")}
         </p>
       </div>
     </div>
