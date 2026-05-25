@@ -929,152 +929,230 @@ export default function ResultDetailPage() {
                 )}
               </>
             ) : result.test_type === "numerology" ? (
-              <div className="space-y-5">
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {t("birth_reading")}
-                  </h2>
-                  <p className="mt-2 text-sm text-blue-600 dark:text-blue-300">
-                    {result.result_json?.birth?.title}
-                  </p>
-                  <p className="mt-3 text-gray-700 dark:text-gray-300">
-                    {result.result_json?.birth?.summary}
-                  </p>
-                </div>
+              (() => {
+                const data = result.result_json;
+                const scoreBandText = data?.scoreBandText;
+                const categoryScores = data?.categoryScores ?? {};
+                const detailedSections = Array.isArray(data?.detailedSections)
+                  ? data.detailedSections
+                  : [];
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {t("name_reading")}
-                  </h2>
-                  <p className="mt-2 text-sm text-blue-600 dark:text-blue-300">
-                    {result.result_json?.name?.title}
-                  </p>
-                  <p className="mt-3 text-gray-700 dark:text-gray-300">
-                    {result.result_json?.name?.summary}
-                  </p>
-                </div>
+                const categoryLabels: Record<string, string> = {
+                  identity: "Үндсэн зан чанар",
+                  expression: "Илэрхийлэл",
+                  money: "Мөнгөний энерги",
+                  relationship: "Харилцаа",
+                  direction: "Амьдралын чиглэл",
+                };
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {t("phone_number_reading")}
-                  </h2>
+                return (
+                  <div className="space-y-5">
+                    <div className="rounded-3xl border border-yellow-300 bg-gradient-to-br from-yellow-50 via-orange-50 to-white p-6 shadow-xl dark:border-yellow-500/30 dark:from-yellow-500/10 dark:via-orange-500/10 dark:to-gray-900">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-yellow-700 dark:text-yellow-300">
+                            Numerology Premium Result
+                          </p>
 
-                  <div className="mt-4 grid gap-4 md:grid-cols-3">
-                    <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {t("number")}
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-                        {result.result_json?.phone?.number ?? "-"}
-                      </p>
+                          <h2 className="mt-3 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
+                            {scoreBandText?.title ?? "Таны энергийн зураглал"}
+                          </h2>
+
+                          <p className="mt-4 text-base leading-7 text-gray-700 dark:text-gray-300">
+                            {scoreBandText?.summary ?? data?.combined?.summary}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 rounded-2xl bg-gray-900 px-5 py-4 text-center text-white shadow-lg dark:bg-white dark:text-gray-900">
+                          <p className="text-sm opacity-70">Final Score</p>
+                          <p className="mt-1 text-4xl font-black">
+                            {data?.finalScore ?? result.score ?? "-"}%
+                          </p>
+                          <p className="mt-1 text-xs font-semibold uppercase">
+                            {data?.scoreBand ?? "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 grid gap-3 md:grid-cols-3">
+                        <div className="rounded-2xl bg-white/80 p-4 dark:bg-gray-950/60">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Төрсөн огнооны энерги
+                          </p>
+                          <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                            {data?.birth?.number ?? "-"} ·{" "}
+                            {data?.birth?.title ?? "-"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-white/80 p-4 dark:bg-gray-950/60">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Нэрний энерги
+                          </p>
+                          <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                            {data?.name?.number ?? "-"} ·{" "}
+                            {data?.name?.title ?? "-"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-white/80 p-4 dark:bg-gray-950/60">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Утасны энерги
+                          </p>
+                          <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                            {data?.phone?.number ?? "-"} ·{" "}
+                            {data?.phone?.moneyEnergy ?? "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {scoreBandText && (
+                        <div className="mt-6 space-y-3">
+                          <div className="rounded-2xl bg-green-500/10 p-4">
+                            <p className="text-sm font-bold text-green-700 dark:text-green-300">
+                              ✔ Таны хүчтэй тал
+                            </p>
+                            <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
+                              {scoreBandText.strengthMessage}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-red-500/10 p-4">
+                            <p className="text-sm font-bold text-red-700 dark:text-red-300">
+                              ⚠ Анхаарах зүйл
+                            </p>
+                            <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
+                              {scoreBandText.watchOut}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-blue-500/10 p-4">
+                            <p className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                              💡 Зөөлөн зөвлөгөө
+                            </p>
+                            <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
+                              {scoreBandText.advice}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl border border-yellow-300/60 bg-yellow-100/60 p-4 dark:border-yellow-500/30 dark:bg-yellow-500/10">
+                            <p className="text-sm font-bold text-yellow-800 dark:text-yellow-300">
+                              ✨ Эмээгийн үг
+                            </p>
+                            <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
+                              {scoreBandText.grandmaNote}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {t("match")}
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-                        {result.result_json?.phone?.matchScore ?? "-"}%
-                      </p>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Гол үзүүлэлтүүд
+                      </h2>
+
+                      <div className="mt-5 space-y-4">
+                        {Object.entries(categoryScores).map(([key, value]) => {
+                          const score = typeof value === "number" ? value : 0;
+
+                          return (
+                            <div key={key}>
+                              <div className="flex items-center justify-between gap-4">
+                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  {categoryLabels[key] ?? key}
+                                </p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                  {score}%
+                                </p>
+                              </div>
+
+                              <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                                <div
+                                  className="h-full rounded-full bg-yellow-500"
+                                  style={{
+                                    width: `${Math.max(0, Math.min(100, score))}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {t("money_energy")}
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-                        {result.result_json?.phone?.moneyEnergy ?? "-"}
-                      </p>
-                    </div>
+                    {detailedSections.length > 0 && (
+                      <div className="space-y-4">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                          Дэлгэрэнгүй тайлбар
+                        </h2>
+
+                        <div className="space-y-3">
+                          {detailedSections.map(
+                            (section: any, index: number) => (
+                              <details
+                                key={section.key}
+                                open={index === 0}
+                                className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+                              >
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+                                  <div>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300">
+                                      {index === 0
+                                        ? "Үндсэн энерги"
+                                        : index === 1
+                                          ? "Нэрний өнгө"
+                                          : index === 2
+                                            ? "Утасны зохицол"
+                                            : "Нэгдсэн зураглал"}
+                                    </p>
+                                    <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                                      {section.title}
+                                    </h3>
+                                  </div>
+
+                                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 group-open:hidden dark:bg-gray-800 dark:text-gray-300">
+                                    Нээх
+                                  </span>
+
+                                  <span className="hidden rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800 group-open:inline dark:bg-yellow-500/20 dark:text-yellow-300">
+                                    Хаах
+                                  </span>
+                                </summary>
+
+                                <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+                                  <p className="leading-7 text-gray-700 dark:text-gray-300">
+                                    {section.summary}
+                                  </p>
+
+                                  {Array.isArray(section.points) &&
+                                    section.points.length > 0 && (
+                                      <div className="mt-4 space-y-3">
+                                        {section.points.map(
+                                          (
+                                            point: string,
+                                            pointIndex: number,
+                                          ) => (
+                                            <p
+                                              key={`${section.key}-${pointIndex}`}
+                                              className="rounded-xl bg-gray-50 p-4 text-sm leading-6 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                            >
+                                              {point}
+                                            </p>
+                                          ),
+                                        )}
+                                      </div>
+                                    )}
+                                </div>
+                              </details>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  <p className="mt-4 text-gray-700 dark:text-gray-300">
-                    {result.result_json?.phone?.summary}
-                  </p>
-
-                  <p className="mt-4 text-sm text-blue-600 dark:text-blue-300">
-                    {t("suitability")}:{" "}
-                    {result.result_json?.phone?.suitability ?? "-"}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-yellow-300 bg-gradient-to-br from-yellow-50 to-orange-50 p-6 shadow-xl dark:border-yellow-500/30 dark:from-yellow-500/10 dark:to-orange-500/10">
-                  <h2 className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
-                    ⭐ {t("energy_blueprint_title")}
-                  </h2>
-
-                  <p className="mt-2 text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-                    {result.result_json?.combined?.title}
-                  </p>
-
-                  <p className="mt-4 text-gray-800 dark:text-gray-200 text-base leading-relaxed">
-                    {result.result_json?.combined?.summary}
-                  </p>
-
-                  {/* 🔥 Key Traits */}
-                  <div className="mt-6 grid gap-4 md:grid-cols-3">
-                    <div className="rounded-xl bg-white/60 p-4 dark:bg-gray-900">
-                      <p className="text-xs text-gray-500">
-                        {t("core_personality_label")}
-                      </p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-                        {result.result_json?.combined?.personality ??
-                          t("strong_independent")}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-white/60 p-4 dark:bg-gray-900">
-                      <p className="text-xs text-gray-500">
-                        {t("money_energy_label")}
-                      </p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-                        {result.result_json?.phone?.moneyEnergy ?? t("stable")}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-white/60 p-4 dark:bg-gray-900">
-                      <p className="text-xs text-gray-500">
-                        {t("life_direction_label")}
-                      </p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-                        {result.result_json?.combined?.direction ??
-                          t("growth_leadership")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* 🔥 Strength Highlight */}
-                  <div className="mt-6 rounded-xl bg-green-500/10 p-4">
-                    <p className="text-sm font-semibold text-green-600">
-                      ✔ {t("your_strength_label")}
-                    </p>
-                    <p className="mt-2 text-gray-800 dark:text-gray-200">
-                      {result.result_json?.combined?.strength ??
-                        t("natural_success")}
-                    </p>
-                  </div>
-
-                  {/* 🔥 Warning */}
-                  <div className="mt-4 rounded-xl bg-red-500/10 p-4">
-                    <p className="text-sm font-semibold text-red-600">
-                      ⚠ {t("watch_out_label")}
-                    </p>
-                    <p className="mt-2 text-gray-800 dark:text-gray-200">
-                      {result.result_json?.combined?.warning ??
-                        t("avoid_overthinking")}
-                    </p>
-                  </div>
-
-                  {/* 🔥 Advice */}
-                  <div className="mt-6 rounded-xl bg-blue-500/10 p-4">
-                    <p className="text-sm font-semibold text-blue-600">
-                      💡 {t("your_advice_label")}
-                    </p>
-                    <p className="mt-2 text-gray-800 dark:text-gray-200">
-                      {result.result_json?.combined?.advice}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                );
+              })()
             ) : (
               <div className="space-y-5">
                 <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">

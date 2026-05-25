@@ -508,6 +508,24 @@ export const translations = {
     love_q_9: "Loyalty is one of the most important parts of a relationship.",
     love_q_10: "A stable long-term relationship is important to me.",
     detailed_compatibility: "Detailed compatibility",
+
+    numerology_title:
+      "What do your name, birthday, and phone number say about you?",
+    numerology_subtitle:
+      "View your core energy, name influence, phone number alignment, and money tendency with a soft detailed reading.",
+    full_name: "Your name",
+    full_name_placeholder: "Example: Bat-Erdene",
+    birth_date: "Birth date",
+    phone_number: "Phone number",
+    phone_placeholder: "Example: 99112233",
+    analyzing: "Analyzing...",
+    analyze_numerology: "View my numerology result",
+    numerology_what_you_get: "What you will get",
+    birth_number_reading: "Birth number reading",
+    name_energy_reading: "Name energy reading",
+    phone_compatibility: "Phone number compatibility",
+
+    final_insight: "Final combined insight",
   },
 
   mn: {
@@ -1009,6 +1027,23 @@ export const translations = {
     love_q_9: "Харилцаанд үнэнч байдал хамгийн чухал зүйлсийн нэг.",
     love_q_10: "Урт хугацааны тогтвортой харилцаа надад чухал.",
     detailed_compatibility: "Дэлгэрэнгүй тохироо",
+    numerology_title: "Таны нэр, төрсөн өдөр, утасны дугаар юу хэлж байна вэ?",
+    numerology_subtitle:
+      "Өөрийн үндсэн энерги, нэрний нөлөө, утасны дугаарын зохицол болон санхүүгийн хандлагаа зөөлөн, дэлгэрэнгүй тайлбараар үзээрэй.",
+    full_name: "Таны нэр",
+    full_name_placeholder: "Жишээ: Бат-Эрдэнэ",
+    birth_date: "Төрсөн он сар өдөр",
+    phone_number: "Утасны дугаар",
+    phone_placeholder: "Жишээ: 99112233",
+    analyzing: "Тооцож байна...",
+    analyze_numerology: "Тоон зурхайн үр дүнг харах",
+
+    numerology_what_you_get: "Таны үр дүнд юу багтах вэ?",
+    birth_number_reading: "Төрсөн өдрийн энерги",
+    name_energy_reading: "Нэрний энергийн тайлбар",
+    phone_compatibility: "Утасны дугаарын зохицол",
+
+    final_insight: "Нэгдсэн дүгнэлт",
   },
 } as const;
 
