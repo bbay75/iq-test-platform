@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +10,8 @@ export async function GET(req: NextRequest) {
     if (!id) {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
+
+    const { supabaseAdmin } = await import("@/lib/supabaseAdmin");
 
     const { data, error } = await supabaseAdmin
       .from("test_results")

@@ -118,10 +118,7 @@ export default function PalmReadingPage() {
               )}
             </div>
 
-            <ResultPaywall
-              result="Detailed Palm Reading"
-              testName="Palm Reading"
-            >
+            <div className="mt-6">
               <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-900 dark:bg-indigo-950/20">
@@ -257,7 +254,7 @@ export default function PalmReadingPage() {
                   Энэ нь entertainment зориулалттай AI-style palm reading юм.
                 </div>
               </div>
-            </ResultPaywall>
+            </div>
           </div>
 
           <div className="mt-6 flex justify-center">

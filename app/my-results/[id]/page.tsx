@@ -697,14 +697,9 @@ export default function ResultDetailPage() {
                         setIsUnlocked(true);
                         setResult(data as TestResult);
                       } else {
-                        const data = await unlockResult(result.id, "paid_demo");
+                        const data = await unlockResult(result.id);
                         setIsUnlocked(true);
                         setResult(data.result);
-
-                        if (data.profile) {
-                          setProfileCredits(data.profile.free_credits ?? 0);
-                          setProfileProgress(data.profile.reward_progress ?? 0);
-                        }
                       }
                     } finally {
                       setUnlocking(false);
@@ -731,16 +726,9 @@ export default function ResultDetailPage() {
                         try {
                           setUnlocking(true);
 
-                          const data = await unlockResult(result.id, "credit");
+                          const data = await unlockResult(result.id);
                           setIsUnlocked(true);
                           setResult(data.result);
-
-                          if (data.profile) {
-                            setProfileCredits(data.profile.free_credits ?? 0);
-                            setProfileProgress(
-                              data.profile.reward_progress ?? 0,
-                            );
-                          }
 
                           setToast(t("free_credit_used"));
                           setShowToast(true);

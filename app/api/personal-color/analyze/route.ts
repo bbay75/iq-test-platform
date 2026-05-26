@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        {
+          error: "OPENAI_API_KEY missing",
+        },
+        { status: 500 },
+      );
+    }
+
     const body = await req.json();
     const { imageUrl, resultId } = body;
 
@@ -18,7 +31,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
@@ -136,6 +149,8 @@ Use exactly this schema:
       typeof normalizedConfidence === "number"
         ? Math.round(normalizedConfidence * 100)
         : null;
+
+    const { supabaseAdmin } = await import("@/lib/supabaseAdmin");
 
     const { error: updateError } = await supabaseAdmin
       .from("test_results")
