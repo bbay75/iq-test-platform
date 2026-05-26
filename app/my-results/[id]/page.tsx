@@ -919,13 +919,28 @@ export default function ResultDetailPage() {
             ) : result.test_type === "numerology" ? (
               (() => {
                 const data = result.result_json;
-                const localizedNumerology =
-                  data?.localized?.[lang] ?? data?.localized?.mn;
-                const scoreBandText = data?.scoreBandText;
+
+                const activeNumerology =
+                  data?.localized?.[lang] ?? data?.localized?.mn ?? data;
+
+                const scoreBandText =
+                  activeNumerology?.scoreBandText ?? data?.scoreBandText;
+
                 const categoryScores = data?.categoryScores ?? {};
-                const detailedSections = Array.isArray(data?.detailedSections)
-                  ? data.detailedSections
-                  : [];
+
+                const detailedSections = Array.isArray(
+                  activeNumerology?.detailedSections,
+                )
+                  ? activeNumerology.detailedSections
+                  : Array.isArray(data?.detailedSections)
+                    ? data.detailedSections
+                    : [];
+
+                const birthData = activeNumerology?.birth ?? data?.birth;
+                const nameData = activeNumerology?.name ?? data?.name;
+                const phoneData = activeNumerology?.phone ?? data?.phone;
+                const combinedData =
+                  activeNumerology?.combined ?? data?.combined;
 
                 const categoryLabels: Record<string, string> = {
                   identity: t("category_identity"),
@@ -945,17 +960,12 @@ export default function ResultDetailPage() {
                           </p>
 
                           <h2 className="mt-3 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
-                            {lang === "en"
-                              ? localizedNumerology?.resultTitle
-                              : (scoreBandText?.title ??
-                                t("numerology_energy_blueprint"))}
+                            {scoreBandText?.title ??
+                              t("numerology_energy_blueprint")}
                           </h2>
 
                           <p className="mt-4 text-base leading-7 text-gray-700 dark:text-gray-300">
-                            {lang === "en"
-                              ? localizedNumerology?.scoreMeaning
-                              : (scoreBandText?.summary ??
-                                data?.combined?.summary)}
+                            {scoreBandText?.summary ?? combinedData?.summary}
                           </p>
                         </div>
 
@@ -978,8 +988,8 @@ export default function ResultDetailPage() {
                             {t("numerology_birth_energy")}
                           </p>
                           <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
-                            {data?.birth?.number ?? "-"} ·{" "}
-                            {data?.birth?.title ?? "-"}
+                            {birthData?.number ?? "-"} ·{" "}
+                            {birthData?.title ?? "-"}
                           </p>
                         </div>
 
@@ -988,8 +998,7 @@ export default function ResultDetailPage() {
                             {t("numerology_name_energy")}
                           </p>
                           <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
-                            {data?.name?.number ?? "-"} ·{" "}
-                            {data?.name?.title ?? "-"}
+                            {nameData?.number ?? "-"} · {nameData?.title ?? "-"}
                           </p>
                         </div>
 
@@ -998,8 +1007,8 @@ export default function ResultDetailPage() {
                             {t("numerology_phone_energy")}
                           </p>
                           <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
-                            {data?.phone?.number ?? "-"} ·{" "}
-                            {data?.phone?.moneyEnergy ?? "-"}
+                            {phoneData?.number ?? "-"} ·{" "}
+                            {phoneData?.moneyEnergy ?? "-"}
                           </p>
                         </div>
                       </div>
@@ -1029,9 +1038,7 @@ export default function ResultDetailPage() {
                               💡 {t("numerology_soft_advice")}
                             </p>
                             <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
-                              {lang === "en"
-                                ? localizedNumerology?.finalAdvice
-                                : scoreBandText.advice}
+                              {scoreBandText.advice}
                             </p>
                           </div>
 
