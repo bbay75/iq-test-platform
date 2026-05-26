@@ -561,6 +561,9 @@ export const translations = {
     category_money: "Money energy",
     category_relationship: "Relationship",
     category_direction: "Life direction",
+    premium_content: "Premium Content",
+    unlock_to_view_full_premium_result:
+      "Unlock to view the full premium result",
   },
 
   mn: {
@@ -1113,6 +1116,9 @@ export const translations = {
     category_money: "Мөнгөний энерги",
     category_relationship: "Харилцаа",
     category_direction: "Амьдралын чиглэл",
+    premium_content: "Таны бүрэн тайлбар",
+    unlock_to_view_full_premium_result:
+      "Дэлгэрэнгүй тайлбар, зөвлөмжөө бүрэн харахын тулд үр дүнгээ нээнэ үү",
   },
 } as const;
 
