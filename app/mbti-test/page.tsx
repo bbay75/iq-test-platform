@@ -136,70 +136,68 @@ export default function MBTITest() {
             <p className="mt-3 text-lg text-indigo-100">{profile?.name}</p>
           </div>
 
-          <ResultPaywall result={savedResult} testName="MBTI Test">
-            <div className="mt-6 space-y-6">
-              <div className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 p-5 dark:border-indigo-900 dark:from-gray-900 dark:to-gray-900">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Summary
-                </h2>
-                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                  {profile?.summary}
-                </p>
-              </div>
+          <div className="mt-6 space-y-6">
+            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 p-5 dark:border-indigo-900 dark:from-gray-900 dark:to-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                Summary
+              </h2>
+              <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                {profile?.summary}
+              </p>
+            </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Strengths
-                  </h3>
-                  <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                    {profile?.strengths.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span className="font-bold text-green-600 dark:text-green-400">
-                          ✓
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Weaknesses
-                  </h3>
-                  <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                    {profile?.weaknesses.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span className="font-bold text-amber-600 dark:text-amber-400">
-                          !
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Career Fit
+                  Strengths
                 </h3>
-                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                  {profile?.careers.join(", ")}
-                </p>
+                <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  {profile?.strengths.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="font-bold text-green-600 dark:text-green-400">
+                        ✓
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900 dark:bg-purple-950/20">
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Relationship Style
+                  Weaknesses
                 </h3>
-                <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                  {profile?.relationships}
-                </p>
+                <ul className="mt-3 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  {profile?.weaknesses.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="font-bold text-amber-600 dark:text-amber-400">
+                        !
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          </ResultPaywall>
+
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                Career Fit
+              </h3>
+              <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                {profile?.careers.join(", ")}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900 dark:bg-purple-950/20">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                Relationship Style
+              </h3>
+              <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                {profile?.relationships}
+              </p>
+            </div>
+          </div>
 
           <div className="mt-6 flex justify-center">
             <button

@@ -430,9 +430,9 @@ export default function ResultDetailPage() {
   const weaknesses = resultData?.weaknesses ?? resultData?.challenges ?? [];
 
   const recommendation = resultData?.recommendation ?? resultData?.advice ?? "";
-  const summary = resultData?.summary ?? displayData.summary ?? "";
+  const summary = resultData?.summary ?? "";
 
-  const strengths = resultData?.strengths ?? displayData.strengths ?? [];
+  const strengths = resultData?.strengths ?? [];
   return (
     <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
       {showToast && (
@@ -931,6 +931,8 @@ export default function ResultDetailPage() {
             ) : result.test_type === "numerology" ? (
               (() => {
                 const data = result.result_json;
+                const localizedNumerology =
+                  data?.localized?.[lang] ?? data?.localized?.mn;
                 const scoreBandText = data?.scoreBandText;
                 const categoryScores = data?.categoryScores ?? {};
                 const detailedSections = Array.isArray(data?.detailedSections)
@@ -955,12 +957,17 @@ export default function ResultDetailPage() {
                           </p>
 
                           <h2 className="mt-3 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
-                            {scoreBandText?.title ??
-                              t("numerology_energy_blueprint")}
+                            {lang === "en"
+                              ? localizedNumerology?.resultTitle
+                              : (scoreBandText?.title ??
+                                t("numerology_energy_blueprint"))}
                           </h2>
 
                           <p className="mt-4 text-base leading-7 text-gray-700 dark:text-gray-300">
-                            {scoreBandText?.summary ?? data?.combined?.summary}
+                            {lang === "en"
+                              ? localizedNumerology?.scoreMeaning
+                              : (scoreBandText?.summary ??
+                                data?.combined?.summary)}
                           </p>
                         </div>
 
@@ -1034,7 +1041,9 @@ export default function ResultDetailPage() {
                               💡 {t("numerology_soft_advice")}
                             </p>
                             <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
-                              {scoreBandText.advice}
+                              {lang === "en"
+                                ? localizedNumerology?.finalAdvice
+                                : scoreBandText.advice}
                             </p>
                           </div>
 
