@@ -90,13 +90,21 @@ export default function NumerologyPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { key: "year", label: "Он", value: birthDate.split("-")[0] },
+                  {
+                    key: "year",
+                    label: t("date_year"),
+                    value: birthDate.split("-")[0],
+                  },
                   {
                     key: "month",
-                    label: "Сар",
+                    label: t("date_month"),
                     value: birthDate.split("-")[1],
                   },
-                  { key: "day", label: "Өдөр", value: birthDate.split("-")[2] },
+                  {
+                    key: "day",
+                    label: t("date_day"),
+                    value: birthDate.split("-")[2],
+                  },
                 ].map((item) => (
                   <button
                     key={item.key}
@@ -111,12 +119,12 @@ export default function NumerologyPage() {
                     </span>
                     <span className="mt-1 block text-lg font-bold">
                       {item.key === "year" && item.value
-                        ? `${item.value} он`
+                        ? `${item.value} ${t("date_year_suffix")}`
                         : item.key === "month" && item.value
-                          ? `${Number(item.value)} сар`
+                          ? `${Number(item.value)} ${t("date_month_suffix")}`
                           : item.key === "day" && item.value
-                            ? `${Number(item.value)} өдөр`
-                            : "Сонгох"}
+                            ? `${Number(item.value)} ${t("date_day_suffix")}`
+                            : t("date_select")}
                     </span>
                   </button>
                 ))}
@@ -134,10 +142,10 @@ export default function NumerologyPage() {
                     <div className="mb-4 flex items-center justify-between">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                         {datePicker === "year"
-                          ? "Он сонгох"
+                          ? t("pick_year")
                           : datePicker === "month"
-                            ? "Сар сонгох"
-                            : "Өдөр сонгох"}
+                            ? t("pick_month")
+                            : t("pick_day")}
                       </h3>
 
                       <button
@@ -145,7 +153,7 @@ export default function NumerologyPage() {
                         onClick={() => setDatePicker(null)}
                         className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                       >
-                        Хаах
+                        {t("close")}
                       </button>
                     </div>
 
@@ -226,7 +234,7 @@ export default function NumerologyPage() {
               )}
 
               <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Жишээ: 1996 он / 12 сар / 18 өдөр
+                {t("date_example")}
               </p>
             </div>
             <div>
@@ -235,8 +243,15 @@ export default function NumerologyPage() {
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                maxLength={8}
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 8);
+                  setPhoneNumber(onlyDigits);
+                }}
                 placeholder={t("phone_placeholder")}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
               />

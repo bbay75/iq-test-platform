@@ -938,11 +938,11 @@ export default function ResultDetailPage() {
                   : [];
 
                 const categoryLabels: Record<string, string> = {
-                  identity: "Үндсэн зан чанар",
-                  expression: "Илэрхийлэл",
-                  money: "Мөнгөний энерги",
-                  relationship: "Харилцаа",
-                  direction: "Амьдралын чиглэл",
+                  identity: t("category_identity"),
+                  expression: t("category_expression"),
+                  money: t("category_money"),
+                  relationship: t("category_relationship"),
+                  direction: t("category_direction"),
                 };
 
                 return (
@@ -951,11 +951,12 @@ export default function ResultDetailPage() {
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
                           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-yellow-700 dark:text-yellow-300">
-                            Numerology Premium Result
+                            {t("numerology_premium_result")}
                           </p>
 
                           <h2 className="mt-3 text-3xl font-bold leading-tight text-gray-900 dark:text-white">
-                            {scoreBandText?.title ?? "Таны энергийн зураглал"}
+                            {scoreBandText?.title ??
+                              t("numerology_energy_blueprint")}
                           </h2>
 
                           <p className="mt-4 text-base leading-7 text-gray-700 dark:text-gray-300">
@@ -964,7 +965,9 @@ export default function ResultDetailPage() {
                         </div>
 
                         <div className="shrink-0 rounded-2xl bg-gray-900 px-5 py-4 text-center text-white shadow-lg dark:bg-white dark:text-gray-900">
-                          <p className="text-sm opacity-70">Final Score</p>
+                          <p className="text-sm opacity-70">
+                            {t("numerology_final_score")}
+                          </p>
                           <p className="mt-1 text-4xl font-black">
                             {data?.finalScore ?? result.score ?? "-"}%
                           </p>
@@ -977,7 +980,7 @@ export default function ResultDetailPage() {
                       <div className="mt-6 grid gap-3 md:grid-cols-3">
                         <div className="rounded-2xl bg-white/80 p-4 dark:bg-gray-950/60">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Төрсөн огнооны энерги
+                            {t("numerology_birth_energy")}
                           </p>
                           <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                             {data?.birth?.number ?? "-"} ·{" "}
@@ -987,7 +990,7 @@ export default function ResultDetailPage() {
 
                         <div className="rounded-2xl bg-white/80 p-4 dark:bg-gray-950/60">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Нэрний энерги
+                            {t("numerology_name_energy")}
                           </p>
                           <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                             {data?.name?.number ?? "-"} ·{" "}
@@ -997,7 +1000,7 @@ export default function ResultDetailPage() {
 
                         <div className="rounded-2xl bg-white/80 p-4 dark:bg-gray-950/60">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Утасны энерги
+                            {t("numerology_phone_energy")}
                           </p>
                           <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                             {data?.phone?.number ?? "-"} ·{" "}
@@ -1010,7 +1013,7 @@ export default function ResultDetailPage() {
                         <div className="mt-6 space-y-3">
                           <div className="rounded-2xl bg-green-500/10 p-4">
                             <p className="text-sm font-bold text-green-700 dark:text-green-300">
-                              ✔ Таны хүчтэй тал
+                              ✔ {t("numerology_your_strength")}
                             </p>
                             <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
                               {scoreBandText.strengthMessage}
@@ -1019,7 +1022,7 @@ export default function ResultDetailPage() {
 
                           <div className="rounded-2xl bg-red-500/10 p-4">
                             <p className="text-sm font-bold text-red-700 dark:text-red-300">
-                              ⚠ Анхаарах зүйл
+                              ⚠ {t("numerology_watch_out")}
                             </p>
                             <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
                               {scoreBandText.watchOut}
@@ -1028,7 +1031,7 @@ export default function ResultDetailPage() {
 
                           <div className="rounded-2xl bg-blue-500/10 p-4">
                             <p className="text-sm font-bold text-blue-700 dark:text-blue-300">
-                              💡 Зөөлөн зөвлөгөө
+                              💡 {t("numerology_soft_advice")}
                             </p>
                             <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
                               {scoreBandText.advice}
@@ -1037,7 +1040,7 @@ export default function ResultDetailPage() {
 
                           <div className="rounded-2xl border border-yellow-300/60 bg-yellow-100/60 p-4 dark:border-yellow-500/30 dark:bg-yellow-500/10">
                             <p className="text-sm font-bold text-yellow-800 dark:text-yellow-300">
-                              ✨ Эмээгийн үг
+                              ✨ {t("numerology_grandma_note")}
                             </p>
                             <p className="mt-2 leading-7 text-gray-800 dark:text-gray-200">
                               {scoreBandText.grandmaNote}
@@ -1049,7 +1052,7 @@ export default function ResultDetailPage() {
 
                     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
                       <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        Гол үзүүлэлтүүд
+                        {t("numerology_key_scores")}
                       </h2>
 
                       <div className="mt-5 space-y-4">
@@ -1084,7 +1087,7 @@ export default function ResultDetailPage() {
                     {detailedSections.length > 0 && (
                       <div className="space-y-4">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                          Дэлгэрэнгүй тайлбар
+                          {t("numerology_detailed_reading")}
                         </h2>
 
                         <div className="space-y-3">
@@ -1099,12 +1102,12 @@ export default function ResultDetailPage() {
                                   <div>
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300">
                                       {index === 0
-                                        ? "Үндсэн энерги"
+                                        ? t("numerology_section_core")
                                         : index === 1
-                                          ? "Нэрний өнгө"
+                                          ? t("numerology_section_name")
                                           : index === 2
-                                            ? "Утасны зохицол"
-                                            : "Нэгдсэн зураглал"}
+                                            ? t("numerology_section_phone")
+                                            : t("numerology_section_combined")}
                                     </p>
                                     <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                                       {section.title}
@@ -1112,11 +1115,11 @@ export default function ResultDetailPage() {
                                   </div>
 
                                   <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 group-open:hidden dark:bg-gray-800 dark:text-gray-300">
-                                    Нээх
+                                    {t("open")}
                                   </span>
 
                                   <span className="hidden rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800 group-open:inline dark:bg-yellow-500/20 dark:text-yellow-300">
-                                    Хаах
+                                    {t("close")}
                                   </span>
                                 </summary>
 
