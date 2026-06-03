@@ -1,5 +1,3 @@
-import { supabase } from "@/lib/supabase";
-
 type SaveResultInput = {
   test_type: string;
   result_json: any;
@@ -29,34 +27,35 @@ export async function saveTestResult({
   is_unlocked = false,
   image_url = null,
 }: SaveResultInput) {
-  let userId: string | null = null;
-
-  // Login байхгүй үед crash хийхгүй
-  const { data, error: userError } = await supabase.auth.getUser();
-
-  if (!userError && data?.user) {
-    userId = data.user.id;
-  }
-
   const deviceId = getDeviceId();
 
-  const { data: inserted, error } = await supabase
-    .from("test_results")
-    .insert({
-      user_id: userId,
-      device_id: deviceId,
+  const res = await fetch("/api/save-result", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
       test_type,
       result_json,
       score,
       is_unlocked,
       image_url,
-    })
-    .select()
-    .single();
+      device_id: deviceId,
+      user_id: null,
+    }),
+  });
 
-  if (error) {
-    throw new Error(error.message);
+  let data: any = null;
+
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
   }
 
-  return inserted;
+  if (!res.ok) {
+    throw new Error(data?.error || `Save failed: ${res.status}`);
+  }
+
+  return data;
 }
