@@ -7,7 +7,7 @@ import { mbtiQuestions, MbtiDimension } from "@/data/mbtiQuestions";
 import { mbtiProfiles } from "@/data/mbtiProfiles";
 import { saveTestResult } from "@/lib/saveResult";
 import { useRouter } from "next/navigation";
-
+import { getLocalizedMbtiProfile } from "@/data/mbtiLocalizedProfiles";
 const scaleOptions = [
   { label: "Огт санал нийлэхгүй", value: -2 },
   { label: "Санал нийлэхгүй", value: -1 },
@@ -77,8 +77,8 @@ export default function MBTITest() {
           updatedScores.T >= updatedScores.F ? "T" : "F",
           updatedScores.J >= updatedScores.P ? "J" : "P",
         ].join("");
-
         const profile = mbtiProfiles[personality];
+        const localized = getLocalizedMbtiProfile(personality);
 
         localStorage.setItem("mbtiResult", personality);
         setSavedResult(personality);
@@ -88,12 +88,27 @@ export default function MBTITest() {
             test_type: "mbti",
             result_json: {
               type: personality,
-              name: profile?.name ?? personality,
-              summary: profile?.summary ?? "",
-              strengths: profile?.strengths ?? [],
-              weaknesses: profile?.weaknesses ?? [],
-              careers: profile?.careers ?? [],
-              relationships: profile?.relationships ?? "",
+              label: personality,
+
+              name: localized.mn.name,
+              summary: localized.mn.summary,
+              strengths: localized.mn.strengths,
+              weaknesses: localized.mn.weaknesses,
+              careers: localized.mn.careers,
+              relationships: localized.mn.relationships,
+
+              localized: {
+                mn: {
+                  type: personality,
+                  label: personality,
+                  ...localized.mn,
+                },
+                en: {
+                  type: personality,
+                  label: personality,
+                  ...localized.en,
+                },
+              },
             },
             score: null,
           });

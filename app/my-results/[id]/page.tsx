@@ -423,10 +423,11 @@ export default function ResultDetailPage() {
   const rawResultData = result.result_json;
 
   const resultData =
-    result.test_type === "love"
-      ? (rawResultData?.localized?.[lang] ?? rawResultData)
+    result.test_type === "love" || result.test_type === "mbti"
+      ? (rawResultData?.localized?.[lang] ??
+        rawResultData?.localized?.mn ??
+        rawResultData)
       : rawResultData;
-
   const weaknesses = resultData?.weaknesses ?? resultData?.challenges ?? [];
 
   const recommendation = resultData?.recommendation ?? resultData?.advice ?? "";
