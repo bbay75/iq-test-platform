@@ -1,5 +1,18 @@
 import { mbtiProfiles, type MbtiProfile } from "@/data/mbtiProfiles";
-
+export type MbtiPremiumProfile = {
+  type: string;
+  name: string;
+  summary: string;
+  personality: string;
+  strengths: string[];
+  weaknesses: string[];
+  careers: string[];
+  careerAdvice: string;
+  relationships: string;
+  relationshipAdvice: string;
+  growthAdvice: string;
+  finalAdvice: string;
+};
 export const mbtiEnglishProfiles: Record<string, MbtiProfile> = {
   INTJ: {
     name: "Architect",
@@ -202,9 +215,94 @@ export const mbtiEnglishProfiles: Record<string, MbtiProfile> = {
   },
 };
 
-export function getLocalizedMbtiProfile(type: string) {
-  const mn = mbtiProfiles[type] ?? mbtiProfiles.INTJ;
-  const en = mbtiEnglishProfiles[type] ?? mbtiEnglishProfiles.INTJ;
+function buildMnPremiumProfile(
+  type: string,
+  base: (typeof mbtiProfiles)[string],
+): MbtiPremiumProfile {
+  return {
+    type,
+    name: base.name,
+    summary: base.summary,
 
-  return { mn, en };
+    personality:
+      `${type} төрлийн хүн нь өдөр тутмын шийдвэр, харилцаа, ажиллах арга барилдаа тодорхой хэв маягтай байдаг. ` +
+      `Таны хувьд гол онцлог нь ${base.summary} Энэ нь таныг бусдаас илүү сайн эсвэл муу гэсэн үг биш, харин өөрийн давуу тал, сул талаа илүү бодитоор харахад тусална.`,
+
+    strengths: base.strengths,
+
+    weaknesses: base.weaknesses,
+
+    careers: base.careers,
+
+    careerAdvice:
+      `${base.careers.join(", ")} зэрэг чиглэл танд илүү тохиромжтой байж болно. ` +
+      `Гэхдээ зөвхөн мэргэжлийн нэрээр хязгаарлах хэрэггүй. Танд тохирох ажил нь таны сэтгэх арга, шийдвэр гаргах хэв маяг, энерги авах орчинтой нийцэж байх нь чухал. ` +
+      `Хэрвээ ажил тань таны төрөлхийн хэв маягийг байнга эсэргүүцэж байвал хурдан ядрах, сонирхол буурах магадлалтай.`,
+
+    relationships: base.relationships,
+
+    relationshipAdvice:
+      `${base.relationships} Харилцаанд таны анхаарах зүйл бол өөрийн хэрэгцээг нуухгүй, нөгөө хүний хүлээлтийг таамгаар дүгнэхгүй байх юм. ` +
+      `Өөрийн харилцах хэв маягаа ойлгосноор та бусдад илүү тодорхой, тайван, үнэнчээр ойлгогдоно.`,
+
+    growthAdvice:
+      `Таны өсөх гол чиглэл бол давуу талаа хэтрүүлэхгүй ашиглах. Давуу тал хэтэрвэл сул тал болж хувирдаг. ` +
+      `Жишээ нь таны хүчтэй тал ${base.strengths.join(", ")} байж болох ч үүнийг хэт нэг тийш нь түлхвэл ${base.weaknesses.join(", ")} гэх асуудал илэрч болно. ` +
+      `Тиймээс өөрийгөө өөрчлөхөөс илүү өөрийгөө зөв удирдах нь чухал.`,
+
+    finalAdvice:
+      `Энэ үр дүнг өөрийгөө хайрцаглах онош гэж битгий хар. Харин өөрийн зан төлөв, харилцаа, ажиллах хэв маягийг ойлгох газрын зураг гэж хар. ` +
+      `Та өөрийн төрөлхийн хандлагаа мэддэг бол шийдвэрээ илүү тайван гаргаж, өөрт тохирох орчин, хүмүүс, ажлын хэв маягаа илүү зөв сонгож чадна.`,
+  };
+}
+
+function buildEnPremiumProfile(
+  type: string,
+  base: (typeof mbtiEnglishProfiles)[string],
+): MbtiPremiumProfile {
+  return {
+    type,
+    name: base.name,
+    summary: base.summary,
+
+    personality:
+      `${type} describes a personality pattern that influences how you make decisions, communicate, work, and recharge. ` +
+      `${base.summary} This does not mean your type is better or worse than others. It simply gives you a clearer way to understand your natural strengths, pressure points, and growth direction.`,
+
+    strengths: base.strengths,
+
+    weaknesses: base.weaknesses,
+
+    careers: base.careers,
+
+    careerAdvice:
+      `${base.careers.join(", ")} may fit your natural working style. ` +
+      `But the job title is not the only important thing. The environment, communication style, responsibility level, and freedom inside the role matter just as much. ` +
+      `You are more likely to do well when your work matches the way you naturally think, focus, and solve problems.`,
+
+    relationships: base.relationships,
+
+    relationshipAdvice:
+      `${base.relationships} In relationships, your main growth point is to communicate your needs clearly instead of expecting others to guess them. ` +
+      `When you understand your own style, you can build relationships with more honesty, patience, and emotional clarity.`,
+
+    growthAdvice:
+      `Your growth direction is to use your strengths without overusing them. Strengths can become weaknesses when they are pushed too far. ` +
+      `Your strengths may include ${base.strengths.join(", ")}, but under stress they may turn into patterns like ${base.weaknesses.join(", ")}. ` +
+      `The goal is not to become a different person, but to manage your natural pattern more wisely.`,
+
+    finalAdvice:
+      `Do not use this result as a fixed label. Use it as a map for self-understanding. ` +
+      `When you know your natural style, you can choose better work environments, healthier relationships, and decisions that fit you more honestly.`,
+  };
+}
+
+export function getLocalizedMbtiProfile(type: string) {
+  const mnBase = mbtiProfiles[type] ?? mbtiProfiles.INTJ;
+  const enBase = mbtiEnglishProfiles[type] ?? mbtiEnglishProfiles.INTJ;
+
+  return {
+    mn: buildMnPremiumProfile(type, mnBase),
+    en: buildEnPremiumProfile(type, enBase),
+  };
 }

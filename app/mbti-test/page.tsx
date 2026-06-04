@@ -96,17 +96,14 @@ export default function MBTITest() {
               weaknesses: localized.mn.weaknesses,
               careers: localized.mn.careers,
               relationships: localized.mn.relationships,
-
               localized: {
                 mn: {
-                  type: personality,
-                  label: personality,
                   ...localized.mn,
+                  label: personality,
                 },
                 en: {
-                  type: personality,
-                  label: personality,
                   ...localized.en,
+                  label: personality,
                 },
               },
             },

@@ -434,6 +434,12 @@ export default function ResultDetailPage() {
   const summary = resultData?.summary ?? "";
 
   const strengths = resultData?.strengths ?? [];
+  const careerAdvice = resultData?.careerAdvice ?? "";
+  const relationshipAdvice = resultData?.relationshipAdvice ?? "";
+  const growthAdvice = resultData?.growthAdvice ?? "";
+  const finalAdvice = resultData?.finalAdvice ?? recommendation;
+  const personality = resultData?.personality ?? summary;
+  const careers = resultData?.careers ?? [];
   return (
     <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
       {showToast && (
@@ -917,6 +923,142 @@ export default function ResultDetailPage() {
                   </div>
                 )}
               </>
+            ) : result.test_type === "mbti" ? (
+              <div className="space-y-5">
+                <div className="rounded-3xl border border-indigo-300 bg-gradient-to-br from-indigo-50 via-purple-50 to-white p-6 shadow-xl dark:border-indigo-500/30 dark:from-indigo-500/10 dark:via-purple-500/10 dark:to-gray-900">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-700 dark:text-indigo-300">
+                    MBTI PREMIUM RESULT
+                  </p>
+
+                  <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <h2 className="text-4xl font-black text-gray-900 dark:text-white">
+                        {resultData?.label ?? resultData?.type ?? "MBTI"}
+                      </h2>
+
+                      <p className="mt-2 text-xl font-bold text-indigo-700 dark:text-indigo-300">
+                        {resultData?.name ?? "-"}
+                      </p>
+
+                      <p className="mt-4 leading-7 text-gray-700 dark:text-gray-300">
+                        {summary}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 rounded-2xl bg-gray-900 px-5 py-4 text-center text-white shadow-lg dark:bg-white dark:text-gray-900">
+                      <p className="text-sm opacity-70">{t("type")}</p>
+                      <p className="mt-1 text-4xl font-black">
+                        {resultData?.type ?? resultData?.label ?? "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {lang === "en"
+                      ? "Personality overview"
+                      : "Зан төлөвийн дэлгэрэнгүй"}
+                  </h2>
+                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                    {personality}
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      ✔ {lang === "en" ? "Strengths" : "Давуу тал"}
+                    </h3>
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                      {strengths.length ? (
+                        strengths.map((item: string) => (
+                          <li key={item}>• {item}</li>
+                        ))
+                      ) : (
+                        <li>
+                          {lang === "en"
+                            ? "No strengths data."
+                            : "Давуу талын мэдээлэл алга."}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      ⚠ {lang === "en" ? "Watch out" : "Анхаарах зүйл"}
+                    </h3>
+                    <ul className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                      {weaknesses.length ? (
+                        weaknesses.map((item: string) => (
+                          <li key={item}>• {item}</li>
+                        ))
+                      ) : (
+                        <li>
+                          {lang === "en"
+                            ? "No weakness data."
+                            : "Анхаарах мэдээлэл алга."}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {lang === "en"
+                      ? "Career direction"
+                      : "Ажил мэргэжлийн чиглэл"}
+                  </h3>
+
+                  {careers.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {careers.map((career: string) => (
+                        <span
+                          key={career}
+                          className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
+                        >
+                          {career}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="mt-4 leading-7 text-gray-700 dark:text-gray-300">
+                    {careerAdvice}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900 dark:bg-purple-950/20">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {lang === "en"
+                      ? "Relationship style"
+                      : "Харилцааны хэв маяг"}
+                  </h3>
+                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                    {relationshipAdvice || resultData?.relationships}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-5 dark:border-cyan-900 dark:bg-cyan-950/20">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {lang === "en" ? "Growth advice" : "Өсөлтийн зөвлөмж"}
+                  </h3>
+                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                    {growthAdvice}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-yellow-300 bg-yellow-50 p-5 dark:border-yellow-500/30 dark:bg-yellow-500/10">
+                  <h3 className="text-lg font-bold text-yellow-800 dark:text-yellow-300">
+                    ✨ {lang === "en" ? "Final advice" : "Эцсийн зөвлөмж"}
+                  </h3>
+                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                    {finalAdvice}
+                  </p>
+                </div>
+              </div>
             ) : result.test_type === "numerology" ? (
               (() => {
                 const data = result.result_json;
