@@ -2,18 +2,48 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import ResultPaywall from "@/components/ResultPaywall";
 import { mbtiQuestions, MbtiDimension } from "@/data/mbtiQuestions";
 import { mbtiProfiles } from "@/data/mbtiProfiles";
 import { saveTestResult } from "@/lib/saveResult";
 import { useRouter } from "next/navigation";
 import { getLocalizedMbtiProfile } from "@/data/mbtiLocalizedProfiles";
+import { useLang } from "@/lib/LanguageProvider";
 const scaleOptions = [
-  { label: "Огт санал нийлэхгүй", value: -2 },
-  { label: "Санал нийлэхгүй", value: -1 },
-  { label: "Дундаж", value: 0 },
-  { label: "Санал нийлнэ", value: 1 },
-  { label: "Бүрэн санал нийлнэ", value: 2 },
+  {
+    label: {
+      mn: "Надад огт тохирохгүй",
+      en: "Strongly disagree",
+    },
+    value: -2,
+  },
+  {
+    label: {
+      mn: "Надад тийм ч тохирохгүй",
+      en: "Disagree",
+    },
+    value: -1,
+  },
+  {
+    label: {
+      mn: "Зарим талаар тохирно",
+      en: "Neutral",
+    },
+    value: 0,
+  },
+  {
+    label: {
+      mn: "Надад тохирч байна",
+      en: "Agree",
+    },
+    value: 1,
+  },
+  {
+    label: {
+      mn: "Яг намайг хэлж байна",
+      en: "Strongly agree",
+    },
+    value: 2,
+  },
 ];
 
 function getOppositeDimension(dimension: MbtiDimension): MbtiDimension {
@@ -51,7 +81,7 @@ export default function MBTITest() {
     const saved = localStorage.getItem("mbtiResult");
     if (saved) setSavedResult(saved);
   }, []);
-
+  const { lang } = useLang();
   const handleAnswer = async (dimension: MbtiDimension, value: number) => {
     setSelected(value);
 
@@ -132,7 +162,7 @@ export default function MBTITest() {
           href="/"
           className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
         >
-          ← Back to Home
+          {lang === "en" ? "← Back to Home" : "← Нүүр хуудас руу буцах"}
         </Link>
 
         <div className="w-full max-w-4xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -230,7 +260,7 @@ export default function MBTITest() {
               }}
               className="rounded-lg bg-gray-600 px-6 py-2 text-white transition hover:bg-gray-700"
             >
-              Дахин хийх
+              {lang === "en" ? "Retake test" : "Дахин хийх"}
             </button>
           </div>
         </div>
@@ -244,12 +274,12 @@ export default function MBTITest() {
         href="/"
         className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-300"
       >
-        ← Back to Home
+        {lang === "en" ? "← Back to Home" : "← Нүүр хуудас руу буцах"}
       </Link>
 
       <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-          MBTI Personality Test
+          {lang === "en" ? "MBTI Personality Test" : "MBTI зан төлөвийн тест"}
         </h1>
 
         <div className="mb-6">
@@ -261,13 +291,15 @@ export default function MBTITest() {
           </div>
 
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            Question {index + 1} / {mbtiQuestions.length}
+            {lang === "en"
+              ? `Question ${index + 1} / ${mbtiQuestions.length}`
+              : `Асуулт ${index + 1} / ${mbtiQuestions.length}`}
           </p>
         </div>
 
         <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
           <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
-            {q.question}
+            {q.question[lang]}
           </h2>
         </div>
 
@@ -277,7 +309,7 @@ export default function MBTITest() {
 
             return (
               <button
-                key={option.label}
+                key={option.value}
                 onClick={() => handleAnswer(q.dimension, option.value)}
                 className={`rounded-2xl border px-5 py-4 text-center text-base font-medium transition-all duration-200 ${
                   isSelected
@@ -285,14 +317,16 @@ export default function MBTITest() {
                     : "border-gray-300 bg-white text-gray-900 hover:scale-[1.02] hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
                 }`}
               >
-                {option.label}
+                {option.label[lang]}
               </button>
             );
           })}
         </div>
 
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          Энэ тест нь зан төлөвийн чиг хандлагыг ойлгоход зориулсан.
+          {lang === "en"
+            ? "This test is designed to help you understand your personality tendencies."
+            : "Энэ тест нь таны зан төлөвийн чиг хандлагыг ойлгоход тусална."}
         </p>
       </div>
     </div>
