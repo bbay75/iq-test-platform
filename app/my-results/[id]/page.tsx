@@ -1052,7 +1052,8 @@ export default function ResultDetailPage() {
 
                 <div className="rounded-2xl border border-yellow-300 bg-yellow-50 p-5 dark:border-yellow-500/30 dark:bg-yellow-500/10">
                   <h3 className="text-lg font-bold text-yellow-800 dark:text-yellow-300">
-                    ✨ {lang === "en" ? "Final advice" : "Эцсийн зөвлөмж"}
+                    ✨{" "}
+                    {lang === "en" ? "A note for you" : "Өөртөө сануулах зүйл"}
                   </h3>
                   <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
                     {finalAdvice}
