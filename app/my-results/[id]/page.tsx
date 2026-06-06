@@ -9,7 +9,7 @@ import { toPng } from "html-to-image";
 import { useRef } from "react";
 import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
-
+import MbtiSharePoster from "@/components/MbtiSharePoster";
 type TestResult = {
   id: string;
   test_type: string;
@@ -1413,84 +1413,61 @@ export default function ResultDetailPage() {
         </div>
       </div>
       <div className="fixed left-[-9999px] top-0">
-        <div
-          ref={shareRef}
-          className="w-[1080px] min-h-[1080px] rounded-[40px] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-16 text-white"
-        >
-          <div className="flex items-start justify-between gap-6">
-            <div>
-              <p className="text-2xl font-semibold uppercase tracking-[0.3em] text-blue-300">
-                {t("test_platform")}
-              </p>
+        <div ref={shareRef}>
+          {result.test_type === "mbti" ? (
+            <MbtiSharePoster
+              type={
+                resultData?.type ??
+                resultData?.label ??
+                result.result_json?.type ??
+                result.result_json?.label ??
+                "MBTI"
+              }
+            />
+          ) : (
+            <div className="w-[1080px] min-h-[1080px] rounded-[40px] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-16 text-white">
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <p className="text-2xl font-semibold uppercase tracking-[0.3em] text-blue-300">
+                    {t("test_platform")}
+                  </p>
 
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                {displayData.subtitle}
-              </p>
-              {isUnlocked && displayData.tags.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {displayData.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  <p className="mt-2 text-sm text-gray-300">
+                    {displayData.subtitle}
+                  </p>
                 </div>
-              )}
-            </div>
 
-            <div className="rounded-full bg-blue-500 px-6 py-3 text-2xl font-semibold">
-              {t("my_result_badge")}
-            </div>
-          </div>
+                <div className="rounded-full bg-blue-500 px-6 py-3 text-2xl font-semibold">
+                  {t("my_result_badge")}
+                </div>
+              </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-8">
-            <div className="rounded-[28px] bg-white/10 p-8">
-              <p className="text-2xl text-gray-300">{displayData.statLabel}</p>
-              <p className="mt-3 text-7xl font-bold">{displayData.statValue}</p>
-            </div>
+              <div className="mt-12 grid grid-cols-2 gap-8">
+                <div className="rounded-[28px] bg-white/10 p-8">
+                  <p className="text-2xl text-gray-300">
+                    {displayData.statLabel}
+                  </p>
+                  <p className="mt-3 text-7xl font-bold">
+                    {displayData.statValue}
+                  </p>
+                </div>
 
-            <div className="rounded-[28px] bg-white/10 p-8">
-              <p className="text-2xl text-gray-300">{displayData.sideLabel}</p>
-              <p className="mt-3 text-7xl font-bold">{displayData.sideValue}</p>
-            </div>
-          </div>
+                <div className="rounded-[28px] bg-white/10 p-8">
+                  <p className="text-2xl text-gray-300">
+                    {displayData.sideLabel}
+                  </p>
+                  <p className="mt-3 text-7xl font-bold">
+                    {displayData.sideValue}
+                  </p>
+                </div>
+              </div>
 
-          {isPersonalColor && (
-            <div className="mt-12">
-              <p className="text-3xl font-semibold">{t("best_colors")}</p>
-
-              <div className="mt-6 flex flex-wrap gap-4">
-                {(result.result_json?.bestColors ?? [])
-                  .slice(0, 5)
-                  .map((color, i) => (
-                    <span
-                      key={i}
-                      className="rounded-full bg-blue-500/20 px-6 py-3 text-2xl font-medium text-blue-200"
-                    >
-                      {color}
-                    </span>
-                  ))}
+              <div className="mt-16 flex items-center justify-between border-t border-white/20 pt-8">
+                <p className="text-2xl text-gray-300">{t("share_story")}</p>
+                <p className="text-3xl font-bold">testplatform</p>
               </div>
             </div>
           )}
-
-          {isPersonalColor && result.result_json?.summary && (
-            <div className="mt-12 rounded-[28px] bg-white/10 p-8">
-              <p className="text-2xl text-gray-300">{t("summary")}</p>
-              <p className="mt-4 text-3xl leading-relaxed text-white/90">
-                {result.result_json.summary.length > 180
-                  ? result.result_json.summary.slice(0, 180) + "..."
-                  : result.result_json.summary}
-              </p>
-            </div>
-          )}
-
-          <div className="mt-16 flex items-center justify-between border-t border-white/20 pt-8">
-            <p className="text-2xl text-gray-300">{t("share_story")}</p>
-            <p className="text-3xl font-bold">testplatform</p>
-          </div>
         </div>
       </div>
     </div>
