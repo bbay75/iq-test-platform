@@ -72,9 +72,11 @@ export default function MBTITest() {
     J: 0,
     P: 0,
   });
+
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [gender, setGender] = useState<"female" | "male" | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -119,6 +121,7 @@ export default function MBTITest() {
             result_json: {
               type: personality,
               label: personality,
+              gender,
 
               name: localized.mn.name,
               summary: localized.mn.summary,
@@ -282,52 +285,84 @@ export default function MBTITest() {
           {lang === "en" ? "MBTI Personality Test" : "MBTI зан төлөвийн тест"}
         </h1>
 
-        <div className="mb-6">
-          <div className="h-2 w-full rounded bg-gray-200 dark:bg-gray-700">
-            <div
-              className="h-2 rounded bg-purple-500 transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+        {!gender && (
+          <div className="space-y-4">
+            <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+              {lang === "en"
+                ? "Choose your character image"
+                : "Үр дүнд гарах дүрээ сонгоно уу"}
+            </p>
 
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {lang === "en"
-              ? `Question ${index + 1} / ${mbtiQuestions.length}`
-              : `Асуулт ${index + 1} / ${mbtiQuestions.length}`}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
-            {q.question[lang]}
-          </h2>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-4">
-          {scaleOptions.map((option) => {
-            const isSelected = selected === option.value;
-
-            return (
+            <div className="grid gap-3 md:grid-cols-2">
               <button
-                key={option.value}
-                onClick={() => handleAnswer(q.dimension, option.value)}
-                className={`rounded-2xl border px-5 py-4 text-center text-base font-medium transition-all duration-200 ${
-                  isSelected
-                    ? "border-purple-500 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-                    : "border-gray-300 bg-white text-gray-900 hover:scale-[1.02] hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
-                }`}
+                type="button"
+                onClick={() => setGender("female")}
+                className="rounded-2xl border border-pink-300 bg-pink-50 px-5 py-5 text-lg font-bold text-pink-700 hover:bg-pink-100 dark:border-pink-500/40 dark:bg-pink-500/10 dark:text-pink-300"
               >
-                {option.label[lang]}
+                👩 {lang === "en" ? "Female character" : "Эмэгтэй дүр"}
               </button>
-            );
-          })}
-        </div>
 
-        <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          {lang === "en"
-            ? "This test is designed to help you understand your personality tendencies."
-            : "Энэ тест нь таны зан төлөвийн чиг хандлагыг ойлгоход тусална."}
-        </p>
+              <button
+                type="button"
+                onClick={() => setGender("male")}
+                className="rounded-2xl border border-blue-300 bg-blue-50 px-5 py-5 text-lg font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-300"
+              >
+                👨 {lang === "en" ? "Male character" : "Эрэгтэй дүр"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {gender && (
+          <>
+            <div className="mb-6">
+              <div className="h-2 w-full rounded bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-2 rounded bg-purple-500 transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                {lang === "en"
+                  ? `Question ${index + 1} / ${mbtiQuestions.length}`
+                  : `Асуулт ${index + 1} / ${mbtiQuestions.length}`}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
+              <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
+                {q.question[lang]}
+              </h2>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-4">
+              {scaleOptions.map((option) => {
+                const isSelected = selected === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    onClick={() => handleAnswer(q.dimension, option.value)}
+                    className={`rounded-2xl border px-5 py-4 text-center text-base font-medium transition-all duration-200 ${
+                      isSelected
+                        ? "border-purple-500 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                        : "border-gray-300 bg-white text-gray-900 hover:scale-[1.02] hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {option.label[lang]}
+                  </button>
+                );
+              })}
+            </div>
+
+            <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+              {lang === "en"
+                ? "This test is designed to help you understand your personality tendencies."
+                : "Энэ тест нь таны зан төлөвийн чиг хандлагыг ойлгоход тусална."}
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

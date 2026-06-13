@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@supabase/supabase-js": "^2.100.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^1.7.0",

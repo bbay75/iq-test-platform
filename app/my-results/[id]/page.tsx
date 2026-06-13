@@ -440,6 +440,17 @@ export default function ResultDetailPage() {
   const finalAdvice = resultData?.finalAdvice ?? recommendation;
   const personality = resultData?.personality ?? summary;
   const careers = resultData?.careers ?? [];
+  const mbtiShareType =
+    result.test_type === "mbti"
+      ? (resultData?.type ??
+        resultData?.label ??
+        result.result_json?.type ??
+        result.result_json?.label ??
+        "MBTI")
+      : "MBTI";
+
+  const mbtiGender: "female" | "male" =
+    result.result_json?.gender === "male" ? "male" : "female";
   return (
     <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
       {showToast && (
@@ -556,77 +567,81 @@ export default function ResultDetailPage() {
             >
               {t("download_image")}
             </button>
-            <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm dark:border-blue-900/40 dark:from-gray-900 dark:to-blue-950/30">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
-                    {t("test_platform")}
-                  </p>
+            {result.test_type === "mbti" ? (
+              <div className="mt-4 w-full">
+                <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {lang === "en" ? "Your share poster" : "Таны шэйр зураг"}
+                </p>
 
-                  <h1 className="mt-6 text-7xl font-bold leading-tight">
-                    {displayData.title}
-                  </h1>
-
-                  <p className="mt-4 text-3xl text-gray-300">
-                    {displayData.subtitle}
-                  </p>
-                </div>
-
-                <div className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
-                  {t("my_result_badge")}
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl bg-white/80 p-4 backdrop-blur dark:bg-white/5">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {displayData.statLabel}
-                  </p>
-                  <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
-                    {displayData.statValue}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-white/80 p-4 backdrop-blur dark:bg-white/5">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {displayData.sideLabel}
-                  </p>
-                  <p className="mt-1 text-4xl font-bold text-gray-900 dark:text-white">
-                    {displayData.sideValue}
-                  </p>
-                </div>
-              </div>
-
-              {isPersonalColor && (
-                <div className="mt-5">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t("best_colors")}
-                  </p>
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(result.result_json?.bestColors ?? [])
-                      .slice(0, 5)
-                      .map((color, i) => (
-                        <span
-                          key={i}
-                          className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
-                        >
-                          {color}
-                        </span>
-                      ))}
+                <div className="inline-block overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
+                  <div className="mx-auto h-[600px] w-[480px] overflow-hidden rounded-3xl">
+                    <div className="pointer-events-none h-[1350px] w-[1080px] origin-top-left scale-[0.444444]">
+                      <MbtiSharePoster
+                        type={mbtiShareType}
+                        gender={mbtiGender}
+                      />
+                    </div>
                   </div>
                 </div>
-              )}
 
-              <div className="mt-5 flex items-center justify-between gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t("share_story")}
-                </p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  testplatform
+                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  {lang === "en"
+                    ? "Download this image and share it on Facebook or Instagram Story."
+                    : "Энэ зургийг татаж аваад Facebook эсвэл Instagram story дээр хуваалцаарай."}
                 </p>
               </div>
-            </div>
+            ) : (
+              <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm dark:border-blue-900/40 dark:from-gray-900 dark:to-blue-950/30">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
+                      {t("test_platform")}
+                    </p>
+
+                    <h1 className="mt-6 text-7xl font-bold leading-tight">
+                      {displayData.title}
+                    </h1>
+
+                    <p className="mt-4 text-3xl text-gray-300">
+                      {displayData.subtitle}
+                    </p>
+                  </div>
+
+                  <div className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+                    {t("my_result_badge")}
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <div className="rounded-2xl bg-white/80 p-4 backdrop-blur dark:bg-white/5">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {displayData.statLabel}
+                    </p>
+                    <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
+                      {displayData.statValue}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-white/80 p-4 backdrop-blur dark:bg-white/5">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {displayData.sideLabel}
+                    </p>
+                    <p className="mt-1 text-4xl font-bold text-gray-900 dark:text-white">
+                      {displayData.sideValue}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t("share_story")}
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    testplatform
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1415,20 +1430,12 @@ export default function ResultDetailPage() {
       <div className="fixed left-[-9999px] top-0">
         <div ref={shareRef}>
           {result.test_type === "mbti" ? (
-            <MbtiSharePoster
-              type={
-                resultData?.type ??
-                resultData?.label ??
-                result.result_json?.type ??
-                result.result_json?.label ??
-                "MBTI"
-              }
-            />
+            <MbtiSharePoster type={mbtiShareType} gender={mbtiGender} />
           ) : (
             <div className="w-[1080px] min-h-[1080px] rounded-[40px] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-16 text-white">
               <div className="flex items-start justify-between gap-6">
                 <div>
-                  <p className="text-2xl font-semibold uppercase tracking-[0.3em] text-blue-300">
+                  <p className="text-xl font-semibold uppercase tracking-[0.3em] text-blue-300">
                     {t("test_platform")}
                   </p>
 
