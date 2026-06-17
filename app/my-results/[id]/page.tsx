@@ -548,14 +548,14 @@ export default function ResultDetailPage() {
                       });
                     }),
                   );
-                  await new Promise((resolve) => setTimeout(resolve, 1500));
+                  await new Promise((resolve) => setTimeout(resolve, 300));
 
                   const blob = await toBlob(shareRef.current, {
                     cacheBust: true,
                     pixelRatio: /Android|iPhone|iPad|iPod/i.test(
                       navigator.userAgent,
                     )
-                      ? 1
+                      ? 0.7
                       : 2,
                   });
 
