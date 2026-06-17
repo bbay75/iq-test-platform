@@ -630,7 +630,7 @@ export default function ResultDetailPage() {
                   setShowToast(true);
                   await waitForShareAssets(shareRef.current);
 
-                  const restoreBackgrounds = await inlineCssBackgroundImages(
+                  let restoreBackgrounds = await inlineCssBackgroundImages(
                     shareRef.current,
                   );
 
@@ -1562,7 +1562,13 @@ export default function ResultDetailPage() {
           overflow: "hidden",
         }}
       >
-        <div ref={shareRef}>
+        <div
+          ref={shareRef}
+          style={{
+            width: "1080px",
+            height: "1350px",
+          }}
+        >
           {result.test_type === "mbti" ? (
             <MbtiSharePoster type={mbtiShareType} gender={mbtiGender} />
           ) : (
