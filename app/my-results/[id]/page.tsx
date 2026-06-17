@@ -282,6 +282,48 @@ async function waitForShareAssets(node: HTMLElement) {
   await new Promise((resolve) => requestAnimationFrame(resolve));
   await new Promise((resolve) => setTimeout(resolve, 300));
 }
+async function urlToDataUrl(url: string) {
+  const absoluteUrl = new URL(url, window.location.origin).toString();
+  const res = await fetch(absoluteUrl, { cache: "force-cache" });
+  const blob = await res.blob();
+
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function inlineCssBackgroundImages(root: HTMLElement) {
+  const elements = [
+    root,
+    ...Array.from(root.querySelectorAll("*")),
+  ] as HTMLElement[];
+  const restores: Array<() => void> = [];
+
+  for (const el of elements) {
+    const bg = window.getComputedStyle(el).backgroundImage;
+
+    if (!bg || bg === "none" || !bg.includes("url(")) continue;
+
+    const match = bg.match(/url\(["']?(.*?)["']?\)/);
+    const rawUrl = match?.[1];
+
+    if (!rawUrl || rawUrl.startsWith("data:")) continue;
+
+    const oldBg = el.style.backgroundImage;
+    const dataUrl = await urlToDataUrl(rawUrl);
+
+    el.style.backgroundImage = `url("${dataUrl}")`;
+
+    restores.push(() => {
+      el.style.backgroundImage = oldBg;
+    });
+  }
+
+  return () => restores.forEach((restore) => restore());
+}
 export default function ResultDetailPage() {
   const { t, lang } = useLang();
   const params = useParams();
@@ -586,8 +628,11 @@ export default function ResultDetailPage() {
                       : "Зураг бэлдэж байна...",
                   );
                   setShowToast(true);
-
                   await waitForShareAssets(shareRef.current);
+
+                  const restoreBackgrounds = await inlineCssBackgroundImages(
+                    shareRef.current,
+                  );
 
                   const isMobile = /Android|iPhone|iPad|iPod/i.test(
                     navigator.userAgent,
@@ -598,6 +643,7 @@ export default function ResultDetailPage() {
                     pixelRatio: isMobile ? 1 : 2,
                   });
 
+                  restoreBackgrounds();
                   if (!blob) {
                     throw new Error("Image blob failed");
                   }
