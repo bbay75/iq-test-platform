@@ -545,14 +545,39 @@ export default function ResultDetailPage() {
                     .replace(/\s+/g, "-")
                     .toLowerCase();
                   const shortId = result.id.slice(0, 8);
+                  const isMobile = /Android|iPhone|iPad|iPod/i.test(
+                    navigator.userAgent,
+                  );
+
+                  if (isMobile) {
+                    const blob = await (await fetch(dataUrl)).blob();
+
+                    const file = new File(
+                      [blob],
+                      `${safeTestName}-${shortId}.png`,
+                      {
+                        type: "image/png",
+                      },
+                    );
+
+                    if (navigator.canShare?.({ files: [file] })) {
+                      await navigator.share({
+                        files: [file],
+                        title: "MBTI Result",
+                      });
+                      setToast(t("image_downloaded"));
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 2000);
+                      return;
+                    }
+                    window.open(dataUrl, "_blank");
+                    return;
+                  }
                   const link = document.createElement("a");
                   link.download = `${safeTestName}-${shortId}.png`;
-
                   link.href = dataUrl;
                   link.click();
-
                   setToast(t("image_downloaded"));
-
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
                 } catch (error) {
