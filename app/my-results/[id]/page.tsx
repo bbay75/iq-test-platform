@@ -539,6 +539,7 @@ export default function ResultDetailPage() {
                   const dataUrl = await toPng(shareRef.current, {
                     cacheBust: true,
                     pixelRatio: 2,
+                    skipFonts: true,
                   });
                   const blob = await (await fetch(dataUrl)).blob();
 
@@ -595,12 +596,9 @@ export default function ResultDetailPage() {
                   {lang === "en" ? "Your share poster" : "Таны шэйр зураг"}
                 </p>
 
-                <div className="mx-auto w-full max-w-[480px] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
-                  <div
-                    className="relative w-full"
-                    style={{ aspectRatio: "4 / 5" }}
-                  >
-                    <div className="pointer-events-none absolute left-0 top-0 h-[1350px] w-[1080px] origin-top-left scale-[var(--poster-scale)] [--poster-scale:calc(min(100vw-48px,480px)/1080)]">
+                <div className="mx-auto w-[345px] max-w-full overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl sm:w-[480px]">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
+                    <div className="pointer-events-none absolute left-0 top-0 h-[1350px] w-[1080px] origin-top-left scale-[0.319444] sm:scale-[0.444444]">
                       <MbtiSharePoster
                         type={mbtiShareType}
                         gender={mbtiGender}
@@ -1452,7 +1450,7 @@ export default function ResultDetailPage() {
           </div>
         </div>
       </div>
-      <div className="fixed left-[-9999px] top-0">
+      <div className="pointer-events-none fixed left-0 top-0 z-[-1] opacity-0">
         <div ref={shareRef}>
           {result.test_type === "mbti" ? (
             <MbtiSharePoster type={mbtiShareType} gender={mbtiGender} />
