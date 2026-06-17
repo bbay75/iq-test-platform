@@ -35,12 +35,12 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
 
   INTP: {
     bg: "/share/mbti/intp.webp",
-    archetype: "Сониуч анализчин",
+    archetype: "Сониуч Өөр ертөнцтэй",
     rarity: "3%",
     accent: "#9bbcff",
-    strengths: ["Аналитик", "Сониуч", "Өөр өнцөгтэй"],
+    strengths: ["Задлан шинжээч", "Сониуч", "Өөр өнцөгтэй"],
     quote:
-      "Чи зүгээр хариулт хайдаггүй. Харин бүх зүйлийн цаад логикийг ойлгохыг хүсдэг.",
+      "Та зүгээр хариулт хайдаггүй. Харин бүх зүйлийн цаад учир шалтгааныг ойлгохыг хүсдэг.",
     bgSize: "110%",
     bgPosition: "35% 100%",
     // Male
@@ -56,7 +56,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#f4c76b",
     strengths: ["Шийдэмгий", "Зорилготой", "Стратеги сэтгэлгээтэй"],
     quote:
-      "Чи боломжийг хүлээдэг хүн биш. Харин боломжийг өөрөө хөдөлгөдөг хүн.",
+      "Та боломжийг хүлээдэг хүн биш. Харин боломжийг өөрөө хөдөлгөдөг хүн.",
     bgSize: "125%",
     bgPosition: "60% 100%",
     maleBg: "/share/mbti/male/entj.webp",
@@ -71,7 +71,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#f4c76b",
     strengths: ["Эмх цэгцтэй", "Хариуцлагатай", "Үр дүнд төвлөрдөг"],
     quote:
-      "Чи санааг яриа хэвээр үлдээдэггүй. Бодит ажил, бодит үр дүн болгож чаддаг.",
+      "Та санааг яриа хэвээр үлдээдэггүй. Бодит ажил, бодит үр дүн болгож чаддаг.",
     bgSize: "113%",
     bgPosition: "0% 80%",
     // Male
@@ -87,7 +87,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#d8a7ff",
     strengths: ["Мэдрэмжтэй", "Бүтээлч", "Зөөлөн сэтгэлтэй"],
     quote:
-      "Чи хэт мэдрэмтгий биш. Зүгээр л бусдын анзаардаггүй зүйлийг зүрхээрээ мэдэрдэг.",
+      "Та хэт мэдрэмтгий биш. Зүгээр л бусдын анзаардаггүй зүйлийг зүрхээрээ мэдэрдэг.",
     bgSize: "113%",
     bgPosition: "10% 100%",
     // Male
@@ -103,7 +103,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#9fdc8f",
     strengths: ["Гоо зүйтэй", "Бүтээлч", "Чөлөөт сэтгэлгээтэй"],
     quote:
-      "Чи өөрийгөө чангаар тайлбарлах албагүй. Чиний мэдрэмж, өнгө аяс өөрөө ярьдаг.",
+      "Та өөрийгөө чангаар тайлбарлах шаардлагаггүй. Таны мэдрэмж, өнгө аяс өөрөө ярьдаг.",
     bgSize: "109%",
     bgPosition: "10% 150%",
     // Male
@@ -114,12 +114,12 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
 
   INFJ: {
     bg: "/share/mbti/infj.webp",
-    archetype: "Дотоод зөнтэн",
+    archetype: "Дотоод зөнтэй",
     rarity: "2%",
     accent: "#8ecbff",
     strengths: ["Гүн мэдрэмжтэй", "Зөн совинтой", "Утга учир эрэлхийлдэг"],
     quote:
-      "Чи хүмүүсийн хэлсэн үгийг биш, хэлээгүй мэдрэмжийг нь хүртэл анзаардаг.",
+      "Та хүмүүсийн хэлсэн үгийг биш, хэлээгүй мэдрэмжийг нь хүртэл анзаардаг.",
     bgSize: "125%",
     bgPosition: "45% 70%",
     maleBg: "/share/mbti/male/infj.webp",
@@ -133,7 +133,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     rarity: "3%",
     accent: "#ffd166",
     strengths: ["Урам зориг өгдөг", "Хүмүүсийг ойлгодог", "Хариуцлагатай"],
-    quote: "Чи өөрөө гэрэлтээд зогсохгүй, хажуугийн хүмүүсээ ч босгож чаддаг.",
+    quote: "Та өөрөө гэрэлтээд зогсохгүй, хажуугийн хүмүүсээ ч босгож чаддаг.",
     bgSize: "115%",
     bgPosition: "45% 70%",
     // Male
@@ -148,7 +148,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     rarity: "12%",
     accent: "#9fd8b4",
     strengths: ["Найдвартай", "Тууштай", "Зарчимтай"],
-    quote: "Чи олон зүйл амладаггүй. Гэхдээ амласан зүйлээ заавал биелүүлдэг.",
+    quote: "Та олон зүйл амладаггүй. Гэхдээ амласан зүйлээ заавал биелүүлдэг.",
     bgSize: "105%",
     bgPosition: "30% 100%",
     // Male
@@ -164,7 +164,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#9fd8b4",
     strengths: ["Халамжтай", "Итгэл даадаг", "Тууштай"],
     quote:
-      "Чи бусдыг анзаарахдаа жижиг зүйлээс эхэлдэг. Тэр чинь л хүмүүсийг тайвшруулдаг.",
+      "Та бусдыг анзаарахдаа жижиг зүйлээс эхэлдэг. Тэр чинь л хүмүүсийг тайвшруулдаг.",
     bgSize: "110%",
     bgPosition: "10% 100%",
     // Male
@@ -179,7 +179,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     rarity: "12%",
     accent: "#f2c879",
     strengths: ["Нийтэч", "Халамжтай", "Зохион байгуулдаг"],
-    quote: "Чи байгаа газраа илүү дулаан, илүү амьд, илүү ойр болгож чаддаг.",
+    quote: "Та байгаа газраа илүү дулаан, илүү амьд, илүү ойр болгож чаддаг.",
     bgSize: "120%",
     bgPosition: "65% 100%",
     // Male
@@ -195,7 +195,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#ff8a3d",
     strengths: ["Эрч хүчтэй", "Урам өгдөг", "Нээлттэй"],
     quote:
-      "Чи тогтворгүй биш. Чиний дотор нэг газарт багтахгүй их амьдрал байдаг.",
+      "Та тогтворгүй биш. Таны дотор нэг газарт багтахгүй их амьдрал байдаг.",
     bgSize: "110%",
     bgPosition: "-0% 80%",
     // Male
@@ -211,7 +211,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#ff8a3d",
     strengths: ["Хурдан сэтгэдэг", "Санаачлагч", "Өөр өнцөг хардаг"],
     quote:
-      "Чи дүрмийг эвдэх гэж биш, илүү сонирхолтой хувилбар байгааг харуулах гэж асуудаг.",
+      "Та дүрмийг эвдэх гэж биш, илүү сонирхолтой хувилбар байгааг харуулах гэж асуудаг.",
     bgSize: "125%",
     bgPosition: "40% 95%",
     // Male
@@ -225,8 +225,8 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     archetype: "Тайван шийдэгч",
     rarity: "5%",
     accent: "#9ecbff",
-    strengths: ["Практик", "Хурдан шийддэг", "Эрсдэлд тайван"],
-    quote: "Чи их ярихгүй. Харин хэрэгтэй мөчид яг юу хийхээ мэддэг.",
+    strengths: ["Ажил хэрэгч", "Шуурхай", "Эрсдэлд тайван"],
+    quote: "Та их ярихгүй. Харин хэрэгтэй мөчид яг юу хийхээ мэддэг.",
     bgSize: "125%",
     bgPosition: "58% 80%",
     // Male
@@ -242,7 +242,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#ff9f43",
     strengths: ["Зоримог", "Шуурхай", "Нөхцөлд дасан зохицдог"],
     quote:
-      "Чи амьдралыг холоос ажигладаггүй. Шууд дотор нь орж, мэдэрч, хөдөлдөг.",
+      "Та амьдралыг холоос ажигладаггүй. Шууд дотор нь орж, мэдэрч, хөдөлдөг.",
     bgSize: "110%",
     bgPosition: "0% 30%",
     // Male
@@ -258,7 +258,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     accent: "#ff75c3",
     strengths: ["Нийтэч", "Эерэг", "Амьд мэдрэмжтэй"],
     quote:
-      "Чи орчиндоо зүгээр нэг орж ирдэггүй. Өнгө, инээмсэглэл, хөдөлгөөн авчирдаг.",
+      "Та орчиндоо зүгээр нэг орж ирдэггүй. Өнгө, инээмсэглэл, хөдөлгөөн авчирдаг.",
     bgSize: "120%",
     bgPosition: "20% 0%",
     // Male

@@ -13,6 +13,17 @@ import {
   Shield,
   Fire,
   Flower,
+  Target,
+  Trophy,
+  RocketLaunch,
+  CheckCircle,
+  ClipboardText,
+  UsersThree,
+  HandHeart,
+  PuzzlePiece,
+  Wrench,
+  Lightning,
+  Flame,
 } from "@phosphor-icons/react";
 const quoteFont = Caveat({
   subsets: ["cyrillic"],
@@ -39,11 +50,25 @@ export default function MbtiSharePoster({
       ? template.maleBgPosition
       : template.bgPosition;
   const iconMap: Record<string, any[]> = {
-    INFP: [Heart, Sparkle, Feather],
-    INFJ: [Eye, Moon, Sparkle],
-    INTJ: [Brain, Crown, Eye],
-    ENFP: [Fire, Sparkle, Compass],
-    ISTP: [Sword, Shield, Compass],
+    INTJ: [Eye, Brain, Shield],
+    INTP: [Brain, Eye, Compass],
+    ENTJ: [Crown, Target, Brain],
+    ENTP: [Brain, Fire, PuzzlePiece],
+
+    ESTJ: [ClipboardText, Shield, Target],
+    ISTJ: [Shield, CheckCircle, ClipboardText],
+    ISFJ: [HandHeart, Shield, CheckCircle],
+    ESFJ: [UsersThree, HandHeart, ClipboardText],
+
+    INFJ: [Heart, Eye, Compass],
+    INFP: [Heart, Feather, Flower],
+    ENFJ: [Sparkle, UsersThree, Crown],
+    ENFP: [Fire, Sparkle, Feather],
+
+    ISTP: [Wrench, Lightning, Target],
+    ISFP: [Flower, Feather, Sparkle],
+    ESTP: [RocketLaunch, Flame, Sword],
+    ESFP: [Sparkle, Fire, Heart],
   };
 
   const TraitIcons = iconMap[key] ?? [Sparkle, Heart, Feather];
@@ -57,9 +82,9 @@ export default function MbtiSharePoster({
       }}
     >
       {/* Background readable cinematic overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/68 via-black/22 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-transparent to-black/10" />
-
+      <div className="absolute inset-0 bg-gradient-to-r from-black/62 via-black/18 to-transparent" />
+      {/* LEFT TEXT READABILITY SHADOW */}
+      <div className="absolute inset-y-0 left-0 z-[1] w-[58%] bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
       {/* TOP BLOCK */}
       <div className="absolute left-[72px] top-[128px] z-10 w-[720px]">
         <div className="w-[520px] text-center">
@@ -112,7 +137,7 @@ export default function MbtiSharePoster({
         {template.strengths.map((item, index) => (
           <div key={item} className="flex items-center gap-7">
             <div
-              className="relative flex h-[92px] w-[92px] items-center justify-center rounded-full border border-yellow-300/45 bg-black/30 shadow-xl backdrop-blur-sm"
+              className="relative flex h-[92px] w-[92px] items-center justify-center rounded-full border border-yellow-300/45 bg-black/35 shadow-xl"
               style={{
                 color: template.accent,
                 boxShadow: `0 0 14px ${template.accent}35`,
@@ -136,14 +161,15 @@ export default function MbtiSharePoster({
         ))}
       </div>
       {/* BOTTOM QUOTE */}
-      <div className="absolute bottom-[86px] left-[72px] right-[72px] z-10 rounded-[32px] border border-yellow-300/40 bg-black/34 px-12 py-6 shadow-2xl backdrop-blur-sm">
+      <div className="absolute bottom-[86px] left-[72px] right-[72px] z-10 overflow-hidden rounded-[32px] border border-yellow-300/40 bg-black/52 px-12 py-6 shadow-2xl">
+        <div className="pointer-events-none absolute inset-0 bg-white/5" />
         <div
           className="absolute left-1/2 top-[-11px] h-[22px] w-[22px] -translate-x-1/2 rotate-45 border border-yellow-300/55 bg-black"
           style={{ boxShadow: `0 0 18px ${template.accent}66` }}
         />
 
         <p
-          className={`${quoteFont.className} text-center text-[52px] font-medium leading-[1.02] tracking-[0.005em] text-[#f4eadf] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)]`}
+          className={`${quoteFont.className} relative z-10 text-center text-[52px] font-medium leading-[1.02] tracking-[0.005em] text-[#f4eadf] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)]`}
         >
           “{template.quote}”
         </p>
