@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { unlockResult } from "@/lib/unlockResult";
-import { toPng, getFontEmbedCSS } from "html-to-image";
+import { toBlob } from "html-to-image";
 import { useRef } from "react";
 import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
@@ -537,46 +537,59 @@ export default function ResultDetailPage() {
 
                 try {
                   await document.fonts.ready;
-                  const dataUrl = await toPng(shareRef.current, {
+
+                  await new Promise((resolve) => setTimeout(resolve, 500));
+
+                  const blob = await toBlob(shareRef.current, {
                     cacheBust: true,
-                    pixelRatio: 2,
+                    pixelRatio: /Android|iPhone|iPad|iPod/i.test(
+                      navigator.userAgent,
+                    )
+                      ? 1
+                      : 2,
                   });
+
+                  if (!blob) {
+                    throw new Error("Image blob failed");
+                  }
+
                   const safeTestName = result.test_type
                     .replace(/\s+/g, "-")
                     .toLowerCase();
+
                   const shortId = result.id.slice(0, 8);
+                  const fileName = `${safeTestName}-${shortId}.png`;
+
                   const isMobile = /Android|iPhone|iPad|iPod/i.test(
                     navigator.userAgent,
                   );
 
                   if (isMobile) {
-                    const blob = await (await fetch(dataUrl)).blob();
-
-                    const file = new File(
-                      [blob],
-                      `${safeTestName}-${shortId}.png`,
-                      {
-                        type: "image/png",
-                      },
-                    );
+                    const file = new File([blob], fileName, {
+                      type: "image/png",
+                    });
 
                     if (navigator.canShare?.({ files: [file] })) {
                       await navigator.share({
                         files: [file],
                         title: "MBTI Result",
                       });
-                      setToast(t("image_downloaded"));
-                      setShowToast(true);
-                      setTimeout(() => setShowToast(false), 2000);
                       return;
                     }
-                    window.open(dataUrl, "_blank");
+
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, "_blank");
                     return;
                   }
+
+                  const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
-                  link.download = `${safeTestName}-${shortId}.png`;
-                  link.href = dataUrl;
+                  link.download = fileName;
+                  link.href = url;
                   link.click();
+
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
                   setToast(t("image_downloaded"));
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
