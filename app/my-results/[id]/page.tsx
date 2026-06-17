@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { unlockResult } from "@/lib/unlockResult";
-import { toPng } from "html-to-image";
+import { toPng, getFontEmbedCSS } from "html-to-image";
 import { useRef } from "react";
 import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
@@ -537,9 +537,13 @@ export default function ResultDetailPage() {
 
                 try {
                   await document.fonts.ready;
+
+                  const fontEmbedCSS = await getFontEmbedCSS(shareRef.current);
+
                   const dataUrl = await toPng(shareRef.current, {
                     cacheBust: true,
                     pixelRatio: 2,
+                    fontEmbedCSS,
                   });
                   const blob = await (await fetch(dataUrl)).blob();
 
