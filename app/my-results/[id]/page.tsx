@@ -261,8 +261,14 @@ function getCssBackgroundUrls(node: HTMLElement) {
 function preloadImage(url: string) {
   return new Promise<void>((resolve) => {
     const img = new Image();
-    img.onload = () => resolve();
+    img.onload = async () => {
+      try {
+        await img.decode();
+      } catch {}
+      resolve();
+    };
     img.onerror = () => resolve();
+    img.crossOrigin = "anonymous";
     img.src = url;
   });
 }
@@ -590,7 +596,7 @@ export default function ResultDetailPage() {
                   const blob = await toBlob(shareRef.current, {
                     cacheBust: false,
                     pixelRatio: isMobile ? 1 : 2,
-                    backgroundColor: "#000000",
+                    backgroundColor: undefined,
                   });
 
                   if (!blob) {
