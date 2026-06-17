@@ -596,7 +596,6 @@ export default function ResultDetailPage() {
                   const blob = await toBlob(shareRef.current, {
                     cacheBust: false,
                     pixelRatio: isMobile ? 1 : 2,
-                    backgroundColor: undefined,
                   });
 
                   if (!blob) {
@@ -1510,7 +1509,7 @@ export default function ResultDetailPage() {
         </div>
       </div>
       <div
-        className="pointer-events-none fixed top-0 left-0 opacity-0"
+        className="pointer-events-none fixed left-[-9999px] top-0 opacity-100"
         style={{
           width: "1080px",
           height: "1350px",
