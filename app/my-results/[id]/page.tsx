@@ -553,25 +553,6 @@ export default function ResultDetailPage() {
                   const shortId = result.id.slice(0, 8);
                   const fileName = `${safeTestName}-${shortId}.png`;
 
-                  const file = new File([blob], fileName, {
-                    type: "image/png",
-                  });
-
-                  const isMobile = /Android|iPhone|iPad|iPod/i.test(
-                    navigator.userAgent,
-                  );
-
-                  if (isMobile && navigator.canShare?.({ files: [file] })) {
-                    await navigator.share({
-                      files: [file],
-                      title: "MBTI Result",
-                    });
-
-                    setToast(t("image_downloaded"));
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 2000);
-                    return;
-                  }
                   const link = document.createElement("a");
 
                   link.download = `${safeTestName}-${shortId}.png`;

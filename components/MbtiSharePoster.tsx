@@ -100,8 +100,9 @@ export default function MbtiSharePoster({
         </div>
 
         <h1
-          className="mt-4 w-[520px] text-center font-serif text-[224px] font-black leading-[0.74] tracking-[-0.05em]"
+          className="mt-4 w-[520px] text-center text-[224px] font-black leading-[0.74] tracking-[-0.05em]"
           style={{
+            fontFamily: "Georgia, 'Times New Roman', serif",
             color: template.accent,
             textShadow:
               "0 0 18px rgba(255,255,255,0.38), 0 0 58px rgba(190,130,255,0.45)",
