@@ -238,6 +238,44 @@ function getDisplayData(
     sideValue: t("ready"),
   };
 }
+function getCssBackgroundUrls(node: HTMLElement) {
+  const urls = new Set<string>();
+  const elements = [
+    node,
+    ...Array.from(node.querySelectorAll("*")),
+  ] as HTMLElement[];
+
+  elements.forEach((el) => {
+    const bg = window.getComputedStyle(el).backgroundImage;
+    const matches = bg.match(/url\(["']?(.*?)["']?\)/g);
+
+    matches?.forEach((match) => {
+      const url = match.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
+      if (url && url !== "none") urls.add(url);
+    });
+  });
+
+  return Array.from(urls);
+}
+
+function preloadImage(url: string) {
+  return new Promise<void>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
+  });
+}
+
+async function waitForShareAssets(node: HTMLElement) {
+  await document.fonts.ready;
+
+  const bgUrls = getCssBackgroundUrls(node);
+  await Promise.all(bgUrls.map(preloadImage));
+
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  await new Promise((resolve) => setTimeout(resolve, 300));
+}
 export default function ResultDetailPage() {
   const { t, lang } = useLang();
   const params = useParams();
@@ -536,27 +574,23 @@ export default function ResultDetailPage() {
                 if (!shareRef.current) return;
 
                 try {
-                  await document.fonts.ready;
-
-                  await Promise.all(
-                    Array.from(document.images).map((img) => {
-                      if (img.complete) return Promise.resolve();
-
-                      return new Promise((resolve) => {
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                      });
-                    }),
+                  setToast(
+                    lang === "en"
+                      ? "Preparing image..."
+                      : "Зураг бэлдэж байна...",
                   );
-                  await new Promise((resolve) => setTimeout(resolve, 300));
+                  setShowToast(true);
+
+                  await waitForShareAssets(shareRef.current);
+
+                  const isMobile = /Android|iPhone|iPad|iPod/i.test(
+                    navigator.userAgent,
+                  );
 
                   const blob = await toBlob(shareRef.current, {
-                    cacheBust: true,
-                    pixelRatio: /Android|iPhone|iPad|iPod/i.test(
-                      navigator.userAgent,
-                    )
-                      ? 0.7
-                      : 2,
+                    cacheBust: false,
+                    pixelRatio: isMobile ? 1 : 2,
+                    backgroundColor: "#000000",
                   });
 
                   if (!blob) {
@@ -566,13 +600,8 @@ export default function ResultDetailPage() {
                   const safeTestName = result.test_type
                     .replace(/\s+/g, "-")
                     .toLowerCase();
-
                   const shortId = result.id.slice(0, 8);
                   const fileName = `${safeTestName}-${shortId}.png`;
-
-                  const isMobile = /Android|iPhone|iPad|iPod/i.test(
-                    navigator.userAgent,
-                  );
 
                   if (isMobile) {
                     const file = new File([blob], fileName, {
@@ -584,27 +613,27 @@ export default function ResultDetailPage() {
                         files: [file],
                         title: "MBTI Result",
                       });
+
+                      setToast(t("image_downloaded"));
+                      setTimeout(() => setShowToast(false), 2000);
                       return;
                     }
-
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, "_blank");
-                    return;
                   }
 
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
-                  link.download = fileName;
                   link.href = url;
+                  link.download = fileName;
+                  document.body.appendChild(link);
                   link.click();
+                  link.remove();
 
-                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                  setTimeout(() => URL.revokeObjectURL(url), 3000);
 
                   setToast(t("image_downloaded"));
-                  setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
                 } catch (error) {
-                  console.error(error);
+                  console.error("Download image failed:", error);
                   setToast(t("download_failed"));
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
