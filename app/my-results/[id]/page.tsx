@@ -440,14 +440,14 @@ export default function ResultDetailPage() {
   const finalAdvice = resultData?.finalAdvice ?? recommendation;
   const personality = resultData?.personality ?? summary;
   const careers = resultData?.careers ?? [];
-  const mbtiShareType = "ENTJ";
-  result.test_type === "mbti"
-    ? (resultData?.type ??
-      resultData?.label ??
-      result.result_json?.type ??
-      result.result_json?.label ??
-      "MBTI")
-    : "MBTI";
+  const mbtiShareType =
+    result.test_type === "mbti"
+      ? (resultData?.type ??
+        resultData?.label ??
+        result.result_json?.type ??
+        result.result_json?.label ??
+        "MBTI")
+      : "MBTI";
 
   const mbtiGender: "female" | "male" =
     result.result_json?.gender === "male" ? "male" : "female";
@@ -540,13 +540,31 @@ export default function ResultDetailPage() {
                     cacheBust: true,
                     pixelRatio: 2,
                   });
-
-                  const link = document.createElement("a");
+                  const blob = await (await fetch(dataUrl)).blob();
 
                   const safeTestName = result.test_type
                     .replace(/\s+/g, "-")
                     .toLowerCase();
                   const shortId = result.id.slice(0, 8);
+                  const fileName = `${safeTestName}-${shortId}.png`;
+
+                  const file = new File([blob], fileName, {
+                    type: "image/png",
+                  });
+
+                  if (navigator.canShare?.({ files: [file] })) {
+                    await navigator.share({
+                      files: [file],
+                      title: "MBTI Result",
+                    });
+
+                    setToast(t("image_downloaded"));
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 2000);
+                    return;
+                  }
+                  const link = document.createElement("a");
+
                   link.download = `${safeTestName}-${shortId}.png`;
 
                   link.href = dataUrl;
@@ -573,9 +591,12 @@ export default function ResultDetailPage() {
                   {lang === "en" ? "Your share poster" : "Таны шэйр зураг"}
                 </p>
 
-                <div className="inline-block overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
-                  <div className="mx-auto h-[600px] w-[480px] overflow-hidden rounded-3xl">
-                    <div className="pointer-events-none h-[1350px] w-[1080px] origin-top-left scale-[0.444444]">
+                <div className="mx-auto w-full max-w-[480px] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
+                  <div
+                    className="relative w-full"
+                    style={{ aspectRatio: "4 / 5" }}
+                  >
+                    <div className="pointer-events-none absolute left-0 top-0 h-[1350px] w-[1080px] origin-top-left scale-[var(--poster-scale)] [--poster-scale:calc(min(100vw-48px,480px)/1080)]">
                       <MbtiSharePoster
                         type={mbtiShareType}
                         gender={mbtiGender}
@@ -1432,7 +1453,7 @@ export default function ResultDetailPage() {
           {result.test_type === "mbti" ? (
             <MbtiSharePoster type={mbtiShareType} gender={mbtiGender} />
           ) : (
-            <div className="w-[1080px] min-h-[1080px] rounded-[40px] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-16 text-white">
+            <div className="w-[1080px] min-h-[1350px] rounded-[40px] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-16 text-white">
               <div className="flex items-start justify-between gap-6">
                 <div>
                   <p className="text-xl font-semibold uppercase tracking-[0.3em] text-blue-300">
