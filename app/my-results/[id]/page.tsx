@@ -552,7 +552,11 @@ export default function ResultDetailPage() {
                     type: "image/png",
                   });
 
-                  if (navigator.canShare?.({ files: [file] })) {
+                  const isMobile = /Android|iPhone|iPad|iPod/i.test(
+                    navigator.userAgent,
+                  );
+
+                  if (isMobile && navigator.canShare?.({ files: [file] })) {
                     await navigator.share({
                       files: [file],
                       title: "MBTI Result",
