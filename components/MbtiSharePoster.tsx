@@ -1,5 +1,5 @@
 import { mbtiShareTemplates } from "@/data/mbtiShareTemplates";
-import { Caveat } from "next/font/google";
+import localFont from "next/font/local";
 import {
   Heart,
   Sparkle,
@@ -25,8 +25,8 @@ import {
   Lightning,
   Flame,
 } from "@phosphor-icons/react";
-const quoteFont = Caveat({
-  subsets: ["cyrillic"],
+const quoteFont = localFont({
+  src: "./fonts/Caveat-Regular.ttf",
   weight: "400",
 });
 export default function MbtiSharePoster({

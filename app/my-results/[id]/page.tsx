@@ -1454,7 +1454,7 @@ export default function ResultDetailPage() {
           </div>
         </div>
       </div>
-      <div className="pointer-events-none fixed left-0 top-0 z-[-1] opacity-0">
+      <div className="pointer-events-none fixed left-[-10000px] top-0">
         <div ref={shareRef}>
           {result.test_type === "mbti" ? (
             <MbtiSharePoster type={mbtiShareType} gender={mbtiGender} />
