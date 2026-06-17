@@ -538,7 +538,17 @@ export default function ResultDetailPage() {
                 try {
                   await document.fonts.ready;
 
-                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  await Promise.all(
+                    Array.from(document.images).map((img) => {
+                      if (img.complete) return Promise.resolve();
+
+                      return new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                      });
+                    }),
+                  );
+                  await new Promise((resolve) => setTimeout(resolve, 1500));
 
                   const blob = await toBlob(shareRef.current, {
                     cacheBust: true,
