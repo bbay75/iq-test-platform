@@ -73,14 +73,19 @@ export default function MbtiSharePoster({
 
   const TraitIcons = iconMap[key] ?? [Sparkle, Heart, Feather];
   return (
-    <div
-      className="relative h-[1350px] w-[1080px] overflow-hidden bg-slate-950 text-white"
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: bgSize ?? "cover",
-        backgroundPosition: bgPosition ?? "center",
-      }}
-    >
+    <div className="relative h-[1350px] w-[1080px] overflow-hidden bg-slate-950 text-white">
+      <img
+        src={bg}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{
+          objectPosition: bgPosition ?? "center",
+          transform:
+            bgSize && bgSize.endsWith("%")
+              ? `scale(${Number(bgSize.replace("%", "")) / 100})`
+              : undefined,
+        }}
+      />
       {/* Background readable cinematic overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/62 via-black/18 to-transparent" />
       {/* LEFT TEXT READABILITY SHADOW */}
