@@ -537,24 +537,15 @@ export default function ResultDetailPage() {
 
                 try {
                   await document.fonts.ready;
-
-                  const fontEmbedCSS = await getFontEmbedCSS(shareRef.current);
-
                   const dataUrl = await toPng(shareRef.current, {
                     cacheBust: true,
                     pixelRatio: 2,
-                    fontEmbedCSS,
                   });
-                  const blob = await (await fetch(dataUrl)).blob();
-
                   const safeTestName = result.test_type
                     .replace(/\s+/g, "-")
                     .toLowerCase();
                   const shortId = result.id.slice(0, 8);
-                  const fileName = `${safeTestName}-${shortId}.png`;
-
                   const link = document.createElement("a");
-
                   link.download = `${safeTestName}-${shortId}.png`;
 
                   link.href = dataUrl;
