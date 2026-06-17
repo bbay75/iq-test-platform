@@ -538,7 +538,7 @@ export default function ResultDetailPage() {
                 try {
                   await document.fonts.ready;
 
-                  await new Promise((resolve) => setTimeout(resolve, 500));
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
 
                   const blob = await toBlob(shareRef.current, {
                     cacheBust: true,
@@ -1464,7 +1464,14 @@ export default function ResultDetailPage() {
           </div>
         </div>
       </div>
-      <div className="pointer-events-none fixed left-[-10000px] top-0">
+      <div
+        className="pointer-events-none fixed top-0 left-0 opacity-0"
+        style={{
+          width: "1080px",
+          height: "1350px",
+          overflow: "hidden",
+        }}
+      >
         <div ref={shareRef}>
           {result.test_type === "mbti" ? (
             <MbtiSharePoster type={mbtiShareType} gender={mbtiGender} />
