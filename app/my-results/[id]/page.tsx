@@ -536,10 +536,10 @@ export default function ResultDetailPage() {
                 if (!shareRef.current) return;
 
                 try {
+                  await document.fonts.ready;
                   const dataUrl = await toPng(shareRef.current, {
                     cacheBust: true,
                     pixelRatio: 2,
-                    skipFonts: true,
                   });
                   const blob = await (await fetch(dataUrl)).blob();
 
