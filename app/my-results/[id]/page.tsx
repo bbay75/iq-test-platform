@@ -621,8 +621,6 @@ export default function ResultDetailPage() {
               onClick={async () => {
                 if (!shareRef.current) return;
 
-                let restoreBackgrounds: (() => void) | null = null;
-
                 try {
                   setToast(
                     lang === "en"
@@ -630,39 +628,77 @@ export default function ResultDetailPage() {
                       : "Зураг бэлдэж байна...",
                   );
                   setShowToast(true);
-
                   await waitForShareAssets(shareRef.current);
 
-                  restoreBackgrounds = await inlineCssBackgroundImages(
+                  const restoreBackgrounds = await inlineCssBackgroundImages(
                     shareRef.current,
                   );
-
-                  await new Promise((resolve) => setTimeout(resolve, 500));
 
                   const isMobile = /Android|iPhone|iPad|iPod/i.test(
                     navigator.userAgent,
                   );
-
                   const canvas = await html2canvas(shareRef.current, {
                     width: 1080,
                     height: 1350,
-                    scale: isMobile ? 1 : 2,
+                    scale: isMobile ? 0.75 : 2,
                     useCORS: true,
-                    backgroundColor: null,
+                    backgroundColor: "#000000",
                     logging: true,
+                    onclone: (clonedDoc) => {
+                      clonedDoc.body.querySelectorAll("*").forEach((node) => {
+                        const el = node as HTMLElement;
+                        el.style.colorScheme = "only light";
+
+                        const style =
+                          clonedDoc.defaultView?.getComputedStyle(el);
+                        if (!style) return;
+
+                        if (style.color.includes("lab(")) {
+                          el.style.color = "#ffffff";
+                        }
+
+                        if (style.backgroundColor.includes("lab(")) {
+                          el.style.backgroundColor = "transparent";
+                        }
+
+                        if (style.borderColor.includes("lab(")) {
+                          el.style.borderColor = "rgba(255,255,255,0.2)";
+                        }
+                      });
+                    },
                   });
 
                   const blob = await new Promise<Blob | null>((resolve) => {
-                    canvas.toBlob((blob) => resolve(blob), "image/png", 1);
+                    canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.92);
                   });
 
-                  if (!blob) throw new Error("Canvas blob failed");
+                  restoreBackgrounds();
+                  if (!blob) {
+                    throw new Error("Image blob failed");
+                  }
 
                   const safeTestName = result.test_type
                     .replace(/\s+/g, "-")
                     .toLowerCase();
                   const shortId = result.id.slice(0, 8);
-                  const fileName = `${safeTestName}-${shortId}.png`;
+                  const fileName = `${safeTestName}-${shortId}.jpg`;
+
+                  if (isMobile) {
+                    const file = new File([blob], fileName, {
+                      type: "image/png",
+                    });
+
+                    if (navigator.canShare?.({ files: [file] })) {
+                      await navigator.share({
+                        files: [file],
+                        title: "MBTI Result",
+                      });
+
+                      setToast(t("image_downloaded"));
+                      setTimeout(() => setShowToast(false), 2000);
+                      return;
+                    }
+                  }
 
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
@@ -678,12 +714,9 @@ export default function ResultDetailPage() {
                   setTimeout(() => setShowToast(false), 2000);
                 } catch (error) {
                   console.error("Download image failed:", error);
-                  alert(String(error));
                   setToast(t("download_failed"));
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
-                } finally {
-                  restoreBackgrounds?.();
                 }
               }}
               className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
