@@ -714,6 +714,12 @@ export default function ResultDetailPage() {
                   setTimeout(() => setShowToast(false), 2000);
                 } catch (error) {
                   console.error("Download image failed:", error);
+
+                  const message =
+                    error instanceof Error ? error.message : String(error);
+
+                  alert(message);
+
                   setToast(t("download_failed"));
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
