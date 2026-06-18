@@ -645,6 +645,9 @@ export default function ResultDetailPage() {
                     backgroundColor: "#000000",
                     logging: true,
                     onclone: (clonedDoc) => {
+                      const hasBadColor = (value: string) =>
+                        value.includes("lab(") || value.includes("oklab(");
+
                       clonedDoc.documentElement.style.colorScheme =
                         "only light";
                       clonedDoc.body.style.colorScheme = "only light";
@@ -658,30 +661,30 @@ export default function ResultDetailPage() {
 
                         el.style.colorScheme = "only light";
 
-                        el.style.color = style.color.includes("lab(")
-                          ? "#ffffff"
-                          : style.color;
-                        if (style.backgroundColor.includes("lab(")) {
+                        if (hasBadColor(style.color)) {
+                          el.style.color = "#ffffff";
+                        }
+
+                        if (hasBadColor(style.backgroundColor)) {
                           el.style.backgroundColor = "rgba(0,0,0,0)";
                         }
 
-                        el.style.borderTopColor = style.borderTopColor.includes(
-                          "lab(",
-                        )
-                          ? "rgba(255,255,255,0.2)"
-                          : style.borderTopColor;
-                        el.style.borderRightColor =
-                          style.borderRightColor.includes("lab(")
-                            ? "rgba(255,255,255,0.2)"
-                            : style.borderRightColor;
-                        el.style.borderBottomColor =
-                          style.borderBottomColor.includes("lab(")
-                            ? "rgba(255,255,255,0.2)"
-                            : style.borderBottomColor;
-                        el.style.borderLeftColor =
-                          style.borderLeftColor.includes("lab(")
-                            ? "rgba(255,255,255,0.2)"
-                            : style.borderLeftColor;
+                        if (hasBadColor(style.borderTopColor))
+                          el.style.borderTopColor = "rgba(255,255,255,0.2)";
+                        if (hasBadColor(style.borderRightColor))
+                          el.style.borderRightColor = "rgba(255,255,255,0.2)";
+                        if (hasBadColor(style.borderBottomColor))
+                          el.style.borderBottomColor = "rgba(255,255,255,0.2)";
+                        if (hasBadColor(style.borderLeftColor))
+                          el.style.borderLeftColor = "rgba(255,255,255,0.2)";
+
+                        if (hasBadColor(style.boxShadow)) {
+                          el.style.boxShadow = "none";
+                        }
+
+                        if (hasBadColor(style.textShadow)) {
+                          el.style.textShadow = "none";
+                        }
                       });
                     },
                   });
