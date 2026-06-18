@@ -645,24 +645,55 @@ export default function ResultDetailPage() {
                     backgroundColor: "#000000",
                     logging: true,
                     onclone: (clonedDoc) => {
-                      clonedDoc.body.querySelectorAll("*").forEach((node) => {
-                        const el = node as HTMLElement;
-                        el.style.colorScheme = "only light";
+                      clonedDoc.documentElement.style.colorScheme =
+                        "only light";
+                      clonedDoc.body.style.colorScheme = "only light";
+                      clonedDoc.body.style.backgroundColor = "#000000";
 
+                      clonedDoc.querySelectorAll("*").forEach((node) => {
+                        const el = node as HTMLElement;
                         const style =
                           clonedDoc.defaultView?.getComputedStyle(el);
                         if (!style) return;
 
-                        if (style.color.includes("lab(")) {
-                          el.style.color = "#ffffff";
+                        el.style.colorScheme = "only light";
+
+                        el.style.color = style.color.includes("lab(")
+                          ? "#ffffff"
+                          : style.color;
+                        el.style.backgroundColor =
+                          style.backgroundColor.includes("lab(")
+                            ? "transparent"
+                            : style.backgroundColor;
+
+                        el.style.borderTopColor = style.borderTopColor.includes(
+                          "lab(",
+                        )
+                          ? "rgba(255,255,255,0.2)"
+                          : style.borderTopColor;
+                        el.style.borderRightColor =
+                          style.borderRightColor.includes("lab(")
+                            ? "rgba(255,255,255,0.2)"
+                            : style.borderRightColor;
+                        el.style.borderBottomColor =
+                          style.borderBottomColor.includes("lab(")
+                            ? "rgba(255,255,255,0.2)"
+                            : style.borderBottomColor;
+                        el.style.borderLeftColor =
+                          style.borderLeftColor.includes("lab(")
+                            ? "rgba(255,255,255,0.2)"
+                            : style.borderLeftColor;
+
+                        if (style.boxShadow.includes("lab(")) {
+                          el.style.boxShadow = "none";
                         }
 
-                        if (style.backgroundColor.includes("lab(")) {
-                          el.style.backgroundColor = "transparent";
+                        if (style.textShadow.includes("lab(")) {
+                          el.style.textShadow = "none";
                         }
 
-                        if (style.borderColor.includes("lab(")) {
-                          el.style.borderColor = "rgba(255,255,255,0.2)";
+                        if (style.backgroundImage.includes("lab(")) {
+                          el.style.backgroundImage = "none";
                         }
                       });
                     },
