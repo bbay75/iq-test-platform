@@ -10,6 +10,7 @@ import { useRef } from "react";
 import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
 import MbtiSharePoster from "@/components/MbtiSharePoster";
+import { generateMbtiShareImage } from "@/lib/generateMbtiShareImage";
 type TestResult = {
   id: string;
   test_type: string;
@@ -619,73 +620,19 @@ export default function ResultDetailPage() {
             <button
               type="button"
               onClick={async () => {
-                if (!shareRef.current) return;
-                const posterNode = document.getElementById(
-                  "mbti-share-poster-export",
-                );
-
-                if (!posterNode) {
-                  throw new Error("Poster node not found");
-                }
                 try {
-                  setToast(
-                    lang === "en"
-                      ? "Preparing image..."
-                      : "Зураг бэлдэж байна...",
-                  );
+                  setToast("Зураг бэлдэж байна...");
                   setShowToast(true);
-                  await waitForShareAssets(posterNode);
 
-                  const restoreBackgrounds =
-                    await inlineCssBackgroundImages(posterNode);
-                  const isMobile = /Android|iPhone|iPad|iPod/i.test(
-                    navigator.userAgent,
+                  const blob = await generateMbtiShareImage(
+                    "/share/mbti/estj-male.jpg",
                   );
-                  const canvas = await html2canvas(posterNode, {
-                    width: 1080,
-                    height: 1350,
-                    scale: isMobile ? 0.75 : 2,
-                    useCORS: true,
-                    backgroundColor: "#000000",
-                    logging: true,
-                  });
-
-                  const blob = await new Promise<Blob | null>((resolve) => {
-                    canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.92);
-                  });
-
-                  restoreBackgrounds();
-                  if (!blob) {
-                    throw new Error("Image blob failed");
-                  }
-
-                  const safeTestName = result.test_type
-                    .replace(/\s+/g, "-")
-                    .toLowerCase();
-                  const shortId = result.id.slice(0, 8);
-                  const fileName = `${safeTestName}-${shortId}.jpg`;
-
-                  if (isMobile) {
-                    const file = new File([blob], fileName, {
-                      type: "image/png",
-                    });
-
-                    if (navigator.canShare?.({ files: [file] })) {
-                      await navigator.share({
-                        files: [file],
-                        title: "MBTI Result",
-                      });
-
-                      setToast(t("image_downloaded"));
-                      setTimeout(() => setShowToast(false), 2000);
-                      return;
-                    }
-                  }
 
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
+
                   link.href = url;
-                  link.download = fileName;
+                  link.download = "test.jpg";
                   document.body.appendChild(link);
                   link.click();
                   link.remove();
@@ -695,13 +642,8 @@ export default function ResultDetailPage() {
                   setToast(t("image_downloaded"));
                   setTimeout(() => setShowToast(false), 2000);
                 } catch (error) {
-                  console.error("Download image failed:", error);
-
-                  const message =
-                    error instanceof Error ? error.message : String(error);
-
-                  alert(message);
-
+                  console.error("Canvas generate failed:", error);
+                  alert(error instanceof Error ? error.message : String(error));
                   setToast(t("download_failed"));
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
