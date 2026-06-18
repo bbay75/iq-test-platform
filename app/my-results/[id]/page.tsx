@@ -625,7 +625,7 @@ export default function ResultDetailPage() {
                   setShowToast(true);
 
                   const blob = await generateMbtiShareImage(
-                    "/share/mbti/estj-male.jpg",
+                    "/share/mbti/male/estj.webp",
                   );
 
                   const url = URL.createObjectURL(blob);
