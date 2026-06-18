@@ -620,7 +620,13 @@ export default function ResultDetailPage() {
               type="button"
               onClick={async () => {
                 if (!shareRef.current) return;
+                const posterNode = document.getElementById(
+                  "mbti-share-poster-export",
+                );
 
+                if (!posterNode) {
+                  throw new Error("Poster node not found");
+                }
                 try {
                   setToast(
                     lang === "en"
@@ -628,65 +634,20 @@ export default function ResultDetailPage() {
                       : "Зураг бэлдэж байна...",
                   );
                   setShowToast(true);
-                  await waitForShareAssets(shareRef.current);
+                  await waitForShareAssets(posterNode);
 
-                  const restoreBackgrounds = await inlineCssBackgroundImages(
-                    shareRef.current,
-                  );
-
+                  const restoreBackgrounds =
+                    await inlineCssBackgroundImages(posterNode);
                   const isMobile = /Android|iPhone|iPad|iPod/i.test(
                     navigator.userAgent,
                   );
-                  const canvas = await html2canvas(shareRef.current, {
+                  const canvas = await html2canvas(posterNode, {
                     width: 1080,
                     height: 1350,
                     scale: isMobile ? 0.75 : 2,
                     useCORS: true,
                     backgroundColor: "#000000",
                     logging: true,
-                    onclone: (clonedDoc) => {
-                      const hasBadColor = (value: string) =>
-                        value.includes("lab(") || value.includes("oklab(");
-
-                      clonedDoc.documentElement.style.colorScheme =
-                        "only light";
-                      clonedDoc.body.style.colorScheme = "only light";
-                      clonedDoc.body.style.backgroundColor = "#000000";
-
-                      clonedDoc.querySelectorAll("*").forEach((node) => {
-                        const el = node as HTMLElement;
-                        const style =
-                          clonedDoc.defaultView?.getComputedStyle(el);
-                        if (!style) return;
-
-                        el.style.colorScheme = "only light";
-
-                        if (hasBadColor(style.color)) {
-                          el.style.color = "#ffffff";
-                        }
-
-                        if (hasBadColor(style.backgroundColor)) {
-                          el.style.backgroundColor = "rgba(0,0,0,0)";
-                        }
-
-                        if (hasBadColor(style.borderTopColor))
-                          el.style.borderTopColor = "rgba(255,255,255,0.2)";
-                        if (hasBadColor(style.borderRightColor))
-                          el.style.borderRightColor = "rgba(255,255,255,0.2)";
-                        if (hasBadColor(style.borderBottomColor))
-                          el.style.borderBottomColor = "rgba(255,255,255,0.2)";
-                        if (hasBadColor(style.borderLeftColor))
-                          el.style.borderLeftColor = "rgba(255,255,255,0.2)";
-
-                        if (hasBadColor(style.boxShadow)) {
-                          el.style.boxShadow = "none";
-                        }
-
-                        if (hasBadColor(style.textShadow)) {
-                          el.style.textShadow = "none";
-                        }
-                      });
-                    },
                   });
 
                   const blob = await new Promise<Blob | null>((resolve) => {

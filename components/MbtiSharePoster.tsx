@@ -74,6 +74,7 @@ export default function MbtiSharePoster({
   const TraitIcons = iconMap[key] ?? [Sparkle, Heart, Feather];
   return (
     <div
+      id="mbti-share-poster-export"
       className="relative h-[1350px] w-[1080px] overflow-hidden bg-slate-950 text-white"
       style={{
         backgroundImage: `url(${bg})`,
