@@ -661,10 +661,9 @@ export default function ResultDetailPage() {
                         el.style.color = style.color.includes("lab(")
                           ? "#ffffff"
                           : style.color;
-                        el.style.backgroundColor =
-                          style.backgroundColor.includes("lab(")
-                            ? "transparent"
-                            : style.backgroundColor;
+                        if (style.backgroundColor.includes("lab(")) {
+                          el.style.backgroundColor = "rgba(0,0,0,0)";
+                        }
 
                         el.style.borderTopColor = style.borderTopColor.includes(
                           "lab(",
@@ -683,18 +682,6 @@ export default function ResultDetailPage() {
                           style.borderLeftColor.includes("lab(")
                             ? "rgba(255,255,255,0.2)"
                             : style.borderLeftColor;
-
-                        if (style.boxShadow.includes("lab(")) {
-                          el.style.boxShadow = "none";
-                        }
-
-                        if (style.textShadow.includes("lab(")) {
-                          el.style.textShadow = "none";
-                        }
-
-                        if (style.backgroundImage.includes("lab(")) {
-                          el.style.backgroundImage = "none";
-                        }
                       });
                     },
                   });
