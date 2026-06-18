@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { unlockResult } from "@/lib/unlockResult";
-import { toBlob } from "html-to-image";
+import html2canvas from "html2canvas";
 import { useRef } from "react";
 import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
@@ -630,7 +630,7 @@ export default function ResultDetailPage() {
                   setShowToast(true);
                   await waitForShareAssets(shareRef.current);
 
-                  let restoreBackgrounds = await inlineCssBackgroundImages(
+                  const restoreBackgrounds = await inlineCssBackgroundImages(
                     shareRef.current,
                   );
 
@@ -638,9 +638,17 @@ export default function ResultDetailPage() {
                     navigator.userAgent,
                   );
 
-                  const blob = await toBlob(shareRef.current, {
-                    cacheBust: false,
-                    pixelRatio: isMobile ? 1 : 2,
+                  const canvas = await html2canvas(shareRef.current, {
+                    width: 1080,
+                    height: 1350,
+                    scale: isMobile ? 1 : 2,
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false,
+                  });
+
+                  const blob = await new Promise<Blob | null>((resolve) => {
+                    canvas.toBlob((blob) => resolve(blob), "image/png", 1);
                   });
 
                   restoreBackgrounds();
