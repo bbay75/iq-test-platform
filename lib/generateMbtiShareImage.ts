@@ -63,6 +63,8 @@ export async function generateMbtiShareImage({
 
   const image = await loadImage(bg);
 
+  await document.fonts.load("52px Caveat");
+
   ctx.drawImage(image, 0, 0, 1080, 1350);
 
   // left dark overlay
@@ -153,7 +155,7 @@ export async function generateMbtiShareImage({
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#f4eadf";
-  ctx.font = "52px cursive";
+  ctx.font = "400 52px Caveat";
   drawWrappedText(ctx, `“${template.quote}”`, 540, 1170, 820, 54);
 
   // brand
