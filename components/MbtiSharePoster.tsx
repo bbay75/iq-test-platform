@@ -1,5 +1,5 @@
 import { mbtiShareTemplates } from "@/data/mbtiShareTemplates";
-import localFont from "next/font/local";
+
 import {
   Heart,
   Sparkle,
@@ -25,10 +25,7 @@ import {
   Lightning,
   Flame,
 } from "@phosphor-icons/react";
-const quoteFont = localFont({
-  src: "./fonts/Caveat-Regular.ttf",
-  weight: "400",
-});
+
 export default function MbtiSharePoster({
   type,
   gender = "female",
@@ -171,7 +168,8 @@ export default function MbtiSharePoster({
         />
 
         <p
-          className={`${quoteFont.className} relative z-10 text-center text-[52px] font-medium leading-[1.02] tracking-[0.005em] text-[#f4eadf] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)]`}
+          className="relative z-10 text-center text-[52px] font-medium leading-[1.02] tracking-[0.005em] text-[#f4eadf] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)]"
+          style={{ fontFamily: "Caveat, cursive" }}
         >
           “{template.quote}”
         </p>
