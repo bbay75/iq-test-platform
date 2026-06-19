@@ -624,9 +624,10 @@ export default function ResultDetailPage() {
                   setToast("Зураг бэлдэж байна...");
                   setShowToast(true);
 
-                  const blob = await generateMbtiShareImage(
-                    "/share/mbti/male/estj.webp",
-                  );
+                  const blob = await generateMbtiShareImage({
+                    type: mbtiShareType,
+                    gender: mbtiGender,
+                  });
 
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
