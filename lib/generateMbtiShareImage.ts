@@ -46,67 +46,90 @@ async function loadPhosphorIcon(name: string, color: string) {
     img.src = url;
   });
 }
-function getTraitIconKey(strength: string) {
-  const map: Record<string, string> = {
-    "Алсын хараатай": "eye",
-    "Логик сэтгэлгээтэй": "brain",
-    "Бие даасан": "shield",
 
-    "Задлан шинжээч": "gear",
-    Сониуч: "lightbulb",
-    "Өөр өнцөгтэй": "eye",
+function getTraitIconCandidates(strength: string) {
+  const map: Record<string, string[]> = {
+    "Алсын хараатай": ["eye", "compass"],
+    "Логик сэтгэлгээтэй": ["brain", "gear"],
+    "Бие даасан": ["shield", "flag"],
 
-    Шийдэмгий: "flag",
-    Зорилготой: "target",
-    "Стратеги сэтгэлгээтэй": "compass",
+    "Задлан шинжээч": ["gear", "brain"],
+    Сониуч: ["lightbulb", "eye"],
+    "Өөр өнцөгтэй": ["eye", "compass"],
+    "Өөр өнцөг хардаг": ["eye", "compass"],
 
-    "Эмх цэгцтэй": "check-circle",
-    Хариуцлагатай: "shield",
-    "Үр дүнд төвлөрдөг": "target",
+    Шийдэмгий: ["flag", "target"],
+    Зорилготой: ["target", "flag"],
+    "Стратеги сэтгэлгээтэй": ["compass", "brain"],
 
-    Мэдрэмжтэй: "heart",
-    Бүтээлч: "sparkle",
-    "Зөөлөн сэтгэлтэй": "heart",
+    "Эмх цэгцтэй": ["check-circle", "gear"],
+    Хариуцлагатай: ["shield", "check-circle"],
+    "Үр дүнд төвлөрдөг": ["target", "check-circle"],
 
-    "Гоо зүйтэй": "palette",
-    "Чөлөөт сэтгэлгээтэй": "rocket",
+    Мэдрэмжтэй: ["heart", "sparkle"],
+    "Гүн мэдрэмжтэй": ["heart", "eye"],
+    "Зөөлөн сэтгэлтэй": ["hand-heart", "heart"],
+    Халамжтай: ["hand-heart", "heart"],
+    Бүтээлч: ["palette", "lightbulb"],
 
-    "Гүн мэдрэмжтэй": "heart",
-    "Зөн совинтой": "eye",
-    "Утга учир эрэлхийлдэг": "compass",
+    "Гоо зүйтэй": ["palette", "sparkle"],
+    "Чөлөөт сэтгэлгээтэй": ["rocket", "flower-lotus"],
 
-    "Урам зориг өгдөг": "sparkle",
-    "Хүмүүсийг ойлгодог": "users",
-    Найдвартай: "shield",
-    Тууштай: "target",
-    Зарчимтай: "check-circle",
+    "Зөн совинтой": ["eye", "sparkle"],
+    "Утга учир эрэлхийлдэг": ["compass", "eye"],
 
-    Халамжтай: "heart",
-    "Итгэл даадаг": "shield",
+    "Урам зориг өгдөг": ["sparkle", "sun"],
+    "Урам өгдөг": ["sparkle", "lightbulb"],
+    "Хүмүүсийг ойлгодог": ["users", "heart"],
 
-    Нийтэч: "users",
-    "Зохион байгуулдаг": "check-circle",
+    Найдвартай: ["shield", "check-circle"],
+    Тууштай: ["target", "shield"],
+    Зарчимтай: ["check-circle", "shield"],
+    "Итгэл даадаг": ["check-circle", "shield"],
 
-    "Эрч хүчтэй": "lightning",
-    "Урам өгдөг": "sparkle",
-    Нээлттэй: "rocket",
+    Нийтэч: ["users", "hand-waving"],
+    "Зохион байгуулагч": ["check-circle", "gear"],
 
-    "Хурдан сэтгэдэг": "lightning",
-    Санаачлагч: "lightbulb",
-    "Өөр өнцөг хардаг": "eye",
+    "Эрч хүчтэй": ["lightning", "rocket"],
+    Нээлттэй: ["flower-lotus", "users"],
 
-    "Ажил хэрэгч": "gear",
-    Шуурхай: "lightning",
-    "Эрсдэлд тайван": "shield",
+    "Хурдан сэтгэдэг": ["lightning", "brain"],
+    Санаачлагч: ["rocket", "lightbulb"],
 
-    Зоримог: "rocket",
-    "Нөхцөлд дасан зохицдог": "gear",
+    "Ажил хэрэгч": ["gear", "check-circle"],
+    Шуурхай: ["lightning", "flag"],
+    "Эрсдэлд тайван": ["shield", "compass"],
 
-    Эерэг: "sparkle",
-    "Амьд мэдрэмжтэй": "lightning",
+    Зоримог: ["flag", "rocket"],
+    "Нөхцөлд дасан зохицдог": ["rocket", "gear"],
+
+    Эерэг: ["smiley", "sparkle"],
+    "Амьд мэдрэмжтэй": ["confetti", "sparkle"],
   };
 
-  return map[strength] ?? "sparkle";
+  const candidates = map[strength];
+
+  if (!candidates) {
+    throw new Error(`Missing icon mapping for strength: ${strength}`);
+  }
+
+  return candidates;
+}
+
+function getUniqueTraitIconKeys(strengths: string[]) {
+  const used = new Set<string>();
+
+  return strengths.slice(0, 3).map((strength) => {
+    const candidates = getTraitIconCandidates(strength);
+    const picked = candidates.find((icon) => !used.has(icon));
+
+    if (!picked) {
+      throw new Error(`No unique icon left for strength: ${strength}`);
+    }
+
+    used.add(picked);
+    return picked;
+  });
 }
 export async function generateMbtiShareImage({
   type,
@@ -140,10 +163,10 @@ export async function generateMbtiShareImage({
   const accent = template.accent || "#d8b76a";
 
   const image = await loadCanvasImage(bg);
+  const traitIconNames = getUniqueTraitIconKeys(template.strengths);
+
   const traitIcons = await Promise.all(
-    template.strengths
-      .slice(0, 3)
-      .map((item) => loadPhosphorIcon(getTraitIconKey(item), accent)),
+    traitIconNames.map((name) => loadPhosphorIcon(name, accent)),
   );
   await Promise.all([
     document.fonts.load(`226px ${MBTI_FONT.type}`),

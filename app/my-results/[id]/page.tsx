@@ -558,14 +558,14 @@ export default function ResultDetailPage() {
   const finalAdvice = resultData?.finalAdvice ?? recommendation;
   const personality = resultData?.personality ?? summary;
   const careers = resultData?.careers ?? [];
-  const mbtiShareType = "INFP";
-  result.test_type === "mbti"
-    ? (resultData?.type ??
-      resultData?.label ??
-      result.result_json?.type ??
-      result.result_json?.label ??
-      "MBTI")
-    : "MBTI";
+  const mbtiShareType =
+    result.test_type === "mbti"
+      ? (resultData?.type ??
+        resultData?.label ??
+        result.result_json?.type ??
+        result.result_json?.label ??
+        "MBTI")
+      : "MBTI";
 
   const mbtiGender: "female" | "male" =
     result.result_json?.gender === "male" ? "male" : "female";

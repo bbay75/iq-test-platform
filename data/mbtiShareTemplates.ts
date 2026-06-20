@@ -178,7 +178,7 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     archetype: "Хүмүүсийг холбогч",
     rarity: "12%",
     accent: "#f2c879",
-    strengths: ["Нийтэч", "Халамжтай", "Зохион байгуулдаг"],
+    strengths: ["Нийтэч", "Халамжтай", "Зохион байгуулагч"],
     quote: "Та байгаа газраа илүү дулаан, илүү амьд, илүү ойр болгож чаддаг.",
     bgSize: "120%",
     bgPosition: "65% 100%",
