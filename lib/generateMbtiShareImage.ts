@@ -1,46 +1,113 @@
 import { mbtiShareTemplates } from "@/data/mbtiShareTemplates";
+import { MBTI_CANVAS, MBTI_FONT, MBTI_LAYOUT } from "@/lib/mbtiCanvasLayout";
+import {
+  drawCssBackgroundImage,
+  drawFittedLetterSpacedText,
+  drawLetterSpacedText,
+  drawRoundRect,
+  getBodyFontFamily,
+  getWrappedLines,
+  drawLines,
+  loadCanvasImage,
+} from "@/lib/mbtiCanvasUtils";
 
 type Gender = "female" | "male";
+async function loadPhosphorIcon(name: string, color: string) {
+  const res = await fetch(`/icons/phosphor/${name}.svg`);
 
-function loadImage(src: string) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Background image failed"));
-    img.src = src;
-  });
-}
-
-function drawWrappedText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-) {
-  const words = text.split(" ");
-  let line = "";
-  const lines: string[] = [];
-
-  for (const word of words) {
-    const testLine = line ? `${line} ${word}` : word;
-    if (ctx.measureText(testLine).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = testLine;
-    }
+  if (!res.ok) {
+    throw new Error(`Missing phosphor icon: ${name}.svg`);
   }
 
-  lines.push(line);
+  let svg = await res.text();
 
-  lines.forEach((l, i) => {
-    ctx.fillText(l, x, y + i * lineHeight);
+  svg = svg.replaceAll("currentColor", color);
+
+  if (!svg.includes("xmlns=")) {
+    svg = svg.replace("<svg", `<svg xmlns="http://www.w3.org/2000/svg"`);
+  }
+
+  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+
+  return await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error(`Failed to load icon: ${name}.svg`));
+    };
+
+    img.src = url;
   });
 }
+function getTraitIconKey(strength: string) {
+  const map: Record<string, string> = {
+    "Алсын хараатай": "eye",
+    "Логик сэтгэлгээтэй": "brain",
+    "Бие даасан": "shield",
 
+    "Задлан шинжээч": "gear",
+    Сониуч: "lightbulb",
+    "Өөр өнцөгтэй": "eye",
+
+    Шийдэмгий: "flag",
+    Зорилготой: "target",
+    "Стратеги сэтгэлгээтэй": "compass",
+
+    "Эмх цэгцтэй": "check-circle",
+    Хариуцлагатай: "shield",
+    "Үр дүнд төвлөрдөг": "target",
+
+    Мэдрэмжтэй: "heart",
+    Бүтээлч: "sparkle",
+    "Зөөлөн сэтгэлтэй": "heart",
+
+    "Гоо зүйтэй": "palette",
+    "Чөлөөт сэтгэлгээтэй": "rocket",
+
+    "Гүн мэдрэмжтэй": "heart",
+    "Зөн совинтой": "eye",
+    "Утга учир эрэлхийлдэг": "compass",
+
+    "Урам зориг өгдөг": "sparkle",
+    "Хүмүүсийг ойлгодог": "users",
+    Найдвартай: "shield",
+    Тууштай: "target",
+    Зарчимтай: "check-circle",
+
+    Халамжтай: "heart",
+    "Итгэл даадаг": "shield",
+
+    Нийтэч: "users",
+    "Зохион байгуулдаг": "check-circle",
+
+    "Эрч хүчтэй": "lightning",
+    "Урам өгдөг": "sparkle",
+    Нээлттэй: "rocket",
+
+    "Хурдан сэтгэдэг": "lightning",
+    Санаачлагч: "lightbulb",
+    "Өөр өнцөг хардаг": "eye",
+
+    "Ажил хэрэгч": "gear",
+    Шуурхай: "lightning",
+    "Эрсдэлд тайван": "shield",
+
+    Зоримог: "rocket",
+    "Нөхцөлд дасан зохицдог": "gear",
+
+    Эерэг: "sparkle",
+    "Амьд мэдрэмжтэй": "lightning",
+  };
+
+  return map[strength] ?? "sparkle";
+}
 export async function generateMbtiShareImage({
   type,
   gender = "female",
@@ -50,118 +117,329 @@ export async function generateMbtiShareImage({
 }) {
   const key = type.toUpperCase();
   const template = mbtiShareTemplates[key] ?? mbtiShareTemplates.INTJ;
-
   const isMale = gender === "male";
+
   const bg = isMale && template.maleBg ? template.maleBg : template.bg;
 
+  const bgSize =
+    isMale && template.maleBgSize ? template.maleBgSize : template.bgSize;
+
+  const bgPosition =
+    isMale && template.maleBgPosition
+      ? template.maleBgPosition
+      : template.bgPosition;
+
   const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1350;
+  canvas.width = MBTI_CANVAS.width;
+  canvas.height = MBTI_CANVAS.height;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
 
-  const image = await loadImage(bg);
-
-  await document.fonts.load("52px Caveat");
-
-  ctx.drawImage(image, 0, 0, 1080, 1350);
-
-  // left dark overlay
-  const g1 = ctx.createLinearGradient(0, 0, 720, 0);
-  g1.addColorStop(0, "rgba(0,0,0,0.72)");
-  g1.addColorStop(0.55, "rgba(0,0,0,0.34)");
-  g1.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = g1;
-  ctx.fillRect(0, 0, 720, 1350);
-
+  const bodyFont = getBodyFontFamily();
   const accent = template.accent || "#d8b76a";
 
-  // top label
-  ctx.textAlign = "center";
+  const image = await loadCanvasImage(bg);
+  const traitIcons = await Promise.all(
+    template.strengths
+      .slice(0, 3)
+      .map((item) => loadPhosphorIcon(getTraitIconKey(item), accent)),
+  );
+  await Promise.all([
+    document.fonts.load(`226px ${MBTI_FONT.type}`),
+    document.fonts.load(`52px ${MBTI_FONT.quote}`),
+    document.fonts.ready,
+  ]);
+
+  drawCssBackgroundImage(ctx, image, {
+    width: MBTI_CANVAS.width,
+    height: MBTI_CANVAS.height,
+    backgroundSize: bgSize ?? "cover",
+    backgroundPosition: bgPosition ?? "center",
+  });
+
+  const overlay = ctx.createLinearGradient(0, 0, 780, 0);
+  overlay.addColorStop(0, "rgba(0,0,0,0.82)");
+  overlay.addColorStop(0.42, "rgba(0,0,0,0.52)");
+  overlay.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = overlay;
+  ctx.fillRect(0, 0, MBTI_CANVAS.width, MBTI_CANVAS.height);
+
+  ctx.textBaseline = "alphabetic";
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(253,224,71,0.68)";
+  ctx.lineWidth = 1.4;
+  ctx.shadowColor = `${accent}88`;
+  ctx.shadowBlur = 8;
+
+  ctx.beginPath();
+  ctx.moveTo(MBTI_LAYOUT.centerX - 238, MBTI_LAYOUT.labelY - 5);
+  ctx.lineTo(MBTI_LAYOUT.centerX - 154, MBTI_LAYOUT.labelY - 5);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(MBTI_LAYOUT.centerX + 154, MBTI_LAYOUT.labelY - 5);
+  ctx.lineTo(MBTI_LAYOUT.centerX + 238, MBTI_LAYOUT.labelY - 5);
+  ctx.stroke();
+
+  ctx.restore();
+
   ctx.fillStyle = "#c9a95f";
-  ctx.font = "600 18px Arial";
-  ctx.fillText("ТАНЫ MBTI ТӨРӨЛ", 332, 146);
-
-  // MBTI type
-  ctx.fillStyle = accent;
-  ctx.font = "900 224px Georgia";
-  ctx.shadowColor = "rgba(255,255,255,0.35)";
-  ctx.shadowBlur = 18;
-  ctx.fillText(key, 332, 318);
-  ctx.shadowBlur = 0;
-
-  // archetype
-  ctx.fillStyle = "rgba(255,255,255,0.96)";
-  ctx.font = "700 40px Arial";
-  ctx.fillText(template.archetype, 360, 394);
-
-  // rarity
-  ctx.textAlign = "left";
-  ctx.font = "400 28px Arial";
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.fillText("Хүмүүсийн дөнгөж ", 72, 515);
-
-  const prefixWidth = ctx.measureText("Хүмүүсийн дөнгөж ").width;
-  ctx.fillStyle = accent;
-  ctx.font = "900 28px Arial";
-  ctx.fillText(template.rarity, 72 + prefixWidth, 515);
-
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "400 28px Arial";
-  ctx.fillText(
-    "-д байдаг",
-    72 + prefixWidth + ctx.measureText(template.rarity).width,
-    515,
+  ctx.font = `600 18px ${bodyFont}`;
+  drawLetterSpacedText(
+    ctx,
+    "ТАНЫ MBTI ТӨРӨЛ",
+    MBTI_LAYOUT.centerX,
+    MBTI_LAYOUT.labelY,
+    5,
+    "center",
   );
 
-  // strengths
-  const startY = 660;
-  template.strengths.forEach((item, index) => {
-    const y = startY + index * 145;
+  ctx.save();
+  ctx.textAlign = "left";
+  ctx.fillStyle = accent;
+  ctx.font = `900 226px ${MBTI_FONT.type}`;
+  ctx.shadowColor = "rgba(255,255,255,0.36)";
+  ctx.shadowBlur = 18;
+  ctx.fillText(key, MBTI_LAYOUT.typeX, MBTI_LAYOUT.typeY);
+  ctx.shadowColor = `${accent}99`;
+  ctx.shadowBlur = 54;
+  ctx.fillText(key, MBTI_LAYOUT.typeX, MBTI_LAYOUT.typeY);
+  ctx.restore();
+
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 12;
+
+  drawFittedLetterSpacedText(
+    ctx,
+    template.archetype.toUpperCase(),
+    MBTI_LAYOUT.left,
+    MBTI_LAYOUT.archetypeY,
+    MBTI_LAYOUT.contentWidth,
+    {
+      fontWeight: 500,
+      fontSize: 50,
+      fontFamily: bodyFont,
+      letterSpacing: 2,
+      color: "rgba(255,255,255,0.98)",
+    },
+  );
+
+  ctx.restore();
+
+  const dividerCenterX = MBTI_LAYOUT.left + MBTI_LAYOUT.contentWidth / 2;
+  const diamondGap = 38;
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(253,224,71,0.38)";
+  ctx.lineWidth = 1.4;
+  ctx.shadowColor = `${accent}66`;
+  ctx.shadowBlur = 6;
+
+  ctx.beginPath();
+  ctx.moveTo(MBTI_LAYOUT.left, MBTI_LAYOUT.dividerY);
+  ctx.lineTo(dividerCenterX - diamondGap, MBTI_LAYOUT.dividerY);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(dividerCenterX + diamondGap, MBTI_LAYOUT.dividerY);
+  ctx.lineTo(MBTI_LAYOUT.left + MBTI_LAYOUT.contentWidth, MBTI_LAYOUT.dividerY);
+  ctx.stroke();
+
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(dividerCenterX, MBTI_LAYOUT.dividerY);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = accent;
+  ctx.strokeStyle = "rgba(253,224,71,0.75)";
+  ctx.shadowColor = `${accent}88`;
+  ctx.shadowBlur = 10;
+  ctx.fillRect(-5.5, -5.5, 11, 11);
+  ctx.strokeRect(-5.5, -5.5, 11, 11);
+  ctx.restore();
+
+  ctx.save();
+  ctx.textAlign = "left";
+  ctx.shadowColor = "rgba(0,0,0,0.85)";
+  ctx.shadowBlur = 8;
+
+  ctx.fillStyle = "rgba(255,255,255,0.90)";
+  ctx.font = `400 28px ${bodyFont}`;
+  ctx.fillText("Хүмүүсийн дөнгөж ", MBTI_LAYOUT.left, MBTI_LAYOUT.rarityY);
+
+  const prefixWidth = ctx.measureText("Хүмүүсийн дөнгөж ").width;
+
+  ctx.fillStyle = accent;
+  ctx.font = `900 28px ${bodyFont}`;
+  ctx.fillText(
+    template.rarity,
+    MBTI_LAYOUT.left + prefixWidth,
+    MBTI_LAYOUT.rarityY,
+  );
+
+  const rarityWidth = ctx.measureText(template.rarity).width;
+
+  ctx.fillStyle = "rgba(255,255,255,0.90)";
+  ctx.font = `400 28px ${bodyFont}`;
+  ctx.fillText(
+    "-д байдаг",
+    MBTI_LAYOUT.left + prefixWidth + rarityWidth,
+    MBTI_LAYOUT.rarityY,
+  );
+
+  ctx.restore();
+
+  template.strengths.slice(0, 3).forEach((item, index) => {
+    const centerY = MBTI_LAYOUT.traitsTop + index * MBTI_LAYOUT.traitGap;
+
+    const traitIcon = traitIcons[index];
+    const iconSize = 48;
+
+    const iconBg = ctx.createRadialGradient(
+      MBTI_LAYOUT.iconX - 10,
+      centerY - 12,
+      4,
+      MBTI_LAYOUT.iconX,
+      centerY,
+      34,
+    );
+
+    iconBg.addColorStop(0, "rgba(255,255,255,0.38)");
+    iconBg.addColorStop(0.28, `${accent}55`);
+    iconBg.addColorStop(0.72, "rgba(20,25,60,0.72)");
+    iconBg.addColorStop(1, "rgba(0,0,0,0.78)");
+
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.75)";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 5;
 
     ctx.beginPath();
-    ctx.arc(118, y, 46, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.arc(MBTI_LAYOUT.iconX, centerY, 31, 0, Math.PI * 2);
+    ctx.fillStyle = iconBg;
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,220,120,0.45)";
+
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.arc(MBTI_LAYOUT.iconX, centerY, 31, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(253,224,71,0.55)";
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    ctx.fillStyle = accent;
-    ctx.font = "700 34px Arial";
-    ctx.fillText(["☷", "♢", "◎"][index] ?? "•", 106, y + 12);
+    ctx.beginPath();
+    ctx.arc(MBTI_LAYOUT.iconX - 7, centerY - 8, 10, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    ctx.fill();
 
+    ctx.save();
+    ctx.shadowColor = `${accent}cc`;
+    ctx.shadowBlur = 16;
+
+    ctx.drawImage(
+      traitIcon,
+      MBTI_LAYOUT.iconX - iconSize / 2,
+      centerY - iconSize / 2,
+      iconSize,
+      iconSize,
+    );
+
+    ctx.restore();
+
+    ctx.fillStyle = "rgba(254,240,138,0.35)";
+    ctx.fillRect(MBTI_LAYOUT.traitLineX, centerY - 31, 2, 62);
+
+    ctx.textAlign = "left";
     ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.font = "700 36px Arial";
-    ctx.fillText(item, 222, y + 12);
+    ctx.font = `600 34px ${bodyFont}`;
+    ctx.shadowColor = "rgba(0,0,0,0.95)";
+    ctx.shadowBlur = 12;
+    ctx.fillText(item, MBTI_LAYOUT.traitTextX, centerY + 12);
+    ctx.shadowBlur = 0;
   });
 
-  // quote box
-  ctx.fillStyle = "rgba(0,0,0,0.52)";
-  ctx.strokeStyle = "rgba(255,220,120,0.45)";
-  ctx.lineWidth = 1.5;
+  // auto quote - wide, old style
+  const quoteFont = `500 54px ${MBTI_FONT.quote}`;
+  const quoteMaxWidth = 960;
+  const quoteLineHeight = 60;
+  const quotePaddingY = 24;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#f4eadf";
+  ctx.font = quoteFont;
 
-  const qx = 72;
-  const qy = 1110;
-  const qw = 936;
-  const qh = 155;
-  const r = 32;
+  const quoteLines = getWrappedLines(
+    ctx,
+    `“${template.quote}”`,
+    quoteMaxWidth,
+    3,
+  );
+  const quoteHeight = Math.max(
+    138,
+    quoteLines.length * quoteLineHeight + quotePaddingY * 2,
+  );
 
-  ctx.beginPath();
-  ctx.roundRect(qx, qy, qw, qh, r);
+  const quoteTop = MBTI_CANVAS.height - 68 - quoteHeight;
+  const quoteCenterX = MBTI_LAYOUT.quoteLeft + MBTI_LAYOUT.quoteWidth / 2;
+  const quoteTextY = quoteTop + quotePaddingY + 42;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur = 20;
+
+  drawRoundRect(
+    ctx,
+    MBTI_LAYOUT.quoteLeft,
+    quoteTop,
+    MBTI_LAYOUT.quoteWidth,
+    quoteHeight,
+    32,
+  );
+
+  ctx.fillStyle = "rgba(0,0,0,0.56)";
   ctx.fill();
+  ctx.restore();
+
+  drawRoundRect(
+    ctx,
+    MBTI_LAYOUT.quoteLeft,
+    quoteTop,
+    MBTI_LAYOUT.quoteWidth,
+    quoteHeight,
+    32,
+  );
+
+  ctx.strokeStyle = "rgba(253,224,71,0.40)";
+  ctx.lineWidth = 1;
   ctx.stroke();
+
+  ctx.save();
+  ctx.translate(quoteCenterX, quoteTop - 0);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = "#000000";
+  ctx.strokeStyle = "rgba(253,224,71,0.55)";
+  ctx.shadowColor = `${accent}66`;
+  ctx.shadowBlur = 18;
+  ctx.fillRect(-11, -11, 22, 22);
+  ctx.strokeRect(-11, -11, 22, 22);
+  ctx.restore();
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#f4eadf";
-  ctx.font = "400 52px Caveat";
-  drawWrappedText(ctx, `“${template.quote}”`, 540, 1170, 820, 54);
+  ctx.font = quoteFont;
+  ctx.shadowColor = "rgba(0,0,0,0.95)";
+  ctx.shadowBlur = 12;
 
-  // brand
-  ctx.fillStyle = "rgba(255,255,255,0.45)";
-  ctx.font = "700 22px Arial";
-  ctx.fillText("s e e r . m n", 540, 1310);
+  drawLines(ctx, quoteLines, quoteCenterX, quoteTextY, quoteLineHeight);
+
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = "rgba(255,255,255,0.42)";
+  ctx.font = `600 22px ${bodyFont}`;
+  ctx.textAlign = "center";
+  ctx.fillText("seer.mn", quoteCenterX, MBTI_LAYOUT.watermarkY);
 
   return await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
@@ -170,6 +448,7 @@ export async function generateMbtiShareImage({
           reject(new Error("Image generation failed"));
           return;
         }
+
         resolve(blob);
       },
       "image/jpeg",
