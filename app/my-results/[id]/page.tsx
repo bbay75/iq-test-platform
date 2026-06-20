@@ -40,7 +40,38 @@ type TestResult = {
     [key: string]: any;
   } | null;
 };
+async function saveOrShareImage(blob: Blob) {
+  const file = new File([blob], "mbti-result.jpg", {
+    type: "image/jpeg",
+  });
 
+  // Mobile Safari / Chrome дээр native share sheet нээнэ
+  if (
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function" &&
+    typeof navigator.canShare === "function" &&
+    navigator.canShare({ files: [file] })
+  ) {
+    await navigator.share({
+      files: [file],
+      title: "MBTI тест үр дүн",
+      text: "Миний MBTI тестийн үр дүн",
+    });
+    return;
+  }
+
+  // Desktop fallback: шууд download
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "mbti-result.jpg";
+  document.body.appendChild(a);
+  a.click();
+
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 function formatTestTitle(testType: string) {
   switch (testType) {
     case "personal-color":
@@ -527,14 +558,14 @@ export default function ResultDetailPage() {
   const finalAdvice = resultData?.finalAdvice ?? recommendation;
   const personality = resultData?.personality ?? summary;
   const careers = resultData?.careers ?? [];
-  const mbtiShareType =
-    result.test_type === "mbti"
-      ? (resultData?.type ??
-        resultData?.label ??
-        result.result_json?.type ??
-        result.result_json?.label ??
-        "MBTI")
-      : "MBTI";
+  const mbtiShareType = "INFP";
+  result.test_type === "mbti"
+    ? (resultData?.type ??
+      resultData?.label ??
+      result.result_json?.type ??
+      result.result_json?.label ??
+      "MBTI")
+    : "MBTI";
 
   const mbtiGender: "female" | "male" =
     result.result_json?.gender === "male" ? "male" : "female";
@@ -629,16 +660,7 @@ export default function ResultDetailPage() {
                     gender: mbtiGender,
                   });
 
-                  const url = URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-
-                  link.href = url;
-                  link.download = "test.jpg";
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-
-                  setTimeout(() => URL.revokeObjectURL(url), 3000);
+                  await saveOrShareImage(blob);
 
                   setToast(t("image_downloaded"));
                   setTimeout(() => setShowToast(false), 2000);

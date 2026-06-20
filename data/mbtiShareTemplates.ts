@@ -89,11 +89,11 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     quote:
       "Та хэт мэдрэмтгий биш. Зүгээр л бусдын анзаардаггүй зүйлийг зүрхээрээ мэдэрдэг.",
     bgSize: "113%",
-    bgPosition: "10% 100%",
+    bgPosition: "50% 100%",
     // Male
     maleBg: "/share/mbti/male/infp.webp",
     maleBgSize: "115%",
-    maleBgPosition: "10% 100%",
+    maleBgPosition: "55% 100%",
   },
 
   ISFP: {
