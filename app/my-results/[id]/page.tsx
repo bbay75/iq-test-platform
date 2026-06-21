@@ -624,10 +624,27 @@ export default function ResultDetailPage() {
             <button
               type="button"
               onClick={() => {
-                const url = encodeURIComponent(window.location.href);
+                if (result.test_type !== "mbti") {
+                  const url = encodeURIComponent(window.location.href);
+                  window.open(
+                    `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+                    "_blank",
+                    "noopener,noreferrer",
+                  );
+                  return;
+                }
+
+                const type = String(mbtiShareType || "INTJ").toLowerCase();
+                const gender = mbtiGender;
+
+                const shareUrl = `${window.location.origin}/share/mbti/${gender}/${type}`;
+
                 window.open(
-                  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+                  `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    shareUrl,
+                  )}`,
                   "_blank",
+                  "noopener,noreferrer",
                 );
               }}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
