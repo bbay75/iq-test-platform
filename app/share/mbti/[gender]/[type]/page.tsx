@@ -37,7 +37,7 @@ export async function generateMetadata({
   const description = `${template.archetype} — өөрийн MBTI төрлөө мэдээрэй.`;
   const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.webp`;
   const pageUrl = `${SITE_URL}/share/mbti/${safeGender}/${safeType.toLowerCase()}`;
-  const imageSrc = `/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.webp`;
+
   return {
     title,
     description,
