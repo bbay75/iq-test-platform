@@ -35,7 +35,7 @@ export async function generateMetadata({
 
   const title = `Миний MBTI: ${safeType}`;
   const description = `${template.archetype} — өөрийн MBTI төрлөө мэдээрэй.`;
-  const imageUrl = `${SITE_URL}/share/mbti-og/${safeGender}/${safeType.toLowerCase()}.jpg`;
+  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.jpg`;
   const pageUrl = `${SITE_URL}/share/mbti/${safeGender}/${safeType.toLowerCase()}`;
 
   return {
@@ -51,8 +51,8 @@ export async function generateMetadata({
       images: [
         {
           url: imageUrl,
-          width: 1080,
-          height: 1350,
+          width: 1200,
+          height: 630,
           alt: `${safeType} MBTI share image`,
         },
       ],

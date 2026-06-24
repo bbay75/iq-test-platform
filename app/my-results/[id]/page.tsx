@@ -40,37 +40,61 @@ type TestResult = {
     [key: string]: any;
   } | null;
 };
-async function saveOrShareImage(blob: Blob) {
-  const file = new File([blob], "mbti-result.jpg", {
-    type: "image/jpeg",
-  });
+function isMobileDevice() {
+  if (typeof navigator === "undefined") return false;
 
-  // Mobile Safari / Chrome дээр native share sheet нээнэ
-  if (
-    typeof navigator !== "undefined" &&
-    typeof navigator.share === "function" &&
-    typeof navigator.canShare === "function" &&
-    navigator.canShare({ files: [file] })
-  ) {
-    await navigator.share({
-      files: [file],
-      title: "MBTI тест үр дүн",
-      text: "Миний MBTI тестийн үр дүн",
-    });
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.style.display = "none";
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 1000);
+}
+
+async function saveOrShareImage(blob: Blob) {
+  const filename = "mbti-result.jpg";
+
+  // Desktop дээр заавал download хийнэ
+  if (!isMobileDevice()) {
+    downloadBlob(blob, filename);
     return;
   }
 
-  // Desktop fallback: шууд download
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  // Mobile дээр share sheet ашиглана
+  const file = new File([blob], filename, { type: "image/jpeg" });
 
-  a.href = url;
-  a.download = "mbti-result.jpg";
-  document.body.appendChild(a);
-  a.click();
+  try {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      await navigator.share({
+        files: [file],
+        title: "Миний MBTI үр дүн",
+        text: "Миний MBTI үр дүн",
+      });
+      return;
+    }
+  } catch (error) {
+    // хэрэглэгч share sheet хаавал download руу унагаана
+    console.warn("Native share cancelled or failed:", error);
+  }
 
-  a.remove();
-  URL.revokeObjectURL(url);
+  // Mobile share болохгүй бол fallback download
+  downloadBlob(blob, filename);
 }
 function formatTestTitle(testType: string) {
   switch (testType) {
