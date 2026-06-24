@@ -35,9 +35,9 @@ export async function generateMetadata({
 
   const title = `Миний MBTI: ${safeType}`;
   const description = `${template.archetype} — өөрийн MBTI төрлөө мэдээрэй.`;
-  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.jpg`;
+  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.webp`;
   const pageUrl = `${SITE_URL}/share/mbti/${safeGender}/${safeType.toLowerCase()}`;
-
+  const imageSrc = `/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.webp`;
   return {
     title,
     description,
@@ -77,7 +77,7 @@ export default async function MbtiSharePage({ params }: PageProps) {
   const safeType = normalizeType(type);
   const template = mbtiShareTemplates[safeType];
 
-  const imageSrc = `/share/mbti-og/${safeGender}/${safeType.toLowerCase()}.jpg`;
+  const imageSrc = `/share/mbti-og-card/${safeGender}/${safeType.toLowerCase()}.webp`;
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-8 text-white">
