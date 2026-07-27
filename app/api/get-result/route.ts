@@ -17,8 +17,10 @@ export async function GET(req: NextRequest) {
       .from("test_results")
       .select("*")
       .eq("id", id)
-      .single();
-
+      .maybeSingle();
+    if (!data) {
+      return NextResponse.json({ error: "Result not found" }, { status: 404 });
+    }
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

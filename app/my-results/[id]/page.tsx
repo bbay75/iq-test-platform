@@ -495,20 +495,31 @@ export default function ResultDetailPage() {
 
   useEffect(() => {
     const fetchResult = async () => {
-      const { data, error } = await supabase
-        .from("test_results")
-        .select("*")
-        .eq("id", id)
-        .single();
+      try {
+        const res = await fetch(`/api/get-result?id=${id}`, {
+          cache: "no-store",
+        });
 
-      if (error) {
-        console.error("Fetch result error:", error.message);
-      } else if (data) {
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.error("Fetch result error:", data.error);
+          setResult(null);
+          setLoading(false);
+          return;
+        }
+
         setResult(data as TestResult);
         setIsUnlocked(data.is_unlocked);
+      } catch (error) {
+        console.error(
+          "Fetch result error:",
+          error instanceof Error ? error.message : String(error),
+        );
+        setResult(null);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     if (id) {
