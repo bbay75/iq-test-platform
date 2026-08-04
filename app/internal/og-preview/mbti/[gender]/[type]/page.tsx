@@ -59,7 +59,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
               />
 
               <div
-                className="text-[11px] font-semibold uppercase tracking-[0.34em]"
+                className="text-[13px] font-semibold uppercase tracking-[0.34em]"
                 style={{
                   color: template.accent,
                   opacity: 0.72,
@@ -117,12 +117,12 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
           </div>
 
           {/* ARCHETYPE */}
-          <div className="mt-[15px] text-[27px] font-semibold uppercase leading-none tracking-[0.025em]">
+          <div className="mt-[15px] text-[30px] font-semibold uppercase leading-none tracking-[0.025em]">
             {template.archetype}
           </div>
 
           {/* RARITY */}
-          <div className="mt-[15px] text-[18px] font-normal text-white/78">
+          <div className="mt-[15px] text-[21px] font-normal text-white/78">
             Хүмүүсийн дөнгөж{" "}
             <span
               className="font-bold"
@@ -136,7 +136,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
           </div>
 
           {/* STRENGTHS */}
-          <div className="mt-[20px] flex flex-col gap-[8px]">
+          <div className="mt-[22px] flex flex-col gap-[8px]">
             {template.strengths.slice(0, 3).map((strength, index) => {
               const iconName = traitIcons[index];
 
@@ -203,7 +203,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
 
         {/* QUOTE PANEL */}
         <div
-          className="absolute bottom-[50px] left-[74px] z-10 flex min-h-[82px] w-[700px] items-center rounded-[18px] border px-[26px] py-[13px] backdrop-blur-[3px]"
+          className="absolute bottom-[32px] left-[74px] z-10 flex min-h-[82px] w-[700px] items-center rounded-[18px] border px-[26px] py-[13px] backdrop-blur-[3px]"
           style={{
             borderColor: `${template.accent}55`,
             backgroundColor: "rgba(0,0,0,0.55)",
@@ -222,7 +222,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
 
           {/* QUOTE */}
           <div
-            className="w-full text-center text-[30px] leading-[1.10]"
+            className="w-full text-center text-[34px] leading-[1.08]"
             style={{
               fontFamily: '"Caveat", cursive',
               color: "#f4eadf",
