@@ -1,10 +1,8 @@
 export type MbtiShareTemplate = {
-  // Female (existing)
   bg: string;
   bgSize?: string;
   bgPosition?: string;
 
-  // Male
   maleBg?: string;
   maleBgSize?: string;
   maleBgPosition?: string;
@@ -14,8 +12,9 @@ export type MbtiShareTemplate = {
   accent: string;
   strengths: string[];
   quote: string;
-};
 
+  quoteLines?: string[];
+};
 export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
   INTJ: {
     bg: "/share/mbti/intj.webp",
@@ -70,11 +69,18 @@ export const mbtiShareTemplates: Record<string, MbtiShareTemplate> = {
     rarity: "8%",
     accent: "#f4c76b",
     strengths: ["Эмх цэгцтэй", "Хариуцлагатай", "Үр дүнд төвлөрдөг"],
+
     quote:
       "Та санааг яриа хэвээр үлдээдэггүй. Бодит ажил, бодит үр дүн болгож чаддаг.",
+
+    quoteLines: [
+      "“Та санааг яриа хэвээр үлдээдэггүй.",
+      "Бодит ажил, бодит үр дүн болгож чаддаг.”",
+    ],
+
     bgSize: "113%",
     bgPosition: "0% 80%",
-    // Male
+
     maleBg: "/share/mbti/male/estj.webp",
     maleBgSize: "113%",
     maleBgPosition: "0% 80%",

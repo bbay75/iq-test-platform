@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:mbti-og-estj": "tsx scripts/generate-mbti-og-card.ts"
   },
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
@@ -23,11 +24,16 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/opentype.js": "^1.3.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "opentype.js": "^2.0.0",
+    "playwright": "^1.62.1",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5"
   }
 }
