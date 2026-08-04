@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import sharp from "sharp";
 import path from "path";
 import fs from "fs/promises";
 
@@ -14,6 +15,9 @@ async function main() {
   await fs.mkdir(outputDirectory, {
     recursive: true,
   });
+
+  const tempPath = path.join(outputDirectory, "estj-temp.png");
+  const outputPath = path.join(outputDirectory, "estj-v5.png");
 
   const browser = await chromium.launch();
 
@@ -35,16 +39,29 @@ async function main() {
 
   const card = page.locator("#mbti-og-card");
 
-  const outputPath = path.join(outputDirectory, "estj-v4.png");
-
   await card.screenshot({
-    path: outputPath,
+    path: tempPath,
     type: "png",
   });
 
+  await sharp(tempPath)
+    .resize(1200, 630, {
+      fit: "fill",
+      kernel: sharp.kernel.lanczos3,
+    })
+    .sharpen({
+      sigma: 0.7,
+    })
+    .png({
+      compressionLevel: 9,
+      adaptiveFiltering: true,
+    })
+    .toFile(outputPath);
+
+  await fs.unlink(tempPath);
   await browser.close();
 
-  console.log("✅ High-quality ESTJ OG image generated");
+  console.log("✅ ESTJ v5 PNG generated");
   console.log(outputPath);
 }
 
