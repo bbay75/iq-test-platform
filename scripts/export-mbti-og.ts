@@ -37,7 +37,7 @@ async function main() {
     "share",
     "mbti-og-card",
     "male",
-    "estj.webp",
+    "estj-v3.webp",
   );
 
   await card.screenshot({

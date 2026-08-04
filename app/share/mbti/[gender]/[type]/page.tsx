@@ -39,7 +39,7 @@ export async function generateMetadata({
   const description = `${template.archetype} — өөрийн MBTI төрлөө мэдээрэй.`;
 
   // Facebook cache bust хийх шинэ OG image URL
-  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${typeSlug}.webp?v=3`;
+  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${typeSlug}-v3.webp`;
 
   const pageUrl = `${SITE_URL}/share/mbti/${safeGender}/${typeSlug}`;
 
