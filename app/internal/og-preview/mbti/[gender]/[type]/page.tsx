@@ -117,12 +117,12 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
           </div>
 
           {/* ARCHETYPE */}
-          <div className="mt-[15px] text-[30px] font-semibold uppercase leading-none tracking-[0.025em]">
+          <div className="mt-[15px] text-[36px] font-semibold uppercase leading-none tracking-[0.025em]">
             {template.archetype}
           </div>
 
           {/* RARITY */}
-          <div className="mt-[15px] text-[21px] font-normal text-white/78">
+          <div className="mt-[15px] text-[25px] font-normal text-white/78">
             Хүмүүсийн дөнгөж{" "}
             <span
               className="font-bold"
@@ -192,7 +192,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
                   />
 
                   {/* TEXT */}
-                  <div className="text-[21px] font-medium leading-none text-white/95">
+                  <div className="text-[29px] font-medium leading-none text-white/95">
                     {strength}
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
 
           {/* QUOTE */}
           <div
-            className="w-full text-center text-[34px] leading-[1.08]"
+            className="w-full text-center text-[40px] leading-[1.05]"
             style={{
               fontFamily: '"Caveat", cursive',
               color: "#f4eadf",

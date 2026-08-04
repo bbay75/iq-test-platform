@@ -1,9 +1,20 @@
 import { chromium } from "playwright";
-import sharp from "sharp";
 import path from "path";
 import fs from "fs/promises";
 
 async function main() {
+  const outputDirectory = path.join(
+    process.cwd(),
+    "public",
+    "share",
+    "mbti-og-card",
+    "male",
+  );
+
+  await fs.mkdir(outputDirectory, {
+    recursive: true,
+  });
+
   const browser = await chromium.launch();
 
   const page = await browser.newPage({
@@ -11,51 +22,29 @@ async function main() {
       width: 1400,
       height: 900,
     },
-    deviceScaleFactor: 1,
+    deviceScaleFactor: 2,
   });
 
   await page.goto("http://localhost:3000/internal/og-preview/mbti/male/estj", {
     waitUntil: "networkidle",
   });
 
-  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
 
   const card = page.locator("#mbti-og-card");
 
-  const tempPath = path.join(
-    process.cwd(),
-    "public",
-    "share",
-    "mbti-og-card",
-    "male",
-    "estj-temp.png",
-  );
-
-  const outputPath = path.join(
-    process.cwd(),
-    "public",
-    "share",
-    "mbti-og-card",
-    "male",
-    "estj-v3.webp",
-  );
+  const outputPath = path.join(outputDirectory, "estj-v4.png");
 
   await card.screenshot({
-    path: tempPath,
+    path: outputPath,
+    type: "png",
   });
-
-  await sharp(tempPath)
-    .resize(1200, 630)
-    .webp({
-      quality: 92,
-    })
-    .toFile(outputPath);
-
-  await fs.unlink(tempPath);
 
   await browser.close();
 
-  console.log("✅ New ESTJ OG image generated");
+  console.log("✅ High-quality ESTJ OG image generated");
   console.log(outputPath);
 }
 
