@@ -45,13 +45,6 @@ async function main() {
   });
 
   await sharp(tempPath)
-    .resize(1200, 630, {
-      fit: "fill",
-      kernel: sharp.kernel.lanczos3,
-    })
-    .sharpen({
-      sigma: 0.7,
-    })
     .png({
       compressionLevel: 9,
       adaptiveFiltering: true,
