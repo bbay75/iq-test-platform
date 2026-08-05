@@ -21,7 +21,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
     notFound();
   }
 
-  const bg = `/share/mbti-og-bg/${normalizedGender}/${type.toLowerCase()}.webp`;
+  const bg = `/share/mbti-og-card/${normalizedGender}/${type.toLowerCase()}.webp`;
 
   const traitIcons = getUniqueTraitIconKeys(template.strengths);
 

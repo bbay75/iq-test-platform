@@ -3,22 +3,28 @@ import sharp from "sharp";
 import path from "path";
 import fs from "fs/promises";
 
+const TYPES = [
+  "intj",
+  "intp",
+  "entj",
+  "entp",
+  "infj",
+  "infp",
+  "enfj",
+  "enfp",
+  "istj",
+  "isfj",
+  "estj",
+  "esfj",
+  "istp",
+  "isfp",
+  "estp",
+  "esfp",
+];
+
+const GENDERS = ["female", "male"] as const;
+
 async function main() {
-  const outputDirectory = path.join(
-    process.cwd(),
-    "public",
-    "share",
-    "mbti-og-card",
-    "male",
-  );
-
-  await fs.mkdir(outputDirectory, {
-    recursive: true,
-  });
-
-  const tempPath = path.join(outputDirectory, "estj-temp.png");
-  const outputPath = path.join(outputDirectory, "estj-final.jpg");
-
   const browser = await chromium.launch();
 
   const page = await browser.newPage({
@@ -29,40 +35,86 @@ async function main() {
     deviceScaleFactor: 2,
   });
 
-  await page.goto("http://localhost:3000/internal/og-preview/mbti/male/estj", {
-    waitUntil: "networkidle",
-  });
+  for (const gender of GENDERS) {
+    const outputDirectory = path.join(
+      process.cwd(),
+      "public",
+      "share",
+      "mbti-og-card",
+      gender,
+    );
 
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-  });
+    await fs.mkdir(outputDirectory, {
+      recursive: true,
+    });
 
-  const card = page.locator("#mbti-og-card");
+    for (const type of TYPES) {
+      console.log(`Generating ${gender}/${type}...`);
 
-  await card.screenshot({
-    path: tempPath,
-    type: "png",
-  });
+      const tempPath = path.join(outputDirectory, `${type}-temp.png`);
 
-  await sharp(tempPath)
-    .resize(1200, 630, {
-      fit: "fill",
-      kernel: sharp.kernel.lanczos3,
-    })
-    .sharpen({
-      sigma: 0.6,
-    })
-    .jpeg({
-      quality: 92,
-      chromaSubsampling: "4:4:4",
-      mozjpeg: true,
-    })
-    .toFile(outputPath);
-  await fs.unlink(tempPath);
+      const outputPath = path.join(outputDirectory, `${type}-final.jpg`);
+
+      await page.goto(
+        `http://localhost:3000/internal/og-preview/mbti/${gender}/${type}`,
+        {
+          waitUntil: "domcontentloaded",
+          timeout: 60000,
+        },
+      );
+
+      await page.waitForSelector("#mbti-og-card", {
+        timeout: 30000,
+      });
+
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+
+        const images = Array.from(document.images);
+
+        await Promise.all(
+          images.map((img) => {
+            if (img.complete) return Promise.resolve();
+
+            return new Promise<void>((resolve) => {
+              img.addEventListener("load", () => resolve(), { once: true });
+              img.addEventListener("error", () => resolve(), { once: true });
+            });
+          }),
+        );
+      });
+
+      const card = page.locator("#mbti-og-card");
+
+      await card.screenshot({
+        path: tempPath,
+        type: "png",
+      });
+
+      await sharp(tempPath)
+        .resize(1200, 630, {
+          fit: "fill",
+          kernel: sharp.kernel.lanczos3,
+        })
+        .sharpen({
+          sigma: 0.6,
+        })
+        .jpeg({
+          quality: 92,
+          chromaSubsampling: "4:4:4",
+          mozjpeg: true,
+        })
+        .toFile(outputPath);
+
+      await fs.unlink(tempPath);
+
+      console.log(`✅ ${gender}/${type}`);
+    }
+  }
+
   await browser.close();
 
-  console.log("✅ ESTJ final JPG generated");
-  console.log(outputPath);
+  console.log("✅ All 32 MBTI OG images generated");
 }
 
 main().catch((error) => {
