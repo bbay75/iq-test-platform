@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import sharp from "sharp";
 import path from "path";
 import fs from "fs/promises";
 
@@ -15,7 +16,8 @@ async function main() {
     recursive: true,
   });
 
-  const outputPath = path.join(outputDirectory, "estj-raw.png");
+  const tempPath = path.join(outputDirectory, "estj-temp.png");
+  const outputPath = path.join(outputDirectory, "estj-final.jpg");
 
   const browser = await chromium.launch();
 
@@ -24,7 +26,7 @@ async function main() {
       width: 1400,
       height: 900,
     },
-    deviceScaleFactor: 1,
+    deviceScaleFactor: 2,
   });
 
   await page.goto("http://localhost:3000/internal/og-preview/mbti/male/estj", {
@@ -38,13 +40,28 @@ async function main() {
   const card = page.locator("#mbti-og-card");
 
   await card.screenshot({
-    path: outputPath,
+    path: tempPath,
     type: "png",
   });
 
+  await sharp(tempPath)
+    .resize(1200, 630, {
+      fit: "fill",
+      kernel: sharp.kernel.lanczos3,
+    })
+    .sharpen({
+      sigma: 0.6,
+    })
+    .jpeg({
+      quality: 92,
+      chromaSubsampling: "4:4:4",
+      mozjpeg: true,
+    })
+    .toFile(outputPath);
+  await fs.unlink(tempPath);
   await browser.close();
 
-  console.log("✅ ESTJ raw PNG generated");
+  console.log("✅ ESTJ final JPG generated");
   console.log(outputPath);
 }
 
