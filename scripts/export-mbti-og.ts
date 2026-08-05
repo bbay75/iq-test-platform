@@ -17,7 +17,7 @@ async function main() {
   });
 
   const tempPath = path.join(outputDirectory, "estj-temp.png");
-  const outputPath = path.join(outputDirectory, "estj-v5.png");
+  const outputPath = path.join(outputDirectory, "estj-v6.png");
 
   const browser = await chromium.launch();
 
@@ -54,7 +54,7 @@ async function main() {
   await fs.unlink(tempPath);
   await browser.close();
 
-  console.log("✅ ESTJ v5 PNG generated");
+  console.log("✅ ESTJ v6 PNG generated");
   console.log(outputPath);
 }
 
