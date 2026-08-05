@@ -17,7 +17,7 @@ async function main() {
   });
 
   const tempPath = path.join(outputDirectory, "estj-temp.png");
-  const outputPath = path.join(outputDirectory, "estj-v6.png");
+  const outputPath = path.join(outputDirectory, "estj-final.jpg");
 
   const browser = await chromium.launch();
 
@@ -50,17 +50,18 @@ async function main() {
       kernel: sharp.kernel.lanczos3,
     })
     .sharpen({
-      sigma: 0.8,
+      sigma: 0.6,
     })
-    .png({
-      compressionLevel: 6,
+    .jpeg({
+      quality: 92,
+      chromaSubsampling: "4:4:4",
+      mozjpeg: true,
     })
     .toFile(outputPath);
-
   await fs.unlink(tempPath);
   await browser.close();
 
-  console.log("✅ ESTJ v6 PNG generated");
+  console.log("✅ ESTJ final JPG generated");
   console.log(outputPath);
 }
 

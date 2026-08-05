@@ -39,7 +39,7 @@ export async function generateMetadata({
   const description = `${template.archetype} — өөрийн MBTI төрлөө мэдээрэй.`;
 
   // Facebook cache bust хийх шинэ OG image URL
-  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${typeSlug}-v6.png`;
+  const imageUrl = `${SITE_URL}/share/mbti-og-card/${safeGender}/${typeSlug}-final.jpg`;
 
   const pageUrl = `${SITE_URL}/share/mbti/${safeGender}/${typeSlug}`;
 
@@ -89,7 +89,7 @@ export default async function MbtiSharePage({ params }: PageProps) {
   const typeSlug = safeType.toLowerCase();
 
   // Share page дээр мөн шинэ v2 image-г харуулна
-  const imageSrc = `/share/mbti-og-card/${safeGender}/${typeSlug}-v6.png`;
+  const imageSrc = `/share/mbti-og-card/${safeGender}/${typeSlug}-final.jpg`;
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-8 text-white">
