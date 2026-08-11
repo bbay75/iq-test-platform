@@ -22,7 +22,6 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
   }
 
   const bg = `/share/mbti-og-card/${normalizedGender}/${type.toLowerCase()}.webp`;
-
   const traitIcons = getUniqueTraitIconKeys(template.strengths);
 
   return (
@@ -136,12 +135,12 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
           </div>
 
           {/* STRENGTHS */}
-          <div className="mt-[22px] flex flex-col gap-[8px]">
+          <div className="mt-[18px] flex flex-col gap-[6px]">
             {template.strengths.slice(0, 3).map((strength, index) => {
               const iconName = traitIcons[index];
 
               return (
-                <div key={strength} className="flex h-[50px] items-center">
+                <div key={strength} className="flex h-[46px] items-center">
                   {/* 3D ICON CIRCLE */}
                   <div
                     className="relative flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full border-2"
@@ -203,7 +202,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
 
         {/* QUOTE PANEL */}
         <div
-          className="absolute bottom-[32px] left-[74px] z-10 flex min-h-[82px] w-[700px] items-center rounded-[18px] border px-[26px] py-[13px] backdrop-blur-[3px]"
+          className="absolute bottom-[24px] left-[74px] z-10 flex h-[116px] w-[720px] items-center rounded-[18px] border px-[28px] backdrop-blur-[3px]"
           style={{
             borderColor: `${template.accent}55`,
             backgroundColor: "rgba(0,0,0,0.55)",
@@ -222,7 +221,7 @@ export default async function MbtiOgPreviewPage({ params }: PageProps) {
 
           {/* QUOTE */}
           <div
-            className="w-full text-center text-[40px] leading-[1.05]"
+            className="w-full text-center text-[45px] leading-[1.02]"
             style={{
               fontFamily: '"Caveat", cursive',
               color: "#f4eadf",
