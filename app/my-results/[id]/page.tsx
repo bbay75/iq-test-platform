@@ -11,6 +11,25 @@ import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
 import MbtiSharePoster from "@/components/MbtiSharePoster";
 import { generateMbtiShareImage } from "@/lib/generateMbtiShareImage";
+import {
+  getMbtiPercentDescription,
+  getMbtiCombinedProfile,
+  getMbtiTraitScores,
+  getMbtiDominantTraits,
+  getMbtiReportInsights,
+} from "@/lib/mbtiPremium";
+import {
+  ChartNoAxesColumnIncreasing,
+  Fingerprint,
+  ShieldCheck,
+  TriangleAlert,
+  Heart,
+  BriefcaseBusiness,
+  CloudLightning,
+  Sprout,
+  ChevronRight,
+  ArrowUp,
+} from "lucide-react";
 type TestResult = {
   id: string;
   test_type: string;
@@ -380,6 +399,99 @@ async function inlineCssBackgroundImages(root: HTMLElement) {
 
   return () => restores.forEach((restore) => restore());
 }
+function getMbtiReportSections(lang: "mn" | "en") {
+  return [
+    {
+      id: "mbti-dimensions",
+      title:
+        lang === "en"
+          ? "Your personality percentages"
+          : "Таны зан төлөвийн хувь",
+      subtitle:
+        lang === "en"
+          ? "How strong are your 4 preferences?"
+          : "4 чиглэл хэдэн хувьтай гарсан бэ?",
+      icon: ChartNoAxesColumnIncreasing,
+      iconClass:
+        "border-violet-200 bg-violet-50 text-violet-600 dark:border-violet-400/15 dark:bg-violet-400/10 dark:text-violet-300",
+    },
+    {
+      id: "mbti-profile",
+      title: lang === "en" ? "Your personality profile" : "Таны хэв шинж",
+      subtitle:
+        lang === "en"
+          ? "A combined interpretation of your 4 preferences"
+          : "4 чиглэлийн хувийг нэгтгэсэн тайлал",
+      icon: Fingerprint,
+      iconClass:
+        "border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-indigo-400/15 dark:bg-indigo-400/10 dark:text-indigo-300",
+    },
+    {
+      id: "mbti-strengths",
+      title: lang === "en" ? "Strengths" : "Давуу тал",
+      subtitle:
+        lang === "en"
+          ? "Traits that stand out more strongly"
+          : "Танд илүү хүчтэй шинжүүд",
+      icon: ShieldCheck,
+      iconClass:
+        "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-400/15 dark:bg-emerald-400/10 dark:text-emerald-300",
+    },
+    {
+      id: "mbti-risks",
+      title: lang === "en" ? "Watch-outs" : "Анхаарах тал",
+      subtitle:
+        lang === "en"
+          ? "Patterns worth paying attention to"
+          : "Анхаарах хэв маягууд",
+      icon: TriangleAlert,
+      iconClass:
+        "border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-400/15 dark:bg-amber-400/10 dark:text-amber-300",
+    },
+    {
+      id: "mbti-relationships",
+      title: lang === "en" ? "Love & relationships" : "Хайр ба харилцаа",
+      subtitle: lang === "en" ? "How you tend to connect" : "Харилцах хэв маяг",
+      icon: Heart,
+      iconClass:
+        "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/15 dark:bg-rose-400/10 dark:text-rose-300",
+    },
+    {
+      id: "mbti-career",
+      title: lang === "en" ? "Work & career" : "Ажил ба карьер",
+      subtitle:
+        lang === "en"
+          ? "The work environment that suits you"
+          : "Танд тохирох ажлын орчин",
+      icon: BriefcaseBusiness,
+      iconClass:
+        "border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-400/15 dark:bg-blue-400/10 dark:text-blue-300",
+    },
+    {
+      id: "mbti-stress",
+      title: lang === "en" ? "Under stress" : "Стрессийн үе",
+      subtitle:
+        lang === "en"
+          ? "How your behavior may change"
+          : "Дарамтын үед яаж өөрчлөгдөх вэ",
+      icon: CloudLightning,
+      iconClass:
+        "border-purple-200 bg-purple-50 text-purple-600 dark:border-purple-400/15 dark:bg-purple-400/10 dark:text-purple-300",
+    },
+    {
+      id: "mbti-growth",
+      title: lang === "en" ? "Growth areas" : "Хөгжүүлэх тал",
+      subtitle:
+        lang === "en"
+          ? "Your next balancing steps"
+          : "Танд хэрэгтэй дараагийн алхам",
+      icon: Sprout,
+      iconClass:
+        "border-lime-200 bg-lime-50 text-lime-700 dark:border-lime-400/15 dark:bg-lime-400/10 dark:text-lime-300",
+    },
+  ] as const;
+}
+
 export default function ResultDetailPage() {
   const { t, lang } = useLang();
   const params = useParams();
@@ -397,7 +509,22 @@ export default function ResultDetailPage() {
   const [step, setStep] = useState(0);
   const [profileCredits, setProfileCredits] = useState(0);
   const [profileProgress, setProfileProgress] = useState(0);
+  const [showBackToReport, setShowBackToReport] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToReport(window.scrollY > 700);
+    };
 
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   useEffect(() => {
     if (!isUnlocked) return;
 
@@ -572,7 +699,7 @@ export default function ResultDetailPage() {
         : Math.round(result.result_json.confidence * 100)
       : 0;
   const displayData = getDisplayData(result, isUnlocked, t);
-
+  const mbtiReportSections = getMbtiReportSections(lang);
   const rawResultData = result.result_json;
 
   const resultData =
@@ -602,6 +729,83 @@ export default function ResultDetailPage() {
         "MBTI")
       : "MBTI";
 
+  const mbtiAxes = rawResultData?.axes ?? null;
+  const mbtiPersonalProfile =
+    result.test_type === "mbti"
+      ? getMbtiCombinedProfile(
+          String(rawResultData?.type ?? rawResultData?.label ?? "MBTI"),
+          mbtiAxes,
+          lang,
+        )
+      : null;
+
+  const mbtiAxisCards = mbtiAxes
+    ? [
+        {
+          key: "EI",
+          category: lang === "en" ? "Energy direction" : "Энергийн чиглэл",
+          firstLetter: "E",
+          firstLabel: lang === "en" ? "Extraverted" : "Гадагшаа чиглэсэн",
+          secondLetter: "I",
+          secondLabel: lang === "en" ? "Introverted" : "Дотогшоо чиглэсэн",
+          firstPercent: mbtiAxes.EI?.firstPercent ?? 50,
+          secondPercent: mbtiAxes.EI?.secondPercent ?? 50,
+        },
+        {
+          key: "SN",
+          category:
+            lang === "en" ? "Information style" : "Мэдээлэл хүлээн авах",
+          firstLetter: "S",
+          firstLabel: lang === "en" ? "Facts & reality" : "Бодит баримт",
+          secondLetter: "N",
+          secondLabel:
+            lang === "en" ? "Intuition & possibilities" : "Зөн совин, боломж",
+          firstPercent: mbtiAxes.SN?.firstPercent ?? 50,
+          secondPercent: mbtiAxes.SN?.secondPercent ?? 50,
+        },
+        {
+          key: "TF",
+          category: lang === "en" ? "Decision style" : "Шийдвэр гаргалт",
+          firstLetter: "T",
+          firstLabel: lang === "en" ? "Logic" : "Логик",
+          secondLetter: "F",
+          secondLabel: lang === "en" ? "Values & feelings" : "Мэдрэмж",
+          firstPercent: mbtiAxes.TF?.firstPercent ?? 50,
+          secondPercent: mbtiAxes.TF?.secondPercent ?? 50,
+        },
+        {
+          key: "JP",
+          category: lang === "en" ? "Lifestyle" : "Амьдралын хэв маяг",
+          firstLetter: "J",
+          firstLabel: lang === "en" ? "Structured" : "Төлөвлөгөөтэй",
+          secondLetter: "P",
+          secondLabel: lang === "en" ? "Flexible" : "Уян хатан",
+          firstPercent: mbtiAxes.JP?.firstPercent ?? 50,
+          secondPercent: mbtiAxes.JP?.secondPercent ?? 50,
+        },
+      ]
+    : [];
+
+  const mbtiAnswers = Array.isArray(rawResultData?.answers)
+    ? rawResultData.answers
+    : [];
+
+  const mbtiTraitScores = getMbtiTraitScores(mbtiAnswers);
+
+  const mbtiDominantTraits = getMbtiDominantTraits(
+    String(rawResultData?.type ?? rawResultData?.label ?? ""),
+    mbtiAxes,
+    mbtiTraitScores,
+    lang,
+  );
+  const {
+    strengths: mbtiPersonalStrengths,
+    risks: mbtiPersonalRisks,
+    relationships: mbtiRelationshipInsights,
+    career: mbtiCareerInsights,
+    stress: mbtiStressInsights,
+    growth: mbtiGrowthInsights,
+  } = getMbtiReportInsights(mbtiDominantTraits, lang);
   const mbtiGender: "female" | "male" =
     result.result_json?.gender === "male" ? "male" : "female";
   return (
@@ -752,7 +956,11 @@ export default function ResultDetailPage() {
                 </p>
               </div>
             ) : (
-              <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm dark:border-blue-900/40 dark:from-gray-900 dark:to-blue-950/30">
+              <div
+                className="rounded-3xl 
+              
+              border border-blue-200 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm dark:border-blue-900/40 dark:from-gray-900 dark:to-blue-950/30"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
@@ -1103,7 +1311,9 @@ export default function ResultDetailPage() {
               <div className="space-y-5">
                 <div className="rounded-3xl border border-indigo-300 bg-gradient-to-br from-indigo-50 via-purple-50 to-white p-6 shadow-xl dark:border-indigo-500/30 dark:from-indigo-500/10 dark:via-purple-500/10 dark:to-gray-900">
                   <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-700 dark:text-indigo-300">
-                    MBTI PREMIUM RESULT
+                    {lang === "en"
+                      ? "MBTI PREMIUM RESULT"
+                      : "ДЭЛГЭРЭНГҮЙ ҮР ДҮН"}
                   </p>
 
                   <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -1129,112 +1339,621 @@ export default function ResultDetailPage() {
                     </div>
                   </div>
                 </div>
+                <section
+                  id="mbti-report-start"
+                  className="scroll-mt-24 rounded-[28px] border border-violet-200/70 bg-gradient-to-br from-white via-violet-50/40 to-indigo-50/70 p-5 shadow-xl dark:border-violet-400/10 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/70 sm:p-6"
+                >
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-violet-400" />
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {lang === "en"
-                      ? "Personality overview"
-                      : "Зан төлөвийн дэлгэрэнгүй"}
-                  </h2>
-                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                    {personality}
-                  </p>
-                </div>
+                      <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">
+                        {lang === "en"
+                          ? "SEER PERSONAL REPORT"
+                          : "SEER ХУВИЙН ТАЙЛАН"}
+                      </p>
+                    </div>
+                    <h2 className="mt-3 text-xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-2xl">
+                      {lang === "en"
+                        ? "Your detailed MBTI report"
+                        : "Таны MBTI дэлгэрэнгүй тайлан"}
+                    </h2>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/20">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      ✔ {lang === "en" ? "Strengths" : "Давуу тал"}
-                    </h3>
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {strengths.length ? (
-                        strengths.map((item: string) => (
-                          <li key={item}>• {item}</li>
-                        ))
-                      ) : (
-                        <li>
-                          {lang === "en"
-                            ? "No strengths data."
-                            : "Давуу талын мэдээлэл алга."}
-                        </li>
-                      )}
-                    </ul>
+                    <p className="mt-1.5 text-sm leading-6 text-gray-600 dark:text-slate-400">
+                      {lang === "en"
+                        ? "A personalized report based on your 60 answers, including personality preferences, strengths, and growth areas."
+                        : "Таны 60 хариултад үндэслэсэн зан төлөвийн хувь, онцлог, давуу тал болон хөгжүүлэх чиглэлүүд"}
+                    </p>
                   </div>
 
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/20">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      ⚠ {lang === "en" ? "Watch out" : "Анхаарах зүйл"}
-                    </h3>
-                    <ul className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {weaknesses.length ? (
-                        weaknesses.map((item: string) => (
-                          <li key={item}>• {item}</li>
-                        ))
-                      ) : (
-                        <li>
-                          {lang === "en"
-                            ? "No weakness data."
-                            : "Анхаарах мэдээлэл алга."}
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {mbtiReportSections.map((item) => {
+                      const Icon = item.icon;
 
-                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {lang === "en"
-                      ? "Career direction"
-                      : "Ажил мэргэжлийн чиглэл"}
-                  </h3>
-
-                  {careers.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {careers.map((career: string) => (
-                        <span
-                          key={career}
-                          className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            document.getElementById(item.id)?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                          }}
+                          className="group flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3.5 py-3 text-left shadow-sm transition hover:border-violet-300 hover:bg-violet-50/40 dark:border-white/[0.08] dark:bg-white/[0.035] dark:hover:border-violet-400/30 dark:hover:bg-white/[0.06]"
                         >
-                          {career}
-                        </span>
-                      ))}
+                          <div
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${item.iconClass}`}
+                          >
+                            <Icon className="h-5 w-5" strokeWidth={1.8} />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {item.title}
+                            </h3>
+
+                            <p className="mt-0.5 hidden text-xs text-gray-500 dark:text-slate-500 sm:block">
+                              {item.subtitle}
+                            </p>
+                          </div>
+
+                          <ChevronRight className="h-4 w-4 shrink-0 text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-violet-500 dark:text-slate-600" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+                <section
+                  id="mbti-dimensions"
+                  className="scroll-mt-24 rounded-[28px] border border-gray-200 bg-white p-5 shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70 sm:p-6"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-violet-200 bg-violet-50 text-violet-600 dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-300">
+                      <ChartNoAxesColumnIncreasing
+                        className="h-5 w-5"
+                        strokeWidth={1.8}
+                      />
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">
+                        {lang === "en"
+                          ? "YOUR PERSONAL RESULT"
+                          : "ТАНЫ ХУВИЙН ҮР ДҮН"}
+                      </p>
+
+                      <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                        {lang === "en"
+                          ? "Your 4 personality preference percentages"
+                          : "Таны зан төлөвийн 4 чиглэлийн хувь"}
+                      </h2>
+
+                      <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-400">
+                        {lang === "en"
+                          ? "These percentages are calculated from your 60 answers and show which side of each preference is stronger."
+                          : "Аль чиглэл танд илүү давамгай байгааг таны 60 хариултаас тооцоолсон харьцаагаар харуулж байна."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 space-y-4">
+                    {mbtiAxisCards.map((axis) => {
+                      const insight = getMbtiPercentDescription(
+                        axis.firstLetter,
+                        axis.secondLetter,
+                        axis.firstLabel,
+                        axis.secondLabel,
+                        axis.firstPercent,
+                        axis.secondPercent,
+                        lang,
+                      );
+
+                      return (
+                        <div
+                          key={axis.key}
+                          className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4 sm:p-5 dark:border-white/[0.07] dark:bg-white/[0.035]"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                              {axis.category}
+                            </p>
+
+                            <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700 dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-300">
+                              {insight.dominantLetter}{" "}
+                              {Math.round(insight.dominantPercent)}%
+                            </span>
+                          </div>
+
+                          <div className="mt-4 flex items-end justify-between gap-4">
+                            <div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-lg font-black text-gray-900 dark:text-white">
+                                  {axis.firstLetter}
+                                </span>
+
+                                <span className="text-2xl font-black text-violet-600 dark:text-violet-300">
+                                  {Math.round(axis.firstPercent)}%
+                                </span>
+                              </div>
+
+                              <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+                                {axis.firstLabel}
+                              </p>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="flex items-baseline justify-end gap-1.5">
+                                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-300">
+                                  {Math.round(axis.secondPercent)}%
+                                </span>
+
+                                <span className="text-lg font-black text-gray-900 dark:text-white">
+                                  {axis.secondLetter}
+                                </span>
+                              </div>
+
+                              <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+                                {axis.secondLabel}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 flex h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-slate-800">
+                            <div
+                              className="h-full bg-violet-500 transition-all"
+                              style={{
+                                width: `${Math.max(
+                                  0,
+                                  Math.min(100, axis.firstPercent),
+                                )}%`,
+                              }}
+                            />
+
+                            <div
+                              className="h-full bg-indigo-400 transition-all dark:bg-indigo-500"
+                              style={{
+                                width: `${Math.max(
+                                  0,
+                                  Math.min(100, axis.secondPercent),
+                                )}%`,
+                              }}
+                            />
+                          </div>
+
+                          <p className="mt-4 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                            {insight.text}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+                <section
+                  id="mbti-profile"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-violet-50 to-indigo-50/60 p-5 dark:border-white/[0.08] dark:from-violet-500/10 dark:to-indigo-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-violet-200 bg-white text-violet-600 shadow-sm dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-300">
+                        <Fingerprint className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">
+                          {lang === "en"
+                            ? "YOUR PERSONAL PATTERN"
+                            : "ТАНЫ ХУВИЙН ХЭВ ШИНЖ"}
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? `Your ${mbtiShareType} pattern`
+                            : `Таны ${mbtiShareType} хэв шинж`}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  {mbtiPersonalProfile && (
+                    <div className="p-5 sm:p-6">
+                      <p className="text-base leading-7 text-gray-700 dark:text-slate-300">
+                        {mbtiPersonalProfile.intro}
+                      </p>
+
+                      <div className="mt-5 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 dark:border-violet-400/10 dark:bg-violet-400/[0.06] sm:p-5">
+                        <p className="text-sm font-bold text-violet-700 dark:text-violet-300">
+                          {lang === "en"
+                            ? "Your combined pattern"
+                            : "Таны нийлмэл хэв шинж"}
+                        </p>
+
+                        <p className="mt-2 leading-7 text-gray-700 dark:text-slate-300">
+                          {mbtiPersonalProfile.combined}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]">
+                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500 dark:text-slate-500">
+                            {lang === "en"
+                              ? "CLEAREST PREFERENCE"
+                              : "ХАМГИЙН ТОД ЧИГЛЭЛ"}
+                          </p>
+
+                          <p className="mt-2 text-sm leading-6 text-gray-700 dark:text-slate-300">
+                            {mbtiPersonalProfile.strongest}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]">
+                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500 dark:text-slate-500">
+                            {lang === "en"
+                              ? "MOST FLEXIBLE AREA"
+                              : "ИЛҮҮ УЯН ХАТАН ЧИГЛЭЛ"}
+                          </p>
+
+                          <p className="mt-2 text-sm leading-6 text-gray-700 dark:text-slate-300">
+                            {mbtiPersonalProfile.balanced}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
+                </section>
+                <section
+                  id="mbti-strengths"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-teal-50/60 p-5 dark:border-white/[0.08] dark:from-emerald-500/10 dark:to-teal-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-200 bg-white text-emerald-600 shadow-sm dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-300">
+                        <ShieldCheck className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
 
-                  <p className="mt-4 leading-7 text-gray-700 dark:text-gray-300">
-                    {careerAdvice}
-                  </p>
-                </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
+                          {lang === "en" ? "YOUR STRENGTHS" : "ТАНЫ ДАВУУ ТАЛ"}
+                        </p>
 
-                <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900 dark:bg-purple-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {lang === "en"
-                      ? "Relationship style"
-                      : "Харилцааны хэв маяг"}
-                  </h3>
-                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                    {relationshipAdvice || resultData?.relationships}
-                  </p>
-                </div>
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? "Your strongest behavioral patterns"
+                            : "Танд илүү тод илэрсэн давуу талууд"}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-5 dark:border-cyan-900 dark:bg-cyan-950/20">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {lang === "en" ? "Growth advice" : "Өсөлтийн зөвлөмж"}
-                  </h3>
-                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                    {growthAdvice}
-                  </p>
-                </div>
+                  <div className="grid gap-3 p-5 sm:p-6">
+                    {mbtiPersonalStrengths.map((item, index) => (
+                      <div
+                        key={item.key}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-sm font-bold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
+                            {index + 1}
+                          </div>
 
-                <div className="rounded-2xl border border-yellow-300 bg-yellow-50 p-5 dark:border-yellow-500/30 dark:bg-yellow-500/10">
-                  <h3 className="text-lg font-bold text-yellow-800 dark:text-yellow-300">
-                    ✨{" "}
-                    {lang === "en" ? "A note for you" : "Өөртөө сануулах зүйл"}
-                  </h3>
-                  <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                    {finalAdvice}
-                  </p>
-                </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="font-bold text-gray-900 dark:text-white">
+                                {item.title}
+                              </h3>
+
+                              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
+                                {item.level}
+                              </span>
+                            </div>
+
+                            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+                <section
+                  id="mbti-risks"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50/60 p-5 dark:border-white/[0.08] dark:from-amber-500/10 dark:to-orange-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-200 bg-white text-amber-600 shadow-sm dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
+                        <TriangleAlert className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-600 dark:text-amber-300">
+                          {lang === "en" ? "WATCH OUT FOR" : "АНХААРАХ ТАЛ"}
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? "When your strengths become too strong"
+                            : "Хүчтэй тал хэтрэх үед"}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 p-5 sm:p-6">
+                    {mbtiPersonalRisks.length > 0 ? (
+                      mbtiPersonalRisks.map((item) => (
+                        <div
+                          key={item.key}
+                          className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-400/10 dark:bg-amber-400/[0.04]"
+                        >
+                          <h3 className="font-bold text-gray-900 dark:text-white">
+                            {item.title}
+                          </h3>
+
+                          <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                            {item.description}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm leading-6 text-gray-600 dark:text-slate-300">
+                        {lang === "en"
+                          ? "Your answers do not show any strongly exaggerated behavioral tendency in this section."
+                          : "Таны хариултаас энэ хэсэгт хэт тод давамгайлсан хэв маяг илрээгүй байна."}
+                      </p>
+                    )}
+                  </div>
+                </section>
+                <section
+                  id="mbti-relationships"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-rose-50 to-pink-50/60 p-5 dark:border-white/[0.08] dark:from-rose-500/10 dark:to-pink-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-rose-200 bg-white text-rose-600 shadow-sm dark:border-rose-400/20 dark:bg-rose-400/10 dark:text-rose-300">
+                        <Heart className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-rose-600 dark:text-rose-300">
+                          {lang === "en"
+                            ? "LOVE & RELATIONSHIPS"
+                            : "ХАЙР БА ХАРИЛЦАА"}
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? "How you tend to connect with a partner"
+                            : "Та дотно харилцаанд хэрхэн ханддаг вэ?"}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 p-5 sm:p-6">
+                    {mbtiRelationshipInsights.map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-sm font-bold text-rose-700 dark:bg-rose-400/10 dark:text-rose-300">
+                            {item.letter}
+                          </div>
+
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-gray-900 dark:text-white">
+                                {item.level}
+                              </p>
+
+                              <span className="text-xs text-gray-500 dark:text-slate-500">
+                                {item.percent}%
+                              </span>
+                            </div>
+
+                            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section
+                  id="mbti-career"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-5 dark:border-white/[0.08] dark:from-blue-500/10 dark:to-indigo-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-200 bg-white text-blue-600 shadow-sm dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-300">
+                        <BriefcaseBusiness
+                          className="h-5 w-5"
+                          strokeWidth={1.8}
+                        />
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300">
+                          {lang === "en" ? "WORK & CAREER" : "АЖИЛ БА КАРЬЕР"}
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? "How you tend to work best"
+                            : "Та ямар орчинд илүү сайн ажилладаг вэ?"}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 p-5 sm:p-6">
+                    {mbtiCareerInsights.map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-400/10 dark:text-blue-300">
+                            {item.letter}
+                          </div>
+
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-gray-900 dark:text-white">
+                                {item.level}
+                              </p>
+
+                              <span className="text-xs text-gray-500 dark:text-slate-500">
+                                {item.percent}%
+                              </span>
+                            </div>
+
+                            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section
+                  id="mbti-stress"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-violet-50 to-purple-50/60 p-5 dark:border-white/[0.08] dark:from-violet-500/10 dark:to-purple-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-violet-200 bg-white text-violet-600 shadow-sm dark:border-violet-400/20 dark:bg-violet-400/10 dark:text-violet-300">
+                        <CloudLightning className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">
+                          {lang === "en" ? "UNDER STRESS" : "СТРЕССИЙН ҮЕ"}
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? "How your behavior may change under pressure"
+                            : "Дарамтын үед таны хэв маяг хэрхэн өөрчлөгддөг вэ?"}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 p-5 sm:p-6">
+                    {mbtiStressInsights.map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-sm font-bold text-violet-700 dark:bg-violet-400/10 dark:text-violet-300">
+                            {item.letter}
+                          </div>
+
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-gray-900 dark:text-white">
+                                {item.level}
+                              </p>
+
+                              <span className="text-xs text-gray-500 dark:text-slate-500">
+                                {item.percent}%
+                              </span>
+                            </div>
+
+                            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section
+                  id="mbti-growth"
+                  className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
+                >
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-lime-50 to-emerald-50/60 p-5 dark:border-white/[0.08] dark:from-lime-500/10 dark:to-emerald-500/5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-lime-200 bg-white text-lime-600 shadow-sm dark:border-lime-400/20 dark:bg-lime-400/10 dark:text-lime-300">
+                        <Sprout className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-lime-700 dark:text-lime-300">
+                          {lang === "en" ? "GROWTH" : "ХӨГЖҮҮЛЭХ ТАЛ"}
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+                          {lang === "en"
+                            ? "What can help you become more balanced?"
+                            : "Танд илүү тэнцвэртэй болоход юу туслах вэ?"}
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 p-5 sm:p-6">
+                    {mbtiGrowthInsights.map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-white/[0.07] dark:bg-white/[0.035]"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-lime-100 text-sm font-bold text-lime-700 dark:bg-lime-400/10 dark:text-lime-300">
+                            {item.letter}
+                          </div>
+
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-bold text-gray-900 dark:text-white">
+                                {item.level}
+                              </p>
+
+                              <span className="text-xs text-gray-500 dark:text-slate-500">
+                                {item.percent}%
+                              </span>
+                            </div>
+
+                            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+                {showBackToReport && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      document
+                        .getElementById("mbti-report-start")
+                        ?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                    }}
+                    className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 shadow-lg backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/10 dark:bg-slate-900/90 dark:text-white"
+                    aria-label={
+                      lang === "en"
+                        ? "Back to report navigation"
+                        : "Тайлангийн эхлэл рүү буцах"
+                    }
+                  >
+                    <ArrowUp className="h-5 w-5" strokeWidth={2} />
+                  </button>
+                )}
               </div>
             ) : result.test_type === "numerology" ? (
               (() => {
