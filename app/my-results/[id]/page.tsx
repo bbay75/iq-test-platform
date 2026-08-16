@@ -11,6 +11,8 @@ import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
 import MbtiSharePoster from "@/components/MbtiSharePoster";
 import { generateMbtiShareImage } from "@/lib/generateMbtiShareImage";
+import LovePairResult from "@/components/LovePairResult";
+import LoveDimensionsResult from "@/components/LoveDimensionsResult";
 import {
   getMbtiPercentDescription,
   getMbtiCombinedProfile,
@@ -29,6 +31,11 @@ import {
   Sprout,
   ChevronRight,
   ArrowUp,
+  MessageCircle,
+  Zap,
+  HeartHandshake,
+  Compass,
+  ArrowRight,
 } from "lucide-react";
 type TestResult = {
   id: string;
@@ -59,6 +66,68 @@ type TestResult = {
     [key: string]: any;
   } | null;
 };
+const loveSoloSections = [
+  {
+    key: "emotion",
+    labelKey: "love_dimension_emotion",
+    icon: Heart,
+    targetId: "love-emotion",
+    iconClass:
+      "bg-pink-100 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400",
+    hoverClass:
+      "hover:border-pink-300 hover:bg-pink-50 dark:hover:border-pink-800 dark:hover:bg-pink-950/20",
+  },
+  {
+    key: "communication",
+    labelKey: "love_dimension_communication",
+    icon: MessageCircle,
+    targetId: "love-communication",
+    iconClass:
+      "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+    hoverClass:
+      "hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-800 dark:hover:bg-blue-950/20",
+  },
+  {
+    key: "trust",
+    labelKey: "love_dimension_trust",
+    icon: ShieldCheck,
+    targetId: "love-trust",
+    iconClass:
+      "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400",
+    hoverClass:
+      "hover:border-emerald-300 hover:bg-emerald-50 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/20",
+  },
+  {
+    key: "conflict",
+    labelKey: "love_dimension_conflict",
+    icon: Zap,
+    targetId: "love-conflict",
+    iconClass:
+      "bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400",
+    hoverClass:
+      "hover:border-amber-300 hover:bg-amber-50 dark:hover:border-amber-800 dark:hover:bg-amber-950/20",
+  },
+  {
+    key: "intimacy",
+    labelKey: "love_dimension_intimacy",
+    icon: HeartHandshake,
+    targetId: "love-intimacy",
+    iconClass:
+      "bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400",
+    hoverClass:
+      "hover:border-rose-300 hover:bg-rose-50 dark:hover:border-rose-800 dark:hover:bg-rose-950/20",
+  },
+  {
+    key: "future",
+    labelKey: "love_dimension_future",
+    icon: Compass,
+    targetId: "love-future",
+    iconClass:
+      "bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400",
+    hoverClass:
+      "hover:border-violet-300 hover:bg-violet-50 dark:hover:border-violet-800 dark:hover:bg-violet-950/20",
+  },
+];
 function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
 
@@ -510,6 +579,9 @@ export default function ResultDetailPage() {
   const [profileCredits, setProfileCredits] = useState(0);
   const [profileProgress, setProfileProgress] = useState(0);
   const [showBackToReport, setShowBackToReport] = useState(false);
+  const [activeLoveSection, setActiveLoveSection] = useState<string | null>(
+    null,
+  );
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToReport(window.scrollY > 700);
@@ -654,32 +726,8 @@ export default function ResultDetailPage() {
     }
   }, [id]);
   useEffect(() => {
-    const loadProfile = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) return;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("free_credits, reward_progress")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Profile load error:", error.message);
-        return;
-      }
-
-      if (data) {
-        setProfileCredits(data.free_credits || 0);
-        setProfileProgress(data.reward_progress || 0);
-      }
-    };
-
-    loadProfile();
+    setProfileCredits(1);
+    setProfileProgress(0);
   }, []);
 
   if (loading) {
@@ -708,6 +756,8 @@ export default function ResultDetailPage() {
         rawResultData?.localized?.mn ??
         rawResultData)
       : rawResultData;
+  const isPairLoveResult =
+    result.test_type === "love" && rawResultData?.mode === "both";
   const weaknesses = resultData?.weaknesses ?? resultData?.challenges ?? [];
 
   const recommendation = resultData?.recommendation ?? resultData?.advice ?? "";
@@ -1091,6 +1141,25 @@ export default function ResultDetailPage() {
                         const data = await unlockResult(result.id);
                         setIsUnlocked(true);
                         setResult(data.result);
+                        if (
+                          result.test_type === "love" &&
+                          result.result_json?.mode === "both" &&
+                          result.result_json?.coupleSessionId
+                        ) {
+                          const { error: coupleUnlockError } = await supabase
+                            .from("love_couple_sessions")
+                            .update({
+                              result_unlocked: true,
+                            })
+                            .eq("id", result.result_json.coupleSessionId);
+
+                          if (coupleUnlockError) {
+                            console.error(
+                              "Love couple unlock sync error:",
+                              coupleUnlockError.message,
+                            );
+                          }
+                        }
                       }
                     } finally {
                       setUnlocking(false);
@@ -1709,7 +1778,7 @@ export default function ResultDetailPage() {
                   id="mbti-relationships"
                   className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-xl dark:border-white/[0.08] dark:bg-slate-950/70"
                 >
-                  <div className="border-b border-gray-200 bg-gradient-to-r from-rose-50 to-pink-50/60 p-5 dark:border-white/[0.08] dark:from-rose-500/10 dark:to-pink-500/5 sm:p-6">
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-rose-50 to-pink-50/60 p-5 dark:border-white/[0.08] dark:from-rose-950/35 dark:to-rose-950/20 sm:p-6">
                     <div className="flex items-center gap-3">
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-rose-200 bg-white text-rose-600 shadow-sm dark:border-rose-400/20 dark:bg-rose-400/10 dark:text-rose-300">
                         <Heart className="h-5 w-5" strokeWidth={1.8} />
@@ -2133,7 +2202,7 @@ export default function ResultDetailPage() {
                           {t("numerology_detailed_reading")}
                         </h2>
 
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           {detailedSections.map(
                             (section: any, index: number) => (
                               <details
@@ -2173,7 +2242,7 @@ export default function ResultDetailPage() {
 
                                   {Array.isArray(section.points) &&
                                     section.points.length > 0 && (
-                                      <div className="mt-4 space-y-3">
+                                      <div className="mt-4 space-y-6">
                                         {section.points.map(
                                           (
                                             point: string,
@@ -2200,113 +2269,230 @@ export default function ResultDetailPage() {
                 );
               })()
             ) : (
-              <div className="space-y-5">
-                <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t("summary")}
-                  </h2>
-                  <p className="mt-2 text-gray-700 dark:text-gray-300">
-                    {summary || t("no_summary")}
-                  </p>
-                </div>
+              <div className={isUnlocked ? "space-y-5" : "hidden"}>
+                {isPairLoveResult && (
+                  <LovePairResult
+                    result={rawResultData}
+                    person1Name={rawResultData.person1Name || "Хүн 1"}
+                    person2Name={rawResultData.person2Name || "Хүн 2"}
+                  />
+                )}
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      {t("strengths")}
-                    </h3>
-                    <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {strengths.length ? (
-                        strengths.map((item: string) => (
-                          <li key={item}>• {item}</li>
-                        ))
-                      ) : (
-                        <li>{t("no_strengths_data")}</li>
-                      )}
-                    </ul>
-                  </div>
+                <div className={isPairLoveResult ? "hidden" : "space-y-5"}>
+                  <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pink-500">
+                      {lang === "en"
+                        ? "YOUR RELATIONSHIP REPORT"
+                        : "ТАНЫ ХАРИЛЦААНЫ ТАЙЛАН"}
+                    </p>
 
-                  <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                    <h3 className="font-bold text-gray-900 dark:text-white">
-                      {t("weaknesses")}
-                    </h3>
-                    <ul className="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      {weaknesses.length ? (
-                        weaknesses.map((item: string) => (
-                          <li key={item}>• {item}</li>
-                        ))
-                      ) : (
-                        <li>{t("no_weaknesses_data")}</li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
+                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+                      {t("love_dimensions_title")}
+                    </h2>
 
-                <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                  <h3 className="font-bold text-gray-900 dark:text-white">
-                    {t("recommendation")}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                    {recommendation || t("no_recommendation")}
-                  </p>
-                </div>
+                    <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                      {t("love_view_details")}
+                    </p>
 
-                {result.test_type === "love" &&
-                  resultData?.nameCompatibilityTitle && (
-                    <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900">
-                      <h3 className="font-bold text-gray-900 dark:text-white">
-                        {resultData.nameCompatibilityTitle}
-                      </h3>
+                    <div className="mt-6 grid gap-3 md:grid-cols-2">
+                      {loveSoloSections.map((item) => {
+                        const Icon = item.icon;
 
-                      <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                        {resultData.nameCompatibilitySummary}
-                      </p>
+                        return (
+                          <button
+                            key={item.key}
+                            type="button"
+                            onClick={() => {
+                              setActiveLoveSection(item.key);
 
-                      <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                        {resultData.nameCompatibilityAdvice}
-                      </p>
+                              document
+                                .getElementById(item.targetId)
+                                ?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "start",
+                                });
+
+                              setTimeout(() => {
+                                setActiveLoveSection(null);
+                              }, 1400);
+                            }}
+                            className={`flex items-center justify-between rounded-xl border border-gray-200 p-4 text-left transition dark:border-gray-700 ${item.hoverClass}`}
+                          >
+                            <div className="flex min-w-0 items-center gap-3">
+                              <div
+                                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.iconClass}`}
+                              >
+                                <Icon className="h-5 w-5" />
+                              </div>
+
+                              <div className="min-w-0">
+                                <p className="font-semibold text-gray-900 dark:text-white">
+                                  {t(item.labelKey)}
+                                </p>
+
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                  {t("love_dimensions_desc")}
+                                </p>
+                              </div>
+                            </div>
+
+                            <ArrowRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {/* Давуу тал */}
+                    <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.04] p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/10 text-emerald-400">
+                          <ShieldCheck className="h-5 w-5" strokeWidth={1.8} />
+                        </div>
 
-                {result.test_type === "love" &&
-                  Array.isArray(resultData?.detailedSections) &&
-                  resultData.detailedSections.length > 0 && (
-                    <div className="space-y-4">
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {t("detailed_compatibility")}
-                      </h2>
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">
+                            {lang === "en" ? "STRENGTHS" : "ДАВУУ ТАЛ"}
+                          </p>
 
-                      {resultData.detailedSections.map((section: any) => (
-                        <div
-                          key={section.key}
-                          className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900"
-                        >
-                          <div className="flex items-center justify-between gap-4">
-                            <h3 className="font-bold text-gray-900 dark:text-white">
-                              {section.title}
-                            </h3>
+                          <h3 className="mt-1 font-bold text-gray-900 dark:text-white">
+                            {lang === "en"
+                              ? "What is working well"
+                              : "Таны харилцааны хүчтэй талууд"}
+                          </h3>
+                        </div>
+                      </div>
 
-                            <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">
-                              {section.score}%
-                            </span>
+                      <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                        {strengths.length ? (
+                          strengths.map((item: string) => (
+                            <li key={item}>• {item}</li>
+                          ))
+                        ) : (
+                          <li>{t("no_strengths_data")}</li>
+                        )}
+                      </ul>
+                    </div>
+
+                    {/* Анхаарах зүйл */}
+                    <div className="rounded-2xl border border-amber-400/15 bg-amber-400/[0.04] p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/15 bg-amber-400/10 text-amber-400">
+                          <TriangleAlert
+                            className="h-5 w-5"
+                            strokeWidth={1.8}
+                          />
+                        </div>
+
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-400">
+                            {lang === "en" ? "WATCH-OUTS" : "АНХААРАХ ТАЛ"}
+                          </p>
+
+                          <h3 className="mt-1 font-bold text-gray-900 dark:text-white">
+                            {lang === "en"
+                              ? "Areas worth paying attention to"
+                              : "Анхаарах хэрэгтэй зүйлс"}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                        {weaknesses.length ? (
+                          weaknesses.map((item: string) => (
+                            <li key={item}>• {item}</li>
+                          ))
+                        ) : (
+                          <li>{t("no_weaknesses_data")}</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-violet-400/15 bg-violet-400/[0.04] p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-400/15 bg-violet-400/10 text-violet-400">
+                        <Compass className="h-5 w-5" strokeWidth={1.8} />
+                      </div>
+
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-400">
+                          {lang === "en" ? "GUIDANCE" : "ЗӨВЛӨМЖ"}
+                        </p>
+
+                        <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                          {lang === "en"
+                            ? "What to focus on next"
+                            : "Дараагийн алхам"}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                      {recommendation || t("no_recommendation")}
+                    </p>
+                  </div>
+
+                  {result.test_type === "love" &&
+                    resultData?.nameCompatibilityTitle && (
+                      <div className="rounded-2xl border border-fuchsia-400/15 bg-fuchsia-400/[0.04] p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/15 bg-fuchsia-400/10 text-fuchsia-400">
+                            <HeartHandshake
+                              className="h-5 w-5"
+                              strokeWidth={1.8}
+                            />
                           </div>
 
-                          <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                            {section.description}
-                          </p>
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-fuchsia-400">
+                              {lang === "en"
+                                ? "NAME COMPATIBILITY"
+                                : "НЭРНИЙ ЗОХИЦОЛ"}
+                            </p>
 
-                          <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                            {section.advice}
-                          </p>
+                            <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                              {resultData.nameCompatibilityTitle}
+                            </h3>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+
+                        {resultData.nameCompatibilitySummary && (
+                          <p className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                            {resultData.nameCompatibilitySummary}
+                          </p>
+                        )}
+
+                        {resultData.nameCompatibilityAdvice && (
+                          <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                            {resultData.nameCompatibilityAdvice}
+                          </p>
+                        )}
+
+                        <p className="mt-4 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                          {lang === "en"
+                            ? "This section is for entertainment and does not affect your relationship score."
+                            : "Энэ хэсэг нь сонирхлын зориулалттай бөгөөд харилцааны үндсэн үнэлгээнд нөлөөлөхгүй."}
+                        </p>
+                      </div>
+                    )}
+
+                  {result.test_type === "love" &&
+                    !isPairLoveResult &&
+                    Array.isArray(resultData?.detailedSections) &&
+                    resultData.detailedSections.length > 0 && (
+                      <LoveDimensionsResult
+                        sections={resultData.detailedSections}
+                        mode="solo"
+                      />
+                    )}
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
       <div
         className="pointer-events-none fixed left-[-9999px] top-0 opacity-100"
         style={{

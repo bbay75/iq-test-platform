@@ -11,6 +11,9 @@ type ResultItem = {
   score: number | null;
   created_at: string;
   is_unlocked: boolean;
+  result_json?: {
+    mode?: "solo" | "both";
+  } | null;
 };
 
 function formatTestName(testType: string, t: (key: any) => string) {
@@ -40,9 +43,21 @@ export default function MyResultsPage() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        console.log("MY RESULTS USER:", user?.id);
+
+        if (!user) {
+          setResults([]);
+          return;
+        }
+
         const { data, error } = await supabase
           .from("test_results")
-          .select("id, test_type, score, created_at, is_unlocked")
+          .select("id, test_type, score, created_at, is_unlocked, result_json")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -62,7 +77,6 @@ export default function MyResultsPage() {
 
     fetchResults();
   }, []);
-
   return (
     <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
       <div className="mx-auto max-w-5xl space-y-6">
@@ -115,15 +129,31 @@ export default function MyResultsPage() {
                       {formatTestName(r.test_type, t)}
                     </h2>
 
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        r.is_unlocked
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                          : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
-                      }`}
-                    >
-                      {r.is_unlocked ? t("unlocked") : t("locked")}
-                    </span>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {r.test_type === "love" && r.result_json?.mode && (
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            r.result_json.mode === "both"
+                              ? "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300"
+                              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                          }`}
+                        >
+                          {r.result_json.mode === "both"
+                            ? "Хамтдаа"
+                            : "Ганцаараа"}
+                        </span>
+                      )}
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          r.is_unlocked
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                        }`}
+                      >
+                        {r.is_unlocked ? t("unlocked") : t("locked")}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="mt-4 space-y-2">
@@ -138,7 +168,9 @@ export default function MyResultsPage() {
                       <span className="font-medium text-gray-800 dark:text-gray-200">
                         {t("mr_date")}:
                       </span>{" "}
-                      {new Date(r.created_at).toLocaleString()}
+                      {new Date(r.created_at).toLocaleString("mn-MN", {
+                        timeZone: "Asia/Ulaanbaatar",
+                      })}
                     </p>
                   </div>
 

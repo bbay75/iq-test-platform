@@ -1,9 +1,4 @@
-type LoveCategory =
-  | "communication"
-  | "trust"
-  | "emotion"
-  | "conflict"
-  | "future";
+import { loveQuestions, type LoveCategory } from "@/data/loveQuestions";
 
 type LoveDetailedSection = {
   key: LoveCategory;
@@ -38,6 +33,9 @@ type LoveCalculationResult = {
   nameCompatibilityAdvice: string;
 
   categoryScores: Record<LoveCategory, number>;
+  person1CategoryScores?: Record<LoveCategory, number>;
+  person2CategoryScores?: Record<LoveCategory, number>;
+  categoryGaps?: Record<LoveCategory, number>;
   detailedSections: LoveDetailedSection[];
 
   summary: string;
@@ -116,20 +114,23 @@ const letterMap: Record<string, number> = {
   z: 8,
 };
 const loveCategoryOrder: LoveCategory[] = [
+  "emotion",
   "communication",
   "trust",
-  "emotion",
   "conflict",
+  "intimacy",
   "future",
 ];
 
 const categoryLabels: Record<LoveCategory, string> = {
-  communication: "Харилцааны хэв маяг",
-  trust: "Итгэлцэл",
   emotion: "Сэтгэл хөдлөлийн холбоо",
-  conflict: "Маргаан шийдэх хэв маяг",
-  future: "Ирээдүйн чиглэл",
+  communication: "Харилцаа ба ойлголцол",
+  trust: "Итгэлцэл ба аюулгүй байдал",
+  conflict: "Зөрчил шийдвэрлэлт",
+  intimacy: "Дотно байдал ба хайр халамж",
+  future: "Үнэт зүйл ба хамтын ирээдүй",
 };
+
 function nameToNumber(name: string) {
   let sum = 0;
   const lower = name.toLowerCase().trim();
@@ -176,92 +177,39 @@ export function calculateNameCompatibility(name1: string, name2: string) {
   };
 }
 
-export function calculatePsychologyCompatibility(
-  person1Answers: number[],
-  person2Answers: number[],
-) {
-  if (
-    person1Answers.length !== person2Answers.length ||
-    person1Answers.length === 0
-  ) {
-    return 0;
-  }
-
-  let total = 0;
-
-  for (let i = 0; i < person1Answers.length; i++) {
-    const diff = Math.abs(person1Answers[i] - person2Answers[i]);
-    const match = 100 - diff * 25;
-    total += match;
-  }
-
-  return Math.round(total / person1Answers.length);
-}
-
-export function calculateSoloPsychologyEstimate(answers: number[]) {
-  if (answers.length === 0) return 0;
-
-  const avg = answers.reduce((sum, value) => sum + value, 0) / answers.length;
-
-  const balancePenalty = Math.abs(avg - 3) * 12;
-  let score = Math.round(82 - balancePenalty);
-
-  if (score < 55) score = 55;
-  if (score > 92) score = 92;
-
-  return score;
-}
 function clampScore(score: number) {
   if (score < 0) return 0;
   if (score > 100) return 100;
   return Math.round(score);
 }
 
-function buildCategoryScores(
-  mode: "solo" | "both",
-  person1Answers: number[],
-  person2Answers?: number[],
-): Record<LoveCategory, number> {
+function buildCategoryScores(answers: number[]): Record<LoveCategory, number> {
   const scores: Record<LoveCategory, number[]> = {
+    emotion: [],
     communication: [],
     trust: [],
-    emotion: [],
     conflict: [],
+    intimacy: [],
     future: [],
   };
 
-  const categories: LoveCategory[] = [
-    "communication",
-    "conflict",
-    "trust",
-    "emotion",
-    "future",
-    "communication",
-    "emotion",
-    "communication",
-    "trust",
-    "future",
-  ];
+  for (let i = 0; i < loveQuestions.length; i++) {
+    const question = loveQuestions[i];
+    const answer = answers[i];
 
-  for (let i = 0; i < person1Answers.length; i++) {
-    const category = categories[i];
-    if (!category) continue;
+    if (!question || answer === undefined) continue;
 
-    if (mode === "both" && person2Answers) {
-      const diff = Math.abs(person1Answers[i] - person2Answers[i]);
-      scores[category].push(100 - diff * 25);
-    } else {
-      const value = person1Answers[i];
-      const readiness = 55 + value * 9;
-      scores[category].push(readiness);
-    }
+    const scoredValue = question.reverse ? 6 - answer : answer;
+
+    scores[question.category].push(scoredValue);
   }
 
   const result: Record<LoveCategory, number> = {
+    emotion: 0,
     communication: 0,
     trust: 0,
-    emotion: 0,
     conflict: 0,
+    intimacy: 0,
     future: 0,
   };
 
@@ -273,11 +221,56 @@ function buildCategoryScores(
       continue;
     }
 
-    const avg = values.reduce((sum, value) => sum + value, 0) / values.length;
-    result[category] = clampScore(avg);
+    const rawScore = values.reduce((sum, value) => sum + value, 0);
+
+    const minScore = values.length * 1;
+    const maxScore = values.length * 5;
+
+    const percent = ((rawScore - minScore) / (maxScore - minScore)) * 100;
+
+    result[category] = clampScore(percent);
   }
 
   return result;
+}
+
+function buildPairCategoryScores(
+  person1Scores: Record<LoveCategory, number>,
+  person2Scores: Record<LoveCategory, number>,
+): Record<LoveCategory, number> {
+  const result = {} as Record<LoveCategory, number>;
+
+  for (const category of loveCategoryOrder) {
+    result[category] = Math.round(
+      (person1Scores[category] + person2Scores[category]) / 2,
+    );
+  }
+
+  return result;
+}
+
+function buildCategoryGaps(
+  person1Scores: Record<LoveCategory, number>,
+  person2Scores: Record<LoveCategory, number>,
+): Record<LoveCategory, number> {
+  const result = {} as Record<LoveCategory, number>;
+
+  for (const category of loveCategoryOrder) {
+    result[category] = Math.abs(
+      person1Scores[category] - person2Scores[category],
+    );
+  }
+
+  return result;
+}
+
+function calculateOverallScore(categoryScores: Record<LoveCategory, number>) {
+  return Math.round(
+    loveCategoryOrder.reduce(
+      (sum, category) => sum + categoryScores[category],
+      0,
+    ) / loveCategoryOrder.length,
+  );
 }
 
 type LoveScoreBand =
@@ -504,8 +497,314 @@ const categoryBandText: Record<
         "Ийм үед мэдрэмжээрээ шууд том шийдвэр гаргах хэрэггүй. Ирээдүйн гол сэдвүүд дээр үнэнээрээ ярилцаж, өөрчлөх боломжгүй ялгааг хүлээн зөвшөөрөх хэрэгтэй.",
     },
   },
+  intimacy: {
+    excellent: {
+      description:
+        "Дотно байдал, хайр халамжийн холбоо маш хүчтэй харагдаж байна. Та хоёр хайр халамжаа илэрхийлэх, хамтдаа чанартай цаг өнгөрөөх, ойр дотно байдлаа мэдрэх тал дээр сайн суурьтай байна.",
+      advice:
+        "Энэ холбоогоо хадгалахын тулд хайр халамжаа зөвхөн онцгой үед биш, өдөр тутмын жижиг үйлдлээр тогтмол илэрхийлж байгаарай.",
+    },
+
+    strong: {
+      description:
+        "Дотно байдал, хайр халамжийн суурь хүчтэй байна. Та хоёрын хооронд ойр дотно холбоо мэдрэгддэг ч зарим үед хайр халамжаа илэрхийлэх хэрэгцээ өөр байж болно.",
+      advice:
+        "Нэгэндээ юу хамгийн их хайрлагдаж байгаа мэт мэдрэмж төрүүлдэгийг шууд ярилцаж байгаарай.",
+    },
+
+    good: {
+      description:
+        "Дотно байдал, хайр халамжийн тал сайн суурьтай байна. Ойр холбоо байгаа ч өдөр тутмын ачаалал, цаг завын асуудлаас болж зарим үед холдсон мэт санагдаж болно.",
+      advice:
+        "Хамтдаа зориуд чанартай цаг гаргаж, анхаарал халамжийг санаандгүй зүйл биш тогтмол дадал болгоорой.",
+    },
+
+    mixed: {
+      description:
+        "Дотно байдал, хайр халамжийн хэсэг холимог байна. Нэг тал нь илүү их ойр байдал хүсэж, нөгөө тал нь арай бага илэрхийлэх хандлагатай байж болно.",
+      advice:
+        "Хэн нь зөв гэдгийг шийдэхээс илүү та хоёрын ойр дотно байдлын хэрэгцээ ямар ялгаатай байгааг ярилцаарай.",
+    },
+
+    fragile: {
+      description:
+        "Дотно байдал, хайр халамжийн холбоо эмзэг харагдаж байна. Хайр, анхаарал дутсан мэт мэдрэмж эсвэл хамтдаа чанартай цаг бага байх асуудал үүссэн байж болно.",
+      advice:
+        "Яг ямар төрлийн анхаарал, халамж дутагдаж байгааг тодорхой ярилц. Нөгөө хүн өөрөө таах ёстой гэж хүлээхээс зайлсхий.",
+    },
+
+    risk: {
+      description:
+        "Дотно байдал, хайр халамжийн хэсэг сорилттой байна. Сэтгэл хөдлөлийн болон бие махбодын ойр байдал багассан мэт мэдрэмж харилцаанд нөлөөлж байж болно.",
+      advice:
+        "Ойр дотно байдлыг хүчээр шаардахаас илүү эхлээд аюулгүй харилцаа, хүндлэл, нээлттэй ярилцах орчныг сэргээхэд анхаараарай.",
+    },
+  },
+};
+const categoryLabelsEn: Record<LoveCategory, string> = {
+  emotion: "Emotional connection",
+  communication: "Communication & understanding",
+  trust: "Trust & security",
+  conflict: "Conflict resolution",
+  intimacy: "Intimacy & affection",
+  future: "Shared values & future",
 };
 
+const categoryBandTextEn: Record<
+  LoveCategory,
+  Record<LoveScoreBand, { description: string; advice: string }>
+> = {
+  emotion: {
+    excellent: {
+      description:
+        "Your emotional connection appears exceptionally strong. You are likely able to express care, support each other emotionally, and feel genuinely close. This kind of connection can make the relationship feel warm, safe, and emotionally alive.",
+      advice:
+        "Protect this strength by staying emotionally open not only during good moments, but also when one of you feels vulnerable. Sharing difficult feelings gently can deepen the connection even further.",
+    },
+    strong: {
+      description:
+        "Your emotional connection has a strong foundation. You are generally able to offer care and emotional support, although the way each of you expresses affection may sometimes differ.",
+      advice:
+        "One person may show love through words while the other shows it through actions. Try to notice how your partner naturally expresses care instead of judging it only by your own style.",
+    },
+    good: {
+      description:
+        "Your emotional connection has a healthy base. Closeness and emotional support are present, although there may be moments when one person feels overlooked or misunderstood.",
+      advice:
+        "Express appreciation, affection, and reassurance in small but consistent ways. Repeated everyday care often matters more than occasional big gestures.",
+    },
+    mixed: {
+      description:
+        "Your emotional connection looks mixed. One person may want more closeness while the other may need more personal space, which can create uncertainty if the difference is not discussed openly.",
+      advice:
+        "Talk directly about the balance between closeness and personal space. Questions such as “How should I understand it when you need space?” can prevent unnecessary hurt.",
+    },
+    fragile: {
+      description:
+        "Your emotional connection appears somewhat fragile. There may be moments when affection feels insufficient, emotional needs are hard to express, or one person does not feel fully understood.",
+      advice:
+        "Be specific about what helps you feel loved and emotionally supported. Expecting the other person to guess your needs can gradually create disappointment.",
+    },
+    risk: {
+      description:
+        "Your emotional connection is showing meaningful strain. If one person repeatedly seeks reassurance while the other withdraws, the relationship may fall into an anxious and emotionally exhausting pattern.",
+      advice:
+        "Before relying on intense romantic promises, pay attention to whether the relationship feels emotionally safe, respectful, and consistent. Stability matters more than intensity.",
+    },
+  },
+
+  communication: {
+    excellent: {
+      description:
+        "Your communication appears exceptionally strong. You are likely able to discuss important issues openly, listen without immediately becoming defensive, and work toward mutual understanding before resentment builds.",
+      advice:
+        "Keep this strength alive by sharing thoughts and feelings even when there is no conflict. Strong communication is built through regular everyday conversations, not only serious discussions.",
+    },
+    strong: {
+      description:
+        "Your communication has a strong foundation. You can usually talk things through, although one person may be more direct while the other approaches sensitive topics more carefully.",
+      advice:
+        "During difficult conversations, avoid rushing to prove who is right. First make sure you have correctly understood what the other person is trying to say.",
+    },
+    good: {
+      description:
+        "Your communication is generally healthy. You are capable of understanding each other, although tone, timing, or unspoken feelings may occasionally create confusion.",
+      advice:
+        "Instead of saying “You always...”, try explaining your own experience with phrases such as “I felt...” This reduces defensiveness and makes the conversation easier.",
+    },
+    mixed: {
+      description:
+        "Your communication pattern is mixed. You may both want to resolve issues, but one person may prefer immediate discussion while the other needs time to think. That difference can easily become a misunderstanding.",
+      advice:
+        "Agree on a clear pause-and-return rule. For example: “I need 30 minutes to calm down, then we will talk.” A defined return time prevents a pause from feeling like avoidance.",
+    },
+    fragile: {
+      description:
+        "Your communication appears fragile. Misunderstandings, keeping feelings inside, or turning conversations into arguments may happen more often than is healthy.",
+      advice:
+        "The first goal does not have to be solving everything. Focus first on creating a safe way to talk using short, clear, and non-accusatory statements.",
+    },
+    risk: {
+      description:
+        "Your communication is showing significant strain. If one person avoids discussion while the other pushes harder for answers, both people may quickly become exhausted.",
+      advice:
+        "Do not force difficult conversations in heated moments. Build a calmer and safer pattern gradually, starting with smaller topics and consistent follow-through.",
+    },
+  },
+
+  trust: {
+    excellent: {
+      description:
+        "Trust appears exceptionally strong. Reliability, honesty, and the feeling that you can depend on each other seem deeply established. This creates an excellent foundation for a long-term relationship.",
+      advice:
+        "Even strong trust needs maintenance. Keep small promises, stay transparent, and treat each other's vulnerable information with care.",
+    },
+    strong: {
+      description:
+        "Your relationship has a strong foundation of trust. You can generally rely on each other, although occasional reassurance, attention, or consistency may still be important.",
+      advice:
+        "Protect trust through everyday behavior rather than big promises. Responding consistently, following through, and avoiding unnecessary secrecy all matter.",
+    },
+    good: {
+      description:
+        "Trust has a healthy foundation. However, trust does not mean every doubt disappears automatically. Small uncertainties may still arise from time to time.",
+      advice:
+        "Instead of assuming the worst, ask calmly and directly. Starting with “I may have misunderstood this, but...” can reduce defensiveness.",
+    },
+    mixed: {
+      description:
+        "Trust appears mixed. One person may trust quickly while the other is more cautious. If that difference is ignored, it can gradually develop into resentment, insecurity, or jealousy.",
+      advice:
+        "Discuss boundaries, personal space, social relationships, and expectations around loyalty before misunderstandings build.",
+    },
+    fragile: {
+      description:
+        "Trust looks fragile. Broken promises, delayed responses, unexplained behavior, or situations that feel secretive may have a stronger emotional impact than usual.",
+      advice:
+        "Instead of demanding trust, build it through transparent and predictable behavior. Consistency and clear communication are especially important here.",
+    },
+    risk: {
+      description:
+        "Trust is showing significant strain. Frequent doubt, jealousy, checking, or repeated demands for reassurance can make the relationship feel anxious and unstable.",
+      advice:
+        "Avoid making major commitments before trust has been rebuilt through real behavior. Emotional safety should come from consistency, not repeated promises.",
+    },
+  },
+
+  conflict: {
+    excellent: {
+      description:
+        "Your conflict-resolution pattern appears exceptionally healthy. Even when you disagree, you are likely able to treat the problem as something to solve together rather than treating each other as opponents.",
+      advice:
+        "The goal is not to avoid every disagreement. Preserve your ability to repair after conflict through apologies, follow-up conversations, and concrete changes.",
+    },
+    strong: {
+      description:
+        "Your conflict-resolution skills are strong. Most disagreements can probably be handled respectfully, although certain sensitive topics may still trigger defensiveness.",
+      advice:
+        "During conflict, focus on understanding rather than winning. Avoid using each other's vulnerabilities as weapons.",
+    },
+    good: {
+      description:
+        "Your conflict-resolution skills have a healthy base. Disagreements are normal, and when managed well they can create greater understanding rather than damage the relationship.",
+      advice:
+        "Avoid making major decisions while emotions are high. After calming down, discuss three things: what happened, how it felt, and what should happen next.",
+    },
+    mixed: {
+      description:
+        "Your conflict pattern is mixed. One person may want to address the problem immediately while the other prefers to step away. Without agreement, this can feel like chasing and withdrawing.",
+      advice:
+        "Create a clear rule for taking breaks. A break should mean calming down and returning to the conversation, not disappearing from it.",
+    },
+    fragile: {
+      description:
+        "Your conflict-resolution pattern appears fragile. Small issues may escalate quickly, and old grievances may repeatedly return during new disagreements.",
+      advice:
+        "Keep each argument focused on one issue. Bringing every past problem into the same conversation usually increases defensiveness instead of creating a solution.",
+    },
+    risk: {
+      description:
+        "Your conflict pattern is showing significant strain. Blame, shutting down, disappearing, or using harsh language can make the relationship emotionally exhausting.",
+      advice:
+        "The first priority is establishing safe conflict rules: no insults, no threats, no disappearing, and a commitment to return to the discussion after both people have calmed down.",
+    },
+  },
+
+  intimacy: {
+    excellent: {
+      description:
+        "Intimacy and affection appear exceptionally strong. You seem to have a solid foundation of warmth, physical or emotional closeness, affection, and meaningful time together.",
+      advice:
+        "Maintain this connection through small daily expressions of affection rather than saving care only for special occasions.",
+    },
+    strong: {
+      description:
+        "Your intimacy and affection have a strong foundation. Closeness is present, although the amount or style of affection each person needs may sometimes differ.",
+      advice:
+        "Talk openly about what makes each of you feel loved, wanted, and emotionally close.",
+    },
+    good: {
+      description:
+        "Your intimacy and affection have a healthy base. The connection is present, but daily responsibilities or lack of time may occasionally create some distance.",
+      advice:
+        "Make intentional time for each other and treat quality time as a regular relationship habit rather than something that only happens when convenient.",
+    },
+    mixed: {
+      description:
+        "Your intimacy and affection appear mixed. One person may want more closeness or affection while the other naturally expresses it less often.",
+      advice:
+        "Instead of deciding whose need is more correct, talk about how your needs for closeness are different and what balance would work for both of you.",
+    },
+    fragile: {
+      description:
+        "Your intimacy and affection appear fragile. One or both of you may feel that affection, attention, or meaningful time together is not currently enough.",
+      advice:
+        "Be specific about what kind of affection or attention feels missing. Avoid expecting your partner to automatically know what you need.",
+    },
+    risk: {
+      description:
+        "Intimacy and affection are showing significant strain. Emotional or physical closeness may feel reduced, and that distance may already be affecting the relationship.",
+      advice:
+        "Rather than demanding closeness, first rebuild safety, respect, and honest communication. Intimacy usually improves when emotional security improves.",
+    },
+  },
+
+  future: {
+    excellent: {
+      description:
+        "Your shared direction for the future appears exceptionally aligned. Long-term goals, lifestyle expectations, and plans for building a life together seem highly compatible.",
+      advice:
+        "Turn this strength into practical planning. Discuss money, work, family, living arrangements, independence, and personal space in concrete terms.",
+    },
+    strong: {
+      description:
+        "Your shared future has a strong foundation. You can likely imagine a long-term relationship together, although some practical expectations still deserve clearer discussion.",
+      advice:
+        "Move beyond general dreams and talk about real expectations involving finances, careers, family, and lifestyle.",
+    },
+    good: {
+      description:
+        "Your shared future has a healthy base. Your goals may be broadly similar, but it is still too early to assume every major life decision will naturally align.",
+      advice:
+        "Discuss questions such as: “What kind of life do I want five years from now?” before the relationship becomes more deeply committed.",
+    },
+    mixed: {
+      description:
+        "Your future direction appears mixed. One person may value stability while the other wants greater freedom or change. This is not automatically a problem, but it requires conscious agreement.",
+      advice:
+        "Avoid postponing conversations about the future. Discuss lifestyle, money, family, career, and personal goals while things are calm.",
+    },
+    fragile: {
+      description:
+        "Your shared future appears fragile. Long-term expectations may differ, with one person wanting more certainty while the other feels more comfortable leaving things open.",
+      advice:
+        "Avoid rushing into major promises. First explore whether your values, lifestyle expectations, and long-term goals are genuinely compatible.",
+    },
+    risk: {
+      description:
+        "Your shared future is showing significant strain. If your major life goals, values, or preferred lifestyles are very different, attraction alone may not prevent long-term pressure.",
+      advice:
+        "Do not make major decisions based only on emotion. Discuss the core future issues honestly and identify which differences are flexible and which are not.",
+    },
+  },
+};
+function buildDetailedSectionsEn(
+  categoryScores: Record<LoveCategory, number>,
+): LoveDetailedSection[] {
+  return loveCategoryOrder.map((key) => {
+    const score = categoryScores[key];
+    const band = getScoreBand(score);
+    const text = categoryBandTextEn[key][band];
+
+    return {
+      key,
+      title: categoryLabelsEn[key],
+      score,
+      description: text.description,
+      advice: text.advice,
+    };
+  });
+}
 function buildDetailedSections(
   categoryScores: Record<LoveCategory, number>,
 ): LoveDetailedSection[] {
@@ -589,108 +888,176 @@ function buildNameCompatibilityText(
   };
 }
 
+const categoryStrengthText: Record<LoveCategory, string> = {
+  emotion: "Сэтгэл хөдлөлөө хуваалцах, нэгнээ ойлгож дэмжих холбоо хүчтэй",
+  communication: "Нээлттэй ярилцах, сонсох, ойлголцолд хүрэх чадвар сайн",
+  trust: "Итгэлцэл, найдвартай байдал, сэтгэлзүйн аюулгүй байдлын суурь сайн",
+  conflict: "Зөрчил гарсан үед асуудлыг хүндэтгэлтэйгээр шийдэх чадвар сайн",
+  intimacy:
+    "Хайр халамж, ойр дотно байдал, хамтдаа чанартай цагийн холбоо сайн",
+  future: "Үнэт зүйл, хамтын зорилго, ирээдүйн чиглэл нийцэх суурь сайн",
+};
+
+const categoryRiskText: Record<LoveCategory, string> = {
+  emotion:
+    "Сэтгэлээ нээх, ойлгогдож дэмжигдэх мэдрэмж дээр зай үүсэх эрсдэлтэй",
+  communication:
+    "Үл ойлголцол, дотроо хадгалах эсвэл хэцүү сэдвээс зайлсхийх эрсдэлтэй",
+  trust:
+    "Итгэлцэл, найдвартай байдал эсвэл аюулгүй мэдрэмж дээр эргэлзээ үүсэх эрсдэлтэй",
+  conflict:
+    "Маргаан хуримтлагдах, хамгаалах эсвэл дайрах хэв маяг үүсэх эрсдэлтэй",
+  intimacy:
+    "Хайр халамж, чанартай цаг, ойр дотно байдлын хэрэгцээ хангалтгүй үлдэх эрсдэлтэй",
+  future: "Үнэт зүйл, амьдралын зорилго, ирээдүйн хүлээлт зөрөх эрсдэлтэй",
+};
+
+const categoryStrengthTextEn: Record<LoveCategory, string> = {
+  emotion:
+    "A strong ability to share emotions, understand each other, and provide emotional support",
+  communication:
+    "A healthy ability to communicate openly, listen carefully, and reach mutual understanding",
+  trust: "A solid foundation of trust, reliability, and emotional security",
+  conflict:
+    "A healthy ability to handle disagreements respectfully and work toward solutions",
+  intimacy:
+    "A strong foundation of affection, closeness, and meaningful quality time together",
+  future:
+    "A healthy foundation of shared values, common goals, and long-term direction",
+};
+
+const categoryRiskTextEn: Record<LoveCategory, string> = {
+  emotion:
+    "Emotional distance may develop if feelings are difficult to express or emotional support feels insufficient",
+  communication:
+    "Misunderstandings, unspoken concerns, or avoidance of difficult conversations may create distance",
+  trust: "Doubts may develop around reliability, loyalty, or emotional safety",
+  conflict:
+    "Unresolved disagreements, defensiveness, or aggressive conflict patterns may gradually build up",
+  intimacy:
+    "Needs for affection, quality time, or emotional closeness may not feel fully met",
+  future:
+    "Differences in values, life goals, or long-term expectations may become more important over time",
+};
+
 function buildResultText(
   finalScore: number,
-  mode: "solo" | "both",
+  categoryScores: Record<LoveCategory, number>,
 ): Pick<
   LoveCalculationResult,
   "summary" | "strengths" | "challenges" | "advice"
 > {
+  const ranked = loveCategoryOrder
+    .map((key) => ({
+      key,
+      score: categoryScores[key],
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  const topCutoff = ranked[Math.min(2, ranked.length - 1)].score;
+
+  const bottomRanked = [...ranked].sort((a, b) => a.score - b.score);
+
+  const bottomCutoff = bottomRanked[Math.min(2, bottomRanked.length - 1)].score;
+
+  // Tie байвал хүчээр нэгийг сонгохгүй.
+  const strongest = ranked.filter((item) => item.score >= topCutoff);
+
+  const attention = bottomRanked.filter((item) => item.score <= bottomCutoff);
+
+  const strengths = strongest.map((item) => categoryStrengthText[item.key]);
+
+  const challenges = attention.map((item) => categoryRiskText[item.key]);
+
+  const attentionAdvice = attention
+    .map((item) => {
+      const band = getScoreBand(item.score);
+      return categoryBandText[item.key][band].advice;
+    })
+    .join(" ");
+
+  let summary = "";
+
   if (finalScore >= 85) {
-    return {
-      summary:
-        mode === "both"
-          ? "Та хоёрын хооронд ойлголцол, таталцал, сэтгэлзүйн нийцэл нэлээд өндөр харагдаж байна. Ийм төрлийн холбоо нь зөвхөн дурлалын мэдрэмжээр биш, бие биенээ сонсох, ойлгох, хамтдаа урагшлах чадвараар хүчтэй болдог. Нэрний зохицол болон хариултын хэв маяг хоёулаа эерэг тал руугаа давамгай байна."
-          : "Таны өгсөн хариулт болон нэрний зохицлоос харахад энэ харилцаанд хүчтэй таталцал, сайхан боломж мэдрэгдэж байна. Та хайртай хүнтэйгээ сэтгэлээ нээлттэй хуваалцаж чадвал энэ холбоо илүү дулаан, тогтвортой болох боломжтой.",
-
-      strengths: [
-        "Бие биенээ ойлгох, дасан зохицох боломж өндөр",
-        "Сэтгэл хөдлөлөө зөв илэрхийлбэл харилцаа хурдан гүнзгийрэх шинжтэй",
-        "Итгэлцэл, дэмжлэг, хамтын зорилго үүсэх суурь сайн",
-      ],
-
-      challenges: [
-        "Хэт их хүлээлт үүсгэвэл жижиг зүйл дээр эмзэглэх магадлалтай",
-        "Сайхан мэдрэмждээ найдаад бодит яриаг хойшлуулахгүй байх хэрэгтэй",
-        "Хоёулаа тайван үедээ хэрэгцээ, хил хязгаараа ярилцах нь чухал",
-      ],
-
-      advice:
-        "Энэ холбоог удаан авч явахын тулд зөвхөн мэдрэмждээ биш, өдөр тутмын жижиг анхаарал, үнэнч харилцаа, тогтмол ярилцлагад найдаарай. Та хоёрын хувьд хамгийн том түлхүүр нь итгэлцлээ хамгаалах, нэгнийгээ өөрчлөх гэж яарахгүйгээр ойлгох юм.",
-    };
-  }
-
-  if (finalScore >= 70) {
-    return {
-      summary:
-        mode === "both"
-          ? "Та хоёрын тохироо боломжийн сайн харагдаж байна. Энэ нь бүх зүйл өөрөө амархан болно гэсэн үг биш ч харилцааг зөв авч явбал дулаан, тогтвортой холбоо үүсэх боломж байна. Зарим зан төлөв, хүлээлтийн ялгаа байж болох ч түүнийг ярилцаж чадвал харилцаа улам сайжирна."
-          : "Таны хариулт болон нэрний энергиэс харахад энэ харилцаанд боломж байна. Гэхдээ зөвхөн таталцал хангалтгүй. Та хоёрын хооронд ойлголцол, хүндлэл, харилцааны дадал сайн бүрдвэл энэ холбоо илүү сайхан хөгжих боломжтой.",
-
-      strengths: [
-        "Харилцаа хөгжих бодит боломжтой",
-        "Зөрүүгээ ярилцаж чадвал ойлголцол нэмэгдэнэ",
-        "Сэтгэл хөдлөл болон итгэлцлийн суурь бүрдэх боломж байна",
-      ],
-
-      challenges: [
-        "Зарим үед хүлээлт өөр байснаас үл ойлголцол гарч магадгүй",
-        "Нэг нь илүү их анхаарал хүсэж, нөгөө нь орон зай хүсэх үе гарч болно",
-        "Асуудлыг дотроо хадгалбал харилцаа удаан хугацаанд ядрах магадлалтай",
-      ],
-
-      advice:
-        "Та хоёрын хувьд хамгийн хэрэгтэй зүйл бол харилцааны дүрмээ эрт ойлголцох. Юу таалагддаг, юу эмзэглүүлдэг, ямар үед дэмжлэг хэрэгтэй байдаг гэдгээ тайван үедээ ярилц. Ингэж чадвал энэ холбоо илүү итгэлтэй, дулаан болно.",
-    };
-  }
-
-  if (finalScore >= 55) {
-    return {
-      summary:
-        mode === "both"
-          ? "Та хоёрын тохироо дундаж түвшинд харагдаж байна. Энэ нь муу гэсэн үг биш. Харин харилцаа өөрөө аяндаа урсах биш, илүү их ойлголцол, тэвчээр, зөв ярилцлага шаардана гэсэн дохио. Хэрвээ хоёр тал хоёулаа хичээвэл энэ холбоонд хөгжих боломж бий."
-          : "Таны өгсөн хариултаас харахад энэ харилцаанд боломж байгаа ч болгоомжтой, бодитой хандах хэрэгтэй. Анхны таталцал байж болох ч урт хугацаанд ойлголцол, хүлээлт, харилцааны хэв маяг чухал нөлөөтэй байна.",
-
-      strengths: [
-        "Зөв ярилцаж чадвал харилцаа сайжрах боломжтой",
-        "Хоёр талын хэрэгцээг ойлгож эхэлбэл ойртож чадна",
-        "Сэтгэлээ нээлттэй илэрхийлэх дадал суувал холбоо дулаарна",
-      ],
-
-      challenges: [
-        "Хүлээлт, сэтгэл хөдлөлийн хэрэгцээ зөрөх магадлалтай",
-        "Маргааны үед нэгнийгээ буруу ойлгох эрсдэл байна",
-        "Харилцааны хэв маяг өөр байвал нэг тал нь ядарч мэднэ",
-      ],
-
-      advice:
-        "Энэ холбоонд яарах хэрэггүй. Эхлээд бие биенийхээ бодит зан, харилцах хэв маяг, үнэт зүйлсийг сайн ажигла. Та хоёр асуудлаа тайван ярилцаж чаддаг эсэх нь энэ харилцааны ирээдүйд хамгийн их нөлөөлнө.",
-    };
+    summary =
+      "Таны өгсөн хариултаар энэ харилцааны нийт суурь маш хүчтэй харагдаж байна. Гэхдээ нийт онооноос илүү 6 чиглэлийн ялгааг харах нь чухал. Таны өндөр оноотой хэсгүүд харилцааны гол давуу тал болж байгаа бол харьцангуй бага оноотой хэсгүүд нь цааш анхаарч хөгжүүлэх боломжийг харуулна.";
+  } else if (finalScore >= 70) {
+    summary =
+      "Таны өгсөн хариултаар энэ харилцаа сайн суурьтай харагдаж байна. Зарим чиглэл бусдаасаа илүү хүчтэй бөгөөд харьцангуй сул хэсгүүд дээр ойлголцол, тогтвортой дадал нэмэх боломж байна.";
+  } else if (finalScore >= 55) {
+    summary =
+      "Таны өгсөн хариултаар энэ харилцаанд хүчтэй болон анхаарах талууд зэрэгцэн байна. Аль хэсэг сайн, аль хэсэг эмзэг байгааг ялгаж харах нь нийт онооноос илүү хэрэгтэй мэдээлэл өгнө.";
+  } else {
+    summary =
+      "Таны өгсөн хариултаар харилцааны хэд хэдэн хэсэгт бодитоор анхаарах шаардлага харагдаж байна. Энэ нь харилцаа заавал бүтэлгүй гэсэн дүгнэлт биш; харин яг аль чиглэлд асуудал төвлөрч байгааг тодорхой харах нь чухал.";
   }
 
   return {
-    summary:
-      mode === "both"
-        ? "Та хоёрын тохироо одоогоор сорилттой тал руугаа харагдаж байна. Энэ нь заавал болохгүй гэсэн дүгнэлт биш ч харилцаа их хэмжээний ойлголцол, тэвчээр, өөрийгөө хянах чадвар шаардах магадлалтай гэсэн дохио юм. Хэрвээ нэг тал л хичээгээд байвал энэ холбоо амархан ядрааж мэднэ."
-        : "Таны хариулт болон нэрний зохицлоос харахад энэ харилцаанд болгоомжтой хандах нь зөв. Таталцал байж болох ч урт хугацаанд хэрэгцээ, хүлээлт, харилцааны хэв маяг зөрөх магадлал харагдаж байна.",
-
-    strengths: [
-      "Хэрвээ зөв ярилцаж чадвал ойлголцол нэмэгдэх боломж бий",
-      "Энэ харилцаа өөрийгөө илүү сайн таних боломж өгч магадгүй",
-      "Хил хязгаараа тодорхой болгож чадвал зөрчил багасна",
-    ],
-
-    challenges: [
-      "Харилцааны хэмнэл, хүлээлт зөрөх магадлал өндөр",
-      "Сэтгэл хөдлөлөө буруу илэрхийлбэл үл ойлголцол хурдан нэмэгдэнэ",
-      "Нэг тал нь илүү их өгч, нөгөө тал нь холдох мэдрэмж үүсч болзошгүй",
-    ],
-
-    advice:
-      "Энэ холбоонд яарч шийдвэр гаргах хэрэггүй. Бие биенээ өөрчлөх гэж оролдохоос илүү бодит зан, хандлага, харилцах чадвараа ажигла. Хэрвээ харилцаа байнга түгшүүр, эргэлзээ төрүүлж байвал өөрийн сэтгэл санааг нэгдүгээрт тавих хэрэгтэй.",
+    summary,
+    strengths,
+    challenges,
+    advice: attentionAdvice,
   };
 }
+function buildResultTextEn(
+  finalScore: number,
+  categoryScores: Record<LoveCategory, number>,
+): Pick<
+  LoveCalculationResult,
+  "summary" | "strengths" | "challenges" | "advice"
+> {
+  const ranked = loveCategoryOrder
+    .map((key) => ({
+      key,
+      score: categoryScores[key],
+    }))
+    .sort((a, b) => b.score - a.score);
 
+  const topCutoff = ranked[Math.min(2, ranked.length - 1)].score;
+
+  const bottomRanked = [...ranked].sort((a, b) => a.score - b.score);
+
+  const bottomCutoff = bottomRanked[Math.min(2, bottomRanked.length - 1)].score;
+
+  // Preserve ties exactly as the Mongolian result does.
+  const strongest = ranked.filter((item) => item.score >= topCutoff);
+
+  const attention = bottomRanked.filter((item) => item.score <= bottomCutoff);
+
+  const strengths = strongest.map((item) => categoryStrengthTextEn[item.key]);
+
+  const challenges = attention.map((item) => categoryRiskTextEn[item.key]);
+
+  const attentionAdvice = attention
+    .map((item) => {
+      const band = getScoreBand(item.score);
+      return categoryBandTextEn[item.key][band].advice;
+    })
+    .join(" ");
+
+  let summary = "";
+
+  if (finalScore >= 85) {
+    summary =
+      "Based on your answers, the overall foundation of this relationship appears very strong. However, the six individual areas are more informative than the total score alone. Your highest-scoring areas show the strongest parts of the relationship, while the relatively lower areas show where additional attention may help the relationship grow.";
+  } else if (finalScore >= 70) {
+    summary =
+      "Based on your answers, this relationship appears to have a healthy overall foundation. Some areas are clearly stronger than others, while the relatively weaker areas show where greater understanding, consistency, or intentional effort may be useful.";
+  } else if (finalScore >= 55) {
+    summary =
+      "Based on your answers, this relationship contains both meaningful strengths and areas that deserve attention. Looking at which areas are strongest and which are more fragile gives more useful information than relying on the overall score alone.";
+  } else {
+    summary =
+      "Based on your answers, several areas of the relationship may need meaningful attention. This does not automatically mean the relationship will fail. The important point is to identify where the main difficulties are concentrated and whether both people are willing to work on them.";
+  }
+
+  return {
+    summary,
+    strengths,
+    challenges,
+    advice: attentionAdvice,
+  };
+}
 export function buildPairLoveResult(
   name1: string,
   name2: string,
@@ -698,28 +1065,39 @@ export function buildPairLoveResult(
   person2Answers: number[],
 ): LoveCalculationResult {
   const nameData = calculateNameCompatibility(name1, name2);
-  const psychologyScore = calculatePsychologyCompatibility(
-    person1Answers,
-    person2Answers,
+
+  const person1CategoryScores = buildCategoryScores(person1Answers);
+  const person2CategoryScores = buildCategoryScores(person2Answers);
+
+  const categoryScores = buildPairCategoryScores(
+    person1CategoryScores,
+    person2CategoryScores,
   );
 
-  const finalScore = Math.round(nameData.score * 0.3 + psychologyScore * 0.7);
-
-  const categoryScores = buildCategoryScores(
-    "both",
-    person1Answers,
-    person2Answers,
+  const categoryGaps = buildCategoryGaps(
+    person1CategoryScores,
+    person2CategoryScores,
   );
+
+  const psychologyScore = calculateOverallScore(categoryScores);
+  const finalScore = psychologyScore;
+
   const detailedSections = buildDetailedSections(categoryScores);
+  const text = buildResultText(finalScore, categoryScores);
 
-  const text = buildResultText(finalScore, "both");
   const nameText = buildNameCompatibilityText(
     nameData.score,
     nameData.r1,
     nameData.r2,
   );
 
-  const localized = buildLocalizedResult(text, nameText, detailedSections);
+  const localized = buildLocalizedResult(
+    text,
+    nameText,
+    detailedSections,
+    finalScore,
+    categoryScores,
+  );
 
   return {
     finalScore,
@@ -728,12 +1106,16 @@ export function buildPairLoveResult(
     reduced1: nameData.r1,
     reduced2: nameData.r2,
     categoryScores,
+    person1CategoryScores,
+    person2CategoryScores,
+    categoryGaps,
     detailedSections,
     ...nameText,
     ...text,
     localized,
   };
 }
+
 function buildLocalizedResult(
   mnText: Pick<
     LoveCalculationResult,
@@ -746,10 +1128,15 @@ function buildLocalizedResult(
     | "nameCompatibilityAdvice"
   >,
   mnDetailedSections: LoveDetailedSection[],
+  finalScore: number,
+  categoryScores: Record<LoveCategory, number>,
 ): {
   mn: LoveLocalizedResult;
   en: LoveLocalizedResult;
 } {
+  const enText = buildResultTextEn(finalScore, categoryScores);
+  const enDetailedSections = buildDetailedSectionsEn(categoryScores);
+
   return {
     mn: {
       ...mnNameText,
@@ -760,45 +1147,13 @@ function buildLocalizedResult(
     en: {
       nameCompatibilityTitle: "Name compatibility",
       nameCompatibilitySummary:
-        "The name compatibility reading shows how the two names may balance each other. This section is based on name numbers and should be seen as a light relationship insight, not a fixed prediction.",
+        "The name-number reading suggests how the two names may symbolically complement or contrast with each other. It can be used as a light, entertaining reflection, but it should not be treated as a prediction of how the relationship will actually develop.",
       nameCompatibilityAdvice:
-        "Use this as a reflection point. Real compatibility depends more on trust, communication, emotional safety, and how both people treat each other over time.",
+        "Treat this section as a fun extra rather than evidence about the relationship. Real compatibility depends far more on trust, communication, emotional safety, shared expectations, and how both people consistently treat each other.",
 
-      summary:
-        "This result shows your overall relationship compatibility based on name rhythm and answer patterns. A higher score means stronger alignment, while a lower score points to areas that may need more patience and honest communication.",
+      detailedSections: enDetailedSections,
 
-      strengths: [
-        "There is room to understand each other better.",
-        "The relationship can improve through honest communication.",
-        "Shared effort can make the connection more stable.",
-      ],
-
-      challenges: [
-        "Different expectations may create misunderstandings.",
-        "One person may need more closeness while the other needs more space.",
-        "Unspoken feelings can slowly create distance.",
-      ],
-
-      advice:
-        "Do not rely only on attraction. Pay attention to communication, consistency, emotional safety, and whether both people are willing to understand each other.",
-
-      detailedSections: mnDetailedSections.map((section) => ({
-        ...section,
-        title:
-          section.key === "communication"
-            ? "Communication style"
-            : section.key === "trust"
-              ? "Trust"
-              : section.key === "emotion"
-                ? "Emotional connection"
-                : section.key === "conflict"
-                  ? "Conflict style"
-                  : "Future direction",
-        description:
-          "This area reflects how well both answers align in this part of the relationship. Higher scores suggest stronger compatibility, while lower scores show where more patience, clarity, and honest discussion may be needed.",
-        advice:
-          "Use this score as a guide for what to talk about. The goal is not to judge the relationship, but to understand where both people may need more care and effort.",
-      })),
+      ...enText,
     },
   };
 }
@@ -808,21 +1163,27 @@ export function buildSoloLoveResult(
   answers: number[],
 ): LoveCalculationResult {
   const nameData = calculateNameCompatibility(name1, name2);
-  const psychologyScore = calculateSoloPsychologyEstimate(answers);
+  const categoryScores = buildCategoryScores(answers);
 
-  const finalScore = Math.round(nameData.score * 0.4 + psychologyScore * 0.6);
+  const psychologyScore = calculateOverallScore(categoryScores);
 
-  const categoryScores = buildCategoryScores("solo", answers);
+  const finalScore = psychologyScore;
   const detailedSections = buildDetailedSections(categoryScores);
 
-  const text = buildResultText(finalScore, "solo");
+  const text = buildResultText(finalScore, categoryScores);
   const nameText = buildNameCompatibilityText(
     nameData.score,
     nameData.r1,
     nameData.r2,
   );
 
-  const localized = buildLocalizedResult(text, nameText, detailedSections);
+  const localized = buildLocalizedResult(
+    text,
+    nameText,
+    detailedSections,
+    finalScore,
+    categoryScores,
+  );
 
   return {
     finalScore,

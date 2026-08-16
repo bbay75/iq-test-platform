@@ -22,45 +22,8 @@ export default function ProfileCard() {
   }, []);
 
   useEffect(() => {
-    const loadProfile = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData.user;
-
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("free_credits, reward_progress")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Profile load error:", error.message);
-        return;
-      }
-
-      if (!data) {
-        const { error: insertError } = await supabase.from("profiles").insert({
-          id: user.id,
-          free_credits: 1,
-          reward_progress: 0,
-        });
-
-        if (insertError) {
-          console.error("Profile create error:", insertError.message);
-          return;
-        }
-
-        setCredits(1);
-        setProgress(0);
-        return;
-      }
-
-      setCredits(data.free_credits || 0);
-      setProgress(data.reward_progress || 0);
-    };
-
-    loadProfile();
+    setCredits(1);
+    setProgress(0);
   }, []);
 
   const saveName = async () => {

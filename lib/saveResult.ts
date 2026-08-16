@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 type SaveResultInput = {
   test_type: string;
   result_json: any;
@@ -28,6 +29,9 @@ export async function saveTestResult({
   image_url = null,
 }: SaveResultInput) {
   const deviceId = getDeviceId();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const res = await fetch("/api/save-result", {
     method: "POST",
@@ -41,7 +45,7 @@ export async function saveTestResult({
       is_unlocked,
       image_url,
       device_id: deviceId,
-      user_id: null,
+      user_id: user?.id || null,
     }),
   });
 

@@ -479,7 +479,6 @@ export const translations = {
     love_challenges: "Challenges",
     love_advice: "Advice",
     love_solo_result_note: "Solo mode gives an estimated result.",
-    love_both_result_note: "Both mode gives a more accurate result.",
     love_test_title: "Love Compatibility Test",
     love_test_desc:
       "Get a result based on name compatibility and relationship psychology.",
@@ -491,23 +490,136 @@ export const translations = {
     love_name2_placeholder: "Second person's name",
     love_start_button: "Start Test",
     love_solo_page_title: "Solo Love Test",
-    love_both_page_title: "Love Psychology Test",
     love_question_count: "Question",
     love_next: "Next",
     love_restart: "Start Again",
     love_test_name: "Love Test",
+    love_both_page_title: "Together — Your Part",
+    love_both_result_note:
+      "Your partner cannot see your answers. The combined result will be calculated after both of you finish.",
+    love_previous: "← Previous",
 
-    love_q_1: "I like to talk openly about problems.",
-    love_q_2: "I can stay calm during disagreements.",
-    love_q_3: "I can trust my partner easily.",
-    love_q_4: "Expressing love with words is important to me.",
-    love_q_5: "I like planning future goals together.",
-    love_q_6: "Personal space is important to me.",
-    love_q_7: "I value supporting my partner emotionally.",
-    love_q_8: "When making decisions, both sides should be heard fairly.",
-    love_q_9: "Loyalty is one of the most important parts of a relationship.",
-    love_q_10: "A stable long-term relationship is important to me.",
+    love_q_1: "I can openly share my true feelings with my partner.",
+
+    love_q_2: "My partner tries to understand how I feel.",
+
+    love_q_3:
+      "I can receive emotional support from my partner when things are difficult.",
+
+    love_q_4:
+      "Even when we are together, I sometimes feel emotionally distant from my partner.",
+
+    love_q_5: "We notice changes in each other's emotions.",
+
+    // Communication & Understanding
+
+    love_q_6: "We can talk openly about important things.",
+
+    love_q_7: "I feel that my partner truly listens when I speak.",
+
+    love_q_8: "I can clearly express my thoughts and needs to my partner.",
+
+    love_q_9: "We tend to avoid talking when difficult topics come up.",
+
+    love_q_10:
+      "When misunderstandings happen, we talk about what happened and clarify things.",
+
+    // Trust & Security
+
+    love_q_11: "I trust my partner to be faithful to me.",
+
+    love_q_12: "I can rely on my partner to follow through on what they say.",
+
+    love_q_13: "I feel safe being myself in this relationship.",
+
+    love_q_14:
+      "I often feel suspicious or doubtful about my partner's actions.",
+
+    love_q_15:
+      "I trust that my partner will be there for me when I truly need them.",
+
+    // Conflict Resolution
+
+    love_q_16: "Even when we disagree, we can treat each other with respect.",
+
+    love_q_17:
+      "During arguments, insults, personal attacks, or deliberately hurtful words sometimes occur.",
+
+    love_q_18:
+      "When a problem comes up, we try to discuss and resolve it rather than ignore it.",
+
+    love_q_19:
+      "Even when we disagree, we try to find a solution that works reasonably well for both of us.",
+
+    love_q_20:
+      "After an argument, emotional distance between us tends to last for a long time.",
+
+    // Intimacy & Affection
+
+    love_q_21: "We regularly show love and affection toward each other.",
+
+    love_q_22: "My partner makes me feel loved and valued.",
+
+    love_q_23:
+      "Our level of physical closeness feels comfortable and satisfying to me.",
+
+    love_q_24:
+      "It has become rare for us to spend quality time together as a couple.",
+
+    love_q_25: "I still feel a romantic and intimate connection between us.",
+
+    // Shared Values & Future
+
+    love_q_26:
+      "Our values about the most important things in life generally align.",
+
+    love_q_27:
+      "We have similar ideas about the kind of life we want in the future.",
+
+    love_q_28:
+      "We both make real efforts to continue and strengthen this relationship.",
+
+    love_q_29:
+      "Our wishes about major future decisions are very different from each other.",
+
+    love_q_30:
+      "When problems arise, we try to approach them as a team rather than as 'me versus you'.",
     detailed_compatibility: "Detailed compatibility",
+    love_category_emotion: "Emotional Connection",
+    love_category_communication: "Communication & Understanding",
+    love_category_trust: "Trust & Security",
+    love_category_conflict: "Conflict Resolution",
+    love_category_intimacy: "Intimacy & Affection",
+    love_category_future: "Shared Values & Future",
+    love_pair_title: "Couple Compatibility Result",
+    love_pair_total_score: "Overall relationship score",
+    love_pair_pattern: "Relationship Pattern",
+    love_pair_dimensions_title: "6-Dimension Result",
+    love_pair_dimensions_subtitle:
+      "Shows how each of you rated the relationship and the difference between your scores.",
+    love_pair_combined: "Combined",
+    love_pair_gap: "Gap",
+    love_pair_gap_notice:
+      "You experience this part of the relationship somewhat differently.",
+    love_pair_strengths: "Strengths",
+    love_pair_attention: "Areas to Watch",
+    love_pair_advice: "Advice",
+    love_pair_fun_bonus: "Fun Bonus",
+    love_pair_not_in_score: "Not included in the main score",
+    love_mode_solo_desc:
+      "Answer 30 questions yourself and evaluate your relationship.",
+    love_mode_both_desc:
+      "You answer first, then send an invite link to your partner.",
+    love_dimensions_title: "6-area relationship breakdown",
+    love_dimensions_desc:
+      "Choose an area to view its detailed interpretation and guidance.",
+    love_dimension_emotion: "Emotional connection",
+    love_dimension_communication: "Communication & understanding",
+    love_dimension_trust: "Trust & security",
+    love_dimension_conflict: "Conflict resolution",
+    love_dimension_intimacy: "Intimacy & affection",
+    love_dimension_future: "Shared values & future",
+    love_view_details: "View details",
 
     numerology_title:
       "What do your name, birthday, and phone number say about you?",
@@ -1034,40 +1146,150 @@ export const translations = {
     love_advice: "Зөвлөмж",
     love_solo_result_note:
       "Ганцаар бөглөсөн үед үр дүн ерөнхий байдлаар тооцогдоно.",
-    love_both_result_note:
-      "Хоёулаа бөглөсөн үед үр дүн илүү нарийвчилсан байна.",
     love_test_title: "Заяаны хань тест",
     love_test_desc:
-      "Нэрний зохицол болон харилцааны хандлагад үндэслэн та хоёрын тохироог харуулна.",
-    love_solo_title: "Ганцаараа бөглөх",
+      "Харилцааны хандлага болон нэрний зохицолд үндэслэн та хоёрын тохироог харуулна.",
+    love_solo_title: "Ганцаараа",
     love_solo_desc: "Нэг хүн бөглөнө • Ерөнхий тохироо гарна",
-    love_both_title: "Хоёулаа бөглөх",
+    love_both_title: "Хамтдаа",
     love_both_desc: "Хоёулаа бөглөнө • Илүү нарийвчилсан үр дүн гарна",
-    love_name1_placeholder: "Эхний хүний нэр",
-    love_name2_placeholder: "Хоёр дахь хүний нэр",
+    love_name1_placeholder: "Таны нэр",
+    love_name2_placeholder: "Хамтрагчийн нэр",
     love_start_button: "Тест эхлэх",
-    love_solo_page_title: "Ганцаар бөглөх тест",
-    love_both_page_title: "Хосын тохироо шалгах тест",
+    love_solo_page_title: "Ганцаараа — тест",
     love_question_count: "Асуулт",
     love_next: "Дараах",
     love_restart: "Дахин эхлэх",
     love_test_name: "Заяаны хань",
+    love_both_page_title: "Хамтдаа — таны хэсэг",
+    love_both_result_note:
+      "Таны хариултыг хамтрагч тань харахгүй. Хоёулаа дууссаны дараа хамтарсан үр дүн тооцогдоно.",
+    love_previous: "← Өмнөх",
 
-    love_q_1: "Би асуудлаа илэн далангүй ярилцах дуртай.",
-    love_q_2: "Маргааны үед тайван байж чаддаг.",
-    love_q_3: "Хамтрагчдаа амархан итгэдэг.",
-    love_q_4: "Хайраа үгээр илэрхийлэх нь надад чухал.",
-    love_q_5: "Ирээдүйн зорилгоо хамтдаа төлөвлөх дуртай.",
-    love_q_6: "Хувийн орон зай надад чухал.",
-    love_q_7: "Би хамтрагчаа сэтгэл санааны хувьд дэмжихийг чухалчилдаг.",
-    love_q_8:
-      "Шийдвэр гаргахдаа хоёр талын бодлыг тэнцвэртэй сонсох хэрэгтэй гэж боддог.",
-    love_q_9: "Харилцаанд үнэнч байдал хамгийн чухал зүйлсийн нэг.",
-    love_q_10: "Урт хугацааны тогтвортой харилцаа надад чухал.",
+    love_q_1: "Би хамтрагчдаа өөрийн жинхэнэ мэдрэмжээ нээлттэй хэлж чаддаг.",
+
+    love_q_2: "Хамтрагч маань миний юу мэдэрч байгааг ойлгохыг хичээдэг.",
+
+    love_q_3: "Хэцүү үед би хамтрагчаасаа сэтгэл санааны дэмжлэг авч чаддаг.",
+
+    love_q_4:
+      "Бид хамтдаа байсан ч заримдаа сэтгэлзүйн хувьд хол мэт санагддаг.",
+
+    love_q_5: "Бид бие биенийхээ сэтгэл санааны өөрчлөлтийг анзаардаг.",
+
+    // Харилцаа ба ойлголцол
+
+    love_q_6: "Бид чухал зүйлсийн талаар нээлттэй ярилцаж чаддаг.",
+
+    love_q_7:
+      "Би ярьж байхдаа хамтрагч маань намайг үнэхээр сонсож байна гэж мэдэрдэг.",
+
+    love_q_8: "Би өөрийн бодол, хэрэгцээг хамтрагчдаа ойлгомжтой хэлж чаддаг.",
+
+    love_q_9: "Хэцүү сэдэв гарахад бид ярилцахаас зайлсхийх хандлагатай.",
+
+    love_q_10: "Үл ойлголцол гарвал бид юу болсон талаар тодруулж ярилцдаг.",
+
+    // Итгэлцэл ба аюулгүй байдал
+
+    love_q_11: "Би хамтрагчийнхаа надад үнэнч байдалд итгэдэг.",
+
+    love_q_12: "Хамтрагч маань хэлсэн зүйлдээ хүрнэ гэж би найдаж чаддаг.",
+
+    love_q_13: "Би энэ харилцаанд өөрийнхөөрөө байхдаа аюулгүй мэдэрдэг.",
+
+    love_q_14:
+      "Хамтрагчийнхаа үйлдлийн талаар би байнга эргэлзэх эсвэл хардах үе байдаг.",
+
+    love_q_15:
+      "Надад үнэхээр хэрэгтэй үед хамтрагч маань миний талд байна гэдэгт би итгэдэг.",
+
+    // Зөрчил шийдвэрлэлт
+
+    love_q_16:
+      "Санал зөрсөн үед ч бид бие биетэйгээ хүндэтгэлтэй харьцаж чаддаг.",
+
+    love_q_17:
+      "Маргалдах үед доромжлох, дайрах эсвэл зориуд шархлуулах зүйл гардаг.",
+
+    love_q_18:
+      "Асуудал гарахад бид түүнийг орхихоос илүү ярилцаж шийдэхийг хичээдэг.",
+
+    love_q_19:
+      "Бид санал зөрсөн ч хоёуланд маань боломжийн шийдэл олохыг хичээдэг.",
+
+    love_q_20:
+      "Маргалдсаны дараа бидний хоорондын хүйтэн байдал удаан үргэлжилдэг.",
+
+    // Дотно байдал ба хайр халамж
+
+    love_q_21: "Бид бие биедээ хайр халамжаа тогтмол илэрхийлдэг.",
+
+    love_q_22: "Би хамтрагчдаа хайрлагдаж, үнэ цэнтэй хүн гэж мэдэрдэг.",
+
+    love_q_23:
+      "Бидний бие махбодын ойр дотно байдал надад тухтай, хангалттай санагддаг.",
+
+    love_q_24: "Бид зөвхөн хоёулаа чанартай цаг өнгөрөөх нь ховор болсон.",
+
+    love_q_25: "Бидний харилцаанд романтик, дотно холбоо одоо ч мэдрэгддэг.",
+
+    // Үнэт зүйл ба хамтын ирээдүй
+
+    love_q_26:
+      "Амьдралын хамгийн чухал зүйлсийн талаар бидний үнэт зүйл ерөнхийдөө нийцдэг.",
+
+    love_q_27:
+      "Ирээдүйд ямар амьдрал хүсэж байгаагаа бид ижил төстэйгээр төсөөлдөг.",
+
+    love_q_28:
+      "Бид хоёулаа энэ харилцаагаа үргэлжлүүлэхэд бодитой хүчин чармайлт гаргадаг.",
+
+    love_q_29:
+      "Ирээдүйн том шийдвэрүүдийн талаар бидний хүсэл хоорондоо их зөрдөг.",
+
+    love_q_30:
+      "Асуудалтай үед ч бид “би, чи” гэхээс илүү “бид” гэж хамтран шийдэхийг хичээдэг.",
     detailed_compatibility: "Дэлгэрэнгүй тохироо",
+    love_category_emotion: "Сэтгэл хөдлөлийн холбоо",
+    love_category_communication: "Харилцаа ба ойлголцол",
+    love_category_trust: "Итгэлцэл ба аюулгүй байдал",
+    love_category_conflict: "Зөрчил шийдвэрлэлт",
+    love_category_intimacy: "Дотно байдал ба хайр халамж",
+    love_category_future: "Үнэт зүйл ба хамтын ирээдүй",
+    love_pair_title: "Хосын нийцэл, харилцааны үр дүн",
+    love_pair_total_score: "Нийт харилцааны оноо",
+    love_pair_pattern: "Харилцааны хэв маяг",
+    love_pair_dimensions_title: "6 хэмжээсийн үр дүн",
+    love_pair_dimensions_subtitle:
+      "Та хоёр тус бүр харилцаагаа хэрхэн үнэлсэн болон хоорондын зөрүүг харуулна.",
+    love_pair_combined: "Хамтарсан",
+    love_pair_gap: "Зөрүү",
+    love_pair_gap_notice: "Энэ хэсгийг та хоёр харьцангуй өөрөөр мэдэрч байна.",
+    love_pair_strengths: "Давуу тал",
+    love_pair_attention: "Анхаарах тал",
+    love_pair_advice: "Зөвлөгөө",
+    love_pair_fun_bonus: "Нэрийн нийцлийн нэмэлт",
+    love_pair_not_in_score: "Үндсэн оноонд нөлөөлөхгүй",
+    love_mode_solo_desc: "Та өөрөө 30 асуултад хариулж харилцаагаа үнэлнэ.",
+
+    love_mode_both_desc:
+      "Та эхэлж бөглөөд, дараа нь хамтрагчдаа урилгын холбоос илгээнэ.",
+    love_dimensions_title: "6 чиглэлийн дэлгэрэнгүй үнэлгээ",
+    love_dimensions_desc:
+      "Тухайн хэсгийг сонгож дэлгэрэнгүй тайлбар, зөвлөгөөг хараарай.",
+    love_dimension_emotion: "Сэтгэл хөдлөлийн холбоо",
+    love_dimension_communication: "Харилцаа ба ойлголцол",
+    love_dimension_trust: "Итгэлцэл ба аюулгүй байдал",
+    love_dimension_conflict: "Зөрчил шийдвэрлэлт",
+    love_dimension_intimacy: "Дотно байдал ба хайр халамж",
+    love_dimension_future: "Үнэт зүйл ба хамтын ирээдүй",
+    love_view_details: "Дэлгэрэнгүй харах",
+
     numerology_title: "Таны нэр, төрсөн өдөр, утасны дугаар юу хэлж байна вэ?",
     numerology_subtitle:
       "Өөрийн үндсэн энерги, нэрний нөлөө, утасны дугаарын зохицол болон санхүүгийн хандлагаа зөөлөн, дэлгэрэнгүй тайлбараар үзээрэй.",
+
     full_name: "Таны нэр",
     full_name_placeholder: "Жишээ: Бат-Эрдэнэ",
     birth_date: "Төрсөн он сар өдөр",

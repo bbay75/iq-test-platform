@@ -3,14 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { loveQuestions } from "@/data/loveQuestions";
-import {
-  buildPairLoveResult,
-  buildSoloLoveResult,
-} from "@/data/loveCalculator";
+import { buildSoloLoveResult } from "@/data/loveCalculator";
 import { saveTestResult } from "@/lib/saveResult";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/lib/LanguageProvider";
-
+import { supabase } from "@/lib/supabase";
+import { UserRound, UsersRound } from "lucide-react";
 type LoveMode = "solo" | "both" | null;
 
 export default function LoveTestPage() {
@@ -22,7 +20,7 @@ export default function LoveTestPage() {
     { label: t("love_scale_agree"), value: 4 },
     { label: t("love_scale_strongly_agree"), value: 5 },
   ];
-  const [mode, setMode] = useState<LoveMode>(null);
+  const [mode, setMode] = useState<LoveMode>("solo");
 
   const [name1, setName1] = useState("");
   const [name2, setName2] = useState("");
@@ -31,13 +29,17 @@ export default function LoveTestPage() {
   const [index, setIndex] = useState(0);
 
   const [answers1, setAnswers1] = useState<number[]>([]);
-  const [answers2, setAnswers2] = useState<number[]>([]);
-
   const [selected1, setSelected1] = useState<number | null>(null);
-  const [selected2, setSelected2] = useState<number | null>(null);
+
+  const [inviteUrl, setInviteUrl] = useState("");
+  const [copyDone, setCopyDone] = useState(false);
+  const [pairResultId, setPairResultId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState<string | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -45,82 +47,140 @@ export default function LoveTestPage() {
     if (saved) setSavedResult(saved);
   }, []);
 
+  useEffect(() => {
+    if (mode !== "both" || !inviteUrl) return;
+
+    const sessionId = inviteUrl.split("/").pop();
+    if (!sessionId) return;
+
+    const channel = supabase
+      .channel(`love-couple-${sessionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "love_couple_sessions",
+          filter: `id=eq.${sessionId}`,
+        },
+        (payload) => {
+          const updated = payload.new as {
+            result_id?: string | null;
+            person2_completed?: boolean;
+          };
+
+          if (updated.person2_completed && updated.result_id) {
+            setPairResultId(updated.result_id);
+            window.location.href = `/my-results/${updated.result_id}`;
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [mode, inviteUrl]);
+
   const currentQuestion = loveQuestions[index];
 
   const resultData = useMemo(() => {
-    if (!finished || !name1 || !name2 || !mode) return null;
+    if (!finished || mode !== "solo" || !name1 || !name2) return null;
+    return buildSoloLoveResult(name1, name2, answers1);
+  }, [finished, mode, name1, name2, answers1]);
 
-    if (mode === "solo") {
-      return buildSoloLoveResult(name1, name2, answers1);
-    }
+  useEffect(() => {
+    if (mode !== "both" || !inviteUrl) return;
 
-    return buildPairLoveResult(name1, name2, answers1, answers2);
-  }, [finished, mode, name1, name2, answers1, answers2]);
+    const sessionId = inviteUrl.split("/").pop();
 
-  const handleNext = async () => {
-    if (mode === "solo") {
-      if (selected1 === null) return;
+    if (!sessionId) return;
 
-      const updatedAnswers1 = [...answers1, selected1];
-      setAnswers1(updatedAnswers1);
+    const channel = supabase
+      .channel(`love-couple-p1-${sessionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "love_couple_sessions",
+          filter: `id=eq.${sessionId}`,
+        },
+        (payload) => {
+          const updated = payload.new as {
+            person2_completed?: boolean;
+            result_id?: string | null;
+          };
 
-      if (index + 1 < loveQuestions.length) {
-        setIndex(index + 1);
-        setSelected1(null);
-      } else {
-        const result = buildSoloLoveResult(name1, name2, updatedAnswers1);
-        const finalText = `${result.finalScore}%`;
+          console.log("LOVE REALTIME P1:", updated);
 
-        localStorage.setItem("loveResult", finalText);
-        setSavedResult(finalText);
+          if (updated.person2_completed && updated.result_id) {
+            setPairResultId(updated.result_id);
+          }
+        },
+      )
+      .subscribe();
 
-        try {
-          const saved = await saveTestResult({
-            test_type: "love",
-            result_json: result,
-            score: result.finalScore,
-          });
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [mode, inviteUrl]);
 
-          router.push(`/my-results/${saved.id}`);
-          return;
-        } catch (error) {
-          console.error("Love save error:", error);
-          setFinished(true);
-        }
-      }
+  const handleNext = async (directValue?: number) => {
+    const answerValue = directValue ?? selected1;
 
+    if (!mode || answerValue === null) return;
+
+    const nextAnswers = [...answers1];
+    nextAnswers[index] = answerValue;
+
+    setAnswers1(nextAnswers);
+
+    if (index + 1 < loveQuestions.length) {
+      const nextIndex = index + 1;
+
+      setIndex(nextIndex);
+      setSelected1(nextAnswers[nextIndex] ?? null);
       return;
     }
 
-    if (selected1 === null || selected2 === null) return;
+    setSubmitting(true);
+    setSubmitError(null);
 
-    const updatedAnswers1 = [...answers1, selected1];
-    const updatedAnswers2 = [...answers2, selected2];
-
-    setAnswers1(updatedAnswers1);
-    setAnswers2(updatedAnswers2);
-
-    if (index + 1 < loveQuestions.length) {
-      setIndex(index + 1);
-      setSelected1(null);
-      setSelected2(null);
-    } else {
-      const result = buildPairLoveResult(
-        name1,
-        name2,
-        updatedAnswers1,
-        updatedAnswers2,
+    if (mode === "solo") {
+      const result = buildSoloLoveResult(
+        name1.trim(),
+        name2.trim(),
+        nextAnswers,
       );
 
       const finalText = `${result.finalScore}%`;
-
       localStorage.setItem("loveResult", finalText);
       setSavedResult(finalText);
 
       try {
+        let {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          const { data, error } = await supabase.auth.signInAnonymously();
+
+          if (error || !data.session) {
+            throw new Error(
+              error?.message ?? "Anonymous session үүсгэж чадсангүй",
+            );
+          }
+
+          session = data.session;
+        }
+
         const saved = await saveTestResult({
           test_type: "love",
-          result_json: result,
+          result_json: {
+            ...result,
+            mode: "solo",
+          },
           score: result.finalScore,
         });
 
@@ -129,7 +189,75 @@ export default function LoveTestPage() {
       } catch (error) {
         console.error("Love save error:", error);
         setFinished(true);
+      } finally {
+        setSubmitting(false);
       }
+
+      return;
+    }
+
+    try {
+      let {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+
+        if (error || !data.session) {
+          throw new Error(
+            error?.message ?? "Anonymous session үүсгэж чадсангүй",
+          );
+        }
+
+        session = data.session;
+      }
+
+      const accessToken = session.access_token;
+
+      const response = await fetch("/api/love-couple/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          person1Name: name1.trim(),
+          person2Name: name2.trim(),
+          person1Answers: nextAnswers,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to create couple session");
+      }
+
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "";
+
+      setInviteUrl(`${origin}${data.invitePath}`);
+      setFinished(true);
+    } catch (error) {
+      console.error("Love couple create error:", error);
+      setSubmitError(
+        error instanceof Error ? error.message : "Invite үүсгэж чадсангүй.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const copyInviteLink = async () => {
+    if (!inviteUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopyDone(true);
+      window.setTimeout(() => setCopyDone(false), 1800);
+    } catch (error) {
+      console.error("Copy invite link error:", error);
     }
   };
 
@@ -140,11 +268,122 @@ export default function LoveTestPage() {
     setStarted(false);
     setIndex(0);
     setAnswers1([]);
-    setAnswers2([]);
     setSelected1(null);
-    setSelected2(null);
     setFinished(false);
+    setInviteUrl("");
+    setCopyDone(false);
+    setSubmitting(false);
+    setSubmitError(null);
   };
+
+  if (mode === "both" && finished && inviteUrl) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
+        <Link
+          href="/"
+          className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
+        >
+          ← {t("back_home")}
+        </Link>
+
+        <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-7 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-pink-500">
+              ХОСЫН НИЙЦЛИЙН ҮР ДҮН
+            </p>
+
+            <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
+              Таны хэсэг дууслаа
+            </h1>
+
+            <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
+              Одоо энэ холбоосыг хамтрагчдаа явуулна. Тэр 30 асуултад тусдаа
+              хариулсны дараа та хоёрын хамтарсан үр дүн гарна.
+            </p>
+          </div>
+
+          <div className="mt-7 rounded-2xl border border-pink-200 bg-pink-50 p-5 dark:border-pink-900 dark:bg-pink-950/20">
+            <p className="text-xs font-semibold uppercase tracking-wider text-pink-600 dark:text-pink-300">
+              УРЬЖ ОРОЛЦУУЛАХ ЛИНК
+            </p>
+
+            <p className="mt-2 break-all text-sm leading-6 text-gray-700 dark:text-gray-200">
+              {inviteUrl}
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={copyInviteLink}
+              className="rounded-xl bg-pink-500 px-5 py-3 font-semibold text-white transition hover:bg-pink-600"
+            >
+              {copyDone ? "Хуулагдлаа ✓" : "Линк хуулах"}
+            </button>
+
+            {pairResultId ? (
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = `/my-results/${pairResultId}`;
+                }}
+                className="rounded-xl bg-pink-500 px-5 py-3 font-semibold text-white transition hover:bg-pink-600"
+              >
+                Үр дүнгээ нээх
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!inviteUrl) return;
+
+                  const sessionId = inviteUrl.split("/").pop();
+                  if (!sessionId) return;
+
+                  const res = await fetch(`/api/love-couple/${sessionId}`, {
+                    cache: "no-store",
+                  });
+
+                  const data = await res.json();
+
+                  if (!res.ok) {
+                    alert(data.error ?? "Үр дүн шалгаж чадсангүй");
+                    return;
+                  }
+
+                  if (!data.session.person2_completed) {
+                    alert("Хамтрагч тань тестээ хараахан дуусаагүй байна.");
+                    return;
+                  }
+
+                  if (data.session.result_id) {
+                    setPairResultId(data.session.result_id);
+                  }
+                }}
+                className="rounded-xl border border-gray-600 px-6 py-3 font-semibold text-white"
+              >
+                Үр дүн шалгах
+              </button>
+            )}
+          </div>
+
+          <p className="mt-6 rounded-2xl bg-gray-50 p-4 text-sm leading-6 text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+            {name1} Таны хариулт хадгалагдлаа. Хамтрагч тань тестээ бөглөсний
+            дараа та хоёрын 6 хэмжээсийн үнэлгээ, хоорондын зөрүү, нийт оноо
+            болон харилцааны хэв маяг тооцогдоно.
+          </p>
+
+          <button
+            type="button"
+            onClick={resetTest}
+            className="mt-6 w-full rounded-xl bg-gray-700 px-5 py-3 font-semibold text-white transition hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500"
+          >
+            Шинэ тест эхлүүлэх
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (finished && resultData && savedResult) {
     return (
@@ -303,7 +542,7 @@ export default function LoveTestPage() {
         </Link>
 
         <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900 dark:text-white">
             {t("love_test_title")}
           </h1>
 
@@ -313,6 +552,7 @@ export default function LoveTestPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <button
+              type="button"
               onClick={() => setMode("solo")}
               className={`rounded-2xl border p-5 text-center transition ${
                 mode === "solo"
@@ -320,11 +560,16 @@ export default function LoveTestPage() {
                   : "border-gray-300 bg-white text-gray-900 hover:bg-pink-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
               }`}
             >
-              <p className="text-lg font-bold">{t("love_solo_title")}</p>
-              <p className="mt-2 text-sm">{t("love_solo_desc")}</p>
+              <p className="flex items-center justify-center gap-2 text-lg font-bold">
+                <UserRound className="h-5 w-5" />
+                {t("love_solo_title")}
+              </p>
+
+              <p className="mt-2 text-sm">{t("love_mode_solo_desc")}</p>
             </button>
 
             <button
+              type="button"
               onClick={() => setMode("both")}
               className={`rounded-2xl border p-5 text-center transition ${
                 mode === "both"
@@ -332,168 +577,194 @@ export default function LoveTestPage() {
                   : "border-gray-300 bg-white text-gray-900 hover:bg-pink-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
               }`}
             >
-              <p className="text-lg font-bold">{t("love_both_title")}</p>
-              <p className="mt-2 text-sm">{t("love_both_desc")}</p>
+              <p className="flex items-center justify-center gap-2 text-lg font-bold">
+                <UsersRound className="h-5 w-5" />
+                {t("love_both_title")}
+              </p>
+
+              <p className="mt-2 text-sm">{t("love_mode_both_desc")}</p>
             </button>
           </div>
 
-          <div className="mt-6 grid gap-4">
-            <input
-              type="text"
-              placeholder={t("love_name1_placeholder")}
-              value={name1}
-              onChange={(e) => setName1(e.target.value)}
-              className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
-            />
+          {mode && (
+            <div className="mt-6 grid gap-4">
+              <input
+                type="text"
+                placeholder={t("love_name1_placeholder")}
+                value={name1}
+                onChange={(e) => setName1(e.target.value)}
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+              />
 
-            <input
-              type="text"
-              placeholder={t("love_name2_placeholder")}
-              value={name2}
-              onChange={(e) => setName2(e.target.value)}
-              className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
-            />
+              {mode === "solo" && (
+                <input
+                  type="text"
+                  placeholder={t("love_name2_placeholder")}
+                  value={name2}
+                  onChange={(e) => setName2(e.target.value)}
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                />
+              )}
 
-            <button
-              onClick={() => {
-                if (!mode || !name1.trim() || !name2.trim()) return;
-                setStarted(true);
-              }}
-              className="rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-500"
-            >
-              {t("love_start_button")}
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!mode || !name1.trim()) return;
+
+                  if (mode === "solo" && !name2.trim()) {
+                    return;
+                  }
+
+                  setStarted(true);
+                }}
+                disabled={
+                  !mode || !name1.trim() || (mode === "solo" && !name2.trim())
+                }
+                className="rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {t("love_start_button")}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
   }
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
       <Link
         href="/"
         className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
       >
-        ← Back to Home
+        ← {t("back_home")}
       </Link>
 
       <div className="w-full max-w-3xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
           {mode === "solo"
             ? t("love_solo_page_title")
             : t("love_both_page_title")}
         </h1>
 
-        <div className="mb-6">
-          <div className="h-2 w-full rounded bg-gray-200 dark:bg-gray-700">
+        {/* PROGRESS */}
+        <div className="mt-6">
+          <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
             <div
-              className="h-2 rounded bg-pink-500 transition-all"
-              style={{ width: `${progress}%` }}
+              className="h-full rounded-full bg-pink-500 transition-all"
+              style={{
+                width: `${((index + 1) / loveQuestions.length) * 100}%`,
+              }}
             />
           </div>
 
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {t("love_question_count")} {index + 1} / {loveQuestions.length}
+          <div className="mt-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+            <span>
+              {t("love_question")} {index + 1} / {loveQuestions.length}
+            </span>
+
+            <span>
+              {Math.round(((index + 1) / loveQuestions.length) * 100)}%
+            </span>
+          </div>
+        </div>
+
+        {/* QUESTION */}
+        <div className="mt-7 rounded-2xl bg-gray-100 p-7 text-center dark:bg-gray-900">
+          <p className="text-lg font-bold leading-8 text-gray-900 dark:text-white md:text-xl">
+            {t(currentQuestion.question)}
           </p>
         </div>
 
-        <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
-            {t(currentQuestion.question)}
-          </h2>
-        </div>
+        {/* SCALE */}
+        <div className="mt-8">
+          <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
+            {scaleOptions.map((option) => {
+              const active = selected1 === option.value;
 
-        {mode === "solo" ? (
-          <div className="mt-6 rounded-2xl border border-pink-200 bg-pink-50 p-4 dark:border-pink-800 dark:bg-pink-950/30">
-            <h3 className="mb-4 text-center text-lg font-bold text-gray-900 dark:text-white">
-              {name1}
-            </h3>
-
-            <div className="flex flex-col gap-3">
-              {scaleOptions.map((option) => (
+              return (
                 <button
-                  key={`${option.label}-solo`}
-                  onClick={() => setSelected1(option.value)}
-                  className={`rounded-xl border px-4 py-3 text-center font-medium transition ${
-                    selected1 === option.value
-                      ? "border-pink-500 bg-pink-200 text-pink-700 dark:bg-pink-900 dark:text-pink-300"
-                      : "border-gray-300 bg-white text-gray-900 hover:bg-pink-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    const value = option.value;
+
+                    setSelected1(value);
+
+                    setTimeout(() => {
+                      handleNext(value);
+                    }, 120);
+                  }}
+                  aria-label={option.label}
+                  className={`flex items-center justify-center rounded-full border-2 transition ${
+                    active
+                      ? "border-pink-500 bg-pink-500 text-white"
+                      : "border-gray-500 bg-transparent hover:border-pink-400"
+                  } ${
+                    option.value === 1 || option.value === 5
+                      ? "h-12 w-12"
+                      : option.value === 2 || option.value === 4
+                        ? "h-10 w-10"
+                        : "h-8 w-8"
                   }`}
                 >
-                  {option.label}
+                  {active && <span className="text-lg font-bold">✓</span>}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        ) : (
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-pink-200 bg-pink-50 p-4 dark:border-pink-800 dark:bg-pink-950/30">
-              <h3 className="mb-4 text-center text-lg font-bold text-gray-900 dark:text-white">
-                {name1}
-              </h3>
 
-              <div className="flex flex-col gap-3">
-                {scaleOptions.map((option) => (
-                  <button
-                    key={`${option.label}-1`}
-                    onClick={() => setSelected1(option.value)}
-                    className={`rounded-xl border px-4 py-3 text-center font-medium transition ${
-                      selected1 === option.value
-                        ? "border-pink-500 bg-pink-200 text-pink-700 dark:bg-pink-900 dark:text-pink-300"
-                        : "border-gray-300 bg-white text-gray-900 hover:bg-pink-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-              <h3 className="mb-4 text-center text-lg font-bold text-gray-900 dark:text-white">
-                {name2}
-              </h3>
-
-              <div className="flex flex-col gap-3">
-                {scaleOptions.map((option) => (
-                  <button
-                    key={`${option.label}-2`}
-                    onClick={() => setSelected2(option.value)}
-                    className={`rounded-xl border px-4 py-3 text-center font-medium transition ${
-                      selected2 === option.value
-                        ? "border-blue-500 bg-blue-200 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                        : "border-gray-300 bg-white text-gray-900 hover:bg-blue-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="mx-auto mt-3 flex max-w-xl justify-between text-xs text-gray-500 dark:text-gray-400">
+            <span>{t("love_scale_strongly_disagree")}</span>
+            <span>{t("love_scale_strongly_agree")}</span>
           </div>
-        )}
-
-        <div className="mt-6 flex justify-center">
-          <button
-            onClick={handleNext}
-            disabled={
-              mode === "solo"
-                ? selected1 === null
-                : selected1 === null || selected2 === null
-            }
-            className="rounded-xl bg-pink-500 px-8 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-pink-600 dark:hover:bg-pink-500"
-          >
-            {t("love_next")}
-          </button>
         </div>
 
-        <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          {mode === "solo"
-            ? t("love_solo_result_note")
-            : t("love_both_result_note")}
-        </p>
+        {submitError && (
+          <p className="mt-4 text-center text-sm text-red-500">{submitError}</p>
+        )}
+
+        {/* NEXT */}
+        <div className="mt-8 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              if (index === 0) return;
+
+              const previousIndex = index - 1;
+
+              setIndex(previousIndex);
+              setSelected1(answers1[previousIndex] ?? null);
+            }}
+            disabled={index === 0 || submitting}
+            className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            {t("love_previous")}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleNext()}
+            disabled={selected1 === null || submitting}
+            className="rounded-xl bg-pink-500 px-7 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-pink-600 dark:hover:bg-pink-500"
+          >
+            {submitting
+              ? mode === "both"
+                ? "Invite үүсгэж байна..."
+                : "Үр дүн гаргаж байна..."
+              : index + 1 === loveQuestions.length
+                ? mode === "both"
+                  ? "Invite link авах"
+                  : "Үр дүн харах"
+                : `${t("love_next")} →`}
+          </button>
+        </div>
       </div>
+
+      <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+        {mode === "both"
+          ? t("love_both_result_note")
+          : t("love_solo_result_note")}
+      </p>
     </div>
   );
 }
