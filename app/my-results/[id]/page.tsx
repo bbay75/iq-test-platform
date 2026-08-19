@@ -188,6 +188,43 @@ async function saveOrShareImage(blob: Blob) {
   // Mobile share болохгүй бол fallback download
   downloadBlob(blob, filename);
 }
+
+async function saveOrShareLoveImage(blob: Blob, score: number) {
+  const filename = `love-result-${score}.jpg`;
+
+  // Desktop
+  if (!isMobileDevice()) {
+    downloadBlob(blob, filename);
+    return;
+  }
+
+  // Mobile
+  const file = new File([blob], filename, {
+    type: "image/jpeg",
+  });
+
+  try {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      await navigator.share({
+        files: [file],
+        title: "Миний хайрын тестийн үр дүн",
+        text: `Миний нийцэл ${score}%`,
+      });
+
+      return;
+    }
+  } catch (error) {
+    console.warn("Love native share cancelled or failed:", error);
+  }
+
+  // fallback
+  downloadBlob(blob, filename);
+}
+
 function formatTestTitle(testType: string) {
   switch (testType) {
     case "personal-color":
@@ -1009,7 +1046,7 @@ export default function ResultDetailPage() {
 
                     const blob = await response.blob();
 
-                    downloadBlob(blob, `love-result-${score}.jpg`);
+                    await saveOrShareLoveImage(blob, score);
 
                     setToast(t("image_downloaded"));
                     setTimeout(() => setShowToast(false), 2000);
@@ -1071,11 +1108,14 @@ export default function ResultDetailPage() {
                 </p>
 
                 <div className="mx-auto w-full max-w-[600px] overflow-hidden rounded-2xl bg-black shadow-2xl">
-                  <div className="relative aspect-[1200/630] w-full overflow-hidden">
-                    <div className="pointer-events-none absolute left-0 top-0 h-[630px] w-[1200px] origin-top-left scale-50">
-                      <LoveShareCard score={result.score} />
-                    </div>
-                  </div>
+                  <img
+                    src={`/share/love-final/${Math.max(
+                      0,
+                      Math.min(100, Math.round(result.score)),
+                    )}.jpg`}
+                    alt="Love share result"
+                    className="block h-auto w-full"
+                  />
                 </div>
               </div>
             ) : (
