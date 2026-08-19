@@ -498,7 +498,31 @@ export const translations = {
     love_both_result_note:
       "Your partner cannot see your answers. The combined result will be calculated after both of you finish.",
     love_previous: "← Previous",
+    love_both_process_desc:
+      "You answer 30 questions first. Then send a private invite link to your partner so they can complete their own answers.",
 
+    love_pair_invite_title: "invited you to complete the test together",
+
+    love_pair_invite_desc:
+      "You will answer 30 short questions independently. After both of you finish, you will receive a shared result across six relationship dimensions.",
+    love_question: "Question",
+    love_view_result: "View Result",
+    love_get_invite_link: "Get Invite Link",
+    love_creating_invite: "Creating invite...",
+    love_calculating_result: "Calculating result...",
+    love_pair_part_complete: "Your part is complete",
+    love_pair_result_ready: "Your shared relationship result is ready.",
+    love_pair_result_owner_unlock:
+      "Once the first person unlocks the result, you can view it here together.",
+    love_pair_waiting_desc:
+      "The result has not been unlocked by the first person yet.",
+    love_invite_link: "INVITE LINK",
+    love_copied: "Copied ✓",
+    love_copy_link: "Copy Link",
+    love_open_result: "Үр дүнгээ нээх",
+
+    love_check_result: "Check Result",
+    love_reduced_name_number: "Reduced name number",
     love_q_1: "I can openly share my true feelings with my partner.",
 
     love_q_2: "My partner tries to understand how I feel.",
@@ -1165,7 +1189,29 @@ export const translations = {
     love_both_result_note:
       "Таны хариултыг хамтрагч тань харахгүй. Хоёулаа дууссаны дараа хамтарсан үр дүн тооцогдоно.",
     love_previous: "← Өмнөх",
+    love_both_process_desc:
+      "Та эхлээд 30 асуултад хариулна. Дараа нь хамтрагчдаа тусгай линк илгээж, хамтрагч тань өөрийн хариултыг бөглөнө.",
 
+    love_pair_invite_title: "таныг хамтдаа тест бөглөхөөр урьсан байна",
+
+    love_pair_invite_desc:
+      "Та 30 богино асуултад тусдаа хариулна. Дараа нь та хоёрын 6 хэмжээсийн хамтарсан үр дүн гарна.",
+    love_question: "Асуулт",
+    love_view_result: "Үр дүн харах",
+    love_get_invite_link: "Урилгын линк авах",
+    love_creating_invite: "Урилга үүсгэж байна...",
+    love_calculating_result: "Үр дүн гаргаж байна...",
+    love_pair_part_complete: "Таны хэсэг дууслаа",
+    love_pair_result_ready: "Та хоёрын хамтарсан үр дүн бэлэн боллоо.",
+    love_pair_result_owner_unlock:
+      "Үр дүнг эхний хүн нээсний дараа эндээс хамт харах боломжтой.",
+    love_pair_waiting_desc: "Одоогоор эхний хүн үр дүнгээ нээгээгүй байна.",
+    love_invite_link: "УРЬЖ ОРОЛЦУУЛАХ ЛИНК",
+    love_copied: "Хуулагдлаа ✓",
+    love_copy_link: "Линк хуулах",
+    love_open_result: "Үр дүнгээ нээх",
+    love_check_result: "Үр дүн шалгах",
+    love_reduced_name_number: "Нэрний бууруулсан тоо",
     love_q_1: "Би хамтрагчдаа өөрийн жинхэнэ мэдрэмжээ нээлттэй хэлж чаддаг.",
 
     love_q_2: "Хамтрагч маань миний юу мэдэрч байгааг ойлгохыг хичээдэг.",

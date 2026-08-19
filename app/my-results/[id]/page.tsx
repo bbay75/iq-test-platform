@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { unlockResult } from "@/lib/unlockResult";
 import html2canvas from "html2canvas";
-import { useRef } from "react";
 import ResultPaywall from "@/components/ResultPaywall";
 import { useLang } from "@/lib/LanguageProvider";
 import MbtiSharePoster from "@/components/MbtiSharePoster";
+import LoveShareCard from "@/components/LoveShareCard";
 import { generateMbtiShareImage } from "@/lib/generateMbtiShareImage";
 import LovePairResult from "@/components/LovePairResult";
 import LoveDimensionsResult from "@/components/LoveDimensionsResult";
+import LoveDimensionsNav from "@/components/LoveDimensionsNav";
+import { getLoveShareTemplate } from "@/data/loveShareTemplates";
+
 import {
   getMbtiPercentDescription,
   getMbtiCombinedProfile,
@@ -36,6 +39,7 @@ import {
   HeartHandshake,
   Compass,
   ArrowRight,
+  HeartPulse,
 } from "lucide-react";
 type TestResult = {
   id: string;
@@ -575,13 +579,40 @@ export default function ResultDetailPage() {
   const [toast, setToast] = useState("");
   const [showToast, setShowToast] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
+  const loveShareRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
   const [profileCredits, setProfileCredits] = useState(0);
   const [profileProgress, setProfileProgress] = useState(0);
   const [showBackToReport, setShowBackToReport] = useState(false);
+  const [showLoveBackToNav, setShowLoveBackToNav] = useState(false);
+  const loveNavRef = useRef<HTMLDivElement | null>(null);
   const [activeLoveSection, setActiveLoveSection] = useState<string | null>(
     null,
   );
+
+  useEffect(() => {
+    if (result?.test_type !== "love") return;
+
+    const handleScroll = () => {
+      const nav = loveNavRef.current;
+      if (!nav) return;
+
+      const rect = nav.getBoundingClientRect();
+
+      setShowLoveBackToNav(rect.bottom < 120);
+    };
+
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [result?.test_type]);
+
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToReport(window.scrollY > 700);
@@ -961,18 +992,51 @@ export default function ResultDetailPage() {
                   setToast("Зураг бэлдэж байна...");
                   setShowToast(true);
 
-                  const blob = await generateMbtiShareImage({
-                    type: mbtiShareType,
-                    gender: mbtiGender,
-                  });
+                  // LOVE
+                  if (result.test_type === "love") {
+                    const score = Math.max(
+                      0,
+                      Math.min(100, Math.round(result.score ?? 0)),
+                    );
 
-                  await saveOrShareImage(blob);
+                    const response = await fetch(
+                      `/share/love-final/${score}.jpg`,
+                    );
 
-                  setToast(t("image_downloaded"));
+                    if (!response.ok) {
+                      throw new Error("Love share image not found");
+                    }
+
+                    const blob = await response.blob();
+
+                    downloadBlob(blob, `love-result-${score}.jpg`);
+
+                    setToast(t("image_downloaded"));
+                    setTimeout(() => setShowToast(false), 2000);
+                    return;
+                  }
+
+                  // MBTI хуучнаараа
+                  if (result.test_type === "mbti") {
+                    const blob = await generateMbtiShareImage({
+                      type: mbtiShareType,
+                      gender: mbtiGender,
+                    });
+
+                    await saveOrShareImage(blob);
+
+                    setToast(t("image_downloaded"));
+                    setTimeout(() => setShowToast(false), 2000);
+                    return;
+                  }
+
+                  setToast(t("download_failed"));
                   setTimeout(() => setShowToast(false), 2000);
                 } catch (error) {
-                  console.error("Canvas generate failed:", error);
+                  console.error("Share image generate failed:", error);
+
                   alert(error instanceof Error ? error.message : String(error));
+
                   setToast(t("download_failed"));
                   setShowToast(true);
                   setTimeout(() => setShowToast(false), 2000);
@@ -998,19 +1062,24 @@ export default function ResultDetailPage() {
                     </div>
                   </div>
                 </div>
-
-                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                  {lang === "en"
-                    ? "Download this image and share it on Facebook or Instagram Story."
-                    : "Энэ зургийг татаж аваад Facebook эсвэл Instagram story дээр хуваалцаарай."}
+              </div>
+            ) : result.test_type === "love" &&
+              typeof result.score === "number" ? (
+              <div className="mt-4 w-full">
+                <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {lang === "en" ? "Your share image" : "Таны шэйр зураг"}
                 </p>
+
+                <div className="mx-auto w-full max-w-[600px] overflow-hidden rounded-2xl bg-black shadow-2xl">
+                  <div className="relative aspect-[1200/630] w-full overflow-hidden">
+                    <div className="pointer-events-none absolute left-0 top-0 h-[630px] w-[1200px] origin-top-left scale-50">
+                      <LoveShareCard score={result.score} />
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div
-                className="rounded-3xl 
-              
-              border border-blue-200 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm dark:border-blue-900/40 dark:from-gray-900 dark:to-blue-950/30"
-              >
+              <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm dark:border-blue-900/40 dark:from-gray-900 dark:to-blue-950/30">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
@@ -1036,6 +1105,7 @@ export default function ResultDetailPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {displayData.statLabel}
                     </p>
+
                     <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
                       {displayData.statValue}
                     </p>
@@ -1045,6 +1115,7 @@ export default function ResultDetailPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {displayData.sideLabel}
                     </p>
+
                     <p className="mt-1 text-4xl font-bold text-gray-900 dark:text-white">
                       {displayData.sideValue}
                     </p>
@@ -1055,6 +1126,7 @@ export default function ResultDetailPage() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {t("share_story")}
                   </p>
+
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
                     testplatform
                   </p>
@@ -2275,219 +2347,214 @@ export default function ResultDetailPage() {
                     result={rawResultData}
                     person1Name={rawResultData.person1Name || "Хүн 1"}
                     person2Name={rawResultData.person2Name || "Хүн 2"}
+                    navRef={loveNavRef}
+                    activeSection={activeLoveSection}
+                    onSectionSelect={(key) => {
+                      setActiveLoveSection(key);
+
+                      setTimeout(() => {
+                        setActiveLoveSection(null);
+                      }, 1400);
+                    }}
                   />
                 )}
 
-                <div className={isPairLoveResult ? "hidden" : "space-y-5"}>
-                  <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pink-500">
-                      {lang === "en"
-                        ? "YOUR RELATIONSHIP REPORT"
-                        : "ТАНЫ ХАРИЛЦААНЫ ТАЙЛАН"}
-                    </p>
+                {!isPairLoveResult && (
+                  <div className="space-y-5">
+                    <div
+                      id="love-dimensions-nav"
+                      className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    >
+                      <LoveDimensionsNav
+                        navRef={loveNavRef}
+                        activeSection={activeLoveSection}
+                        onSelect={(key) => {
+                          setActiveLoveSection(key);
 
-                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-                      {t("love_dimensions_title")}
-                    </h2>
-
-                    <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-                      {t("love_view_details")}
-                    </p>
-
-                    <div className="mt-6 grid gap-3 md:grid-cols-2">
-                      {loveSoloSections.map((item) => {
-                        const Icon = item.icon;
-
-                        return (
-                          <button
-                            key={item.key}
-                            type="button"
-                            onClick={() => {
-                              setActiveLoveSection(item.key);
-
-                              document
-                                .getElementById(item.targetId)
-                                ?.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "start",
-                                });
-
-                              setTimeout(() => {
-                                setActiveLoveSection(null);
-                              }, 1400);
-                            }}
-                            className={`flex items-center justify-between rounded-xl border border-gray-200 p-4 text-left transition dark:border-gray-700 ${item.hoverClass}`}
-                          >
-                            <div className="flex min-w-0 items-center gap-3">
-                              <div
-                                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.iconClass}`}
-                              >
-                                <Icon className="h-5 w-5" />
-                              </div>
-
-                              <div className="min-w-0">
-                                <p className="font-semibold text-gray-900 dark:text-white">
-                                  {t(item.labelKey)}
-                                </p>
-
-                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                  {t("love_dimensions_desc")}
-                                </p>
-                              </div>
-                            </div>
-
-                            <ArrowRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />
-                          </button>
-                        );
-                      })}
+                          setTimeout(() => {
+                            setActiveLoveSection(null);
+                          }, 1400);
+                        }}
+                      />
                     </div>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {/* Давуу тал */}
-                    <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.04] p-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/10 text-emerald-400">
-                          <ShieldCheck className="h-5 w-5" strokeWidth={1.8} />
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">
-                            {lang === "en" ? "STRENGTHS" : "ДАВУУ ТАЛ"}
-                          </p>
-
-                          <h3 className="mt-1 font-bold text-gray-900 dark:text-white">
-                            {lang === "en"
-                              ? "What is working well"
-                              : "Таны харилцааны хүчтэй талууд"}
-                          </h3>
-                        </div>
-                      </div>
-
-                      <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                        {strengths.length ? (
-                          strengths.map((item: string) => (
-                            <li key={item}>• {item}</li>
-                          ))
-                        ) : (
-                          <li>{t("no_strengths_data")}</li>
-                        )}
-                      </ul>
-                    </div>
-
-                    {/* Анхаарах зүйл */}
-                    <div className="rounded-2xl border border-amber-400/15 bg-amber-400/[0.04] p-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/15 bg-amber-400/10 text-amber-400">
-                          <TriangleAlert
-                            className="h-5 w-5"
-                            strokeWidth={1.8}
-                          />
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-400">
-                            {lang === "en" ? "WATCH-OUTS" : "АНХААРАХ ТАЛ"}
-                          </p>
-
-                          <h3 className="mt-1 font-bold text-gray-900 dark:text-white">
-                            {lang === "en"
-                              ? "Areas worth paying attention to"
-                              : "Анхаарах хэрэгтэй зүйлс"}
-                          </h3>
-                        </div>
-                      </div>
-
-                      <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                        {weaknesses.length ? (
-                          weaknesses.map((item: string) => (
-                            <li key={item}>• {item}</li>
-                          ))
-                        ) : (
-                          <li>{t("no_weaknesses_data")}</li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-violet-400/15 bg-violet-400/[0.04] p-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-400/15 bg-violet-400/10 text-violet-400">
-                        <Compass className="h-5 w-5" strokeWidth={1.8} />
-                      </div>
-
-                      <div>
-                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-400">
-                          {lang === "en" ? "GUIDANCE" : "ЗӨВЛӨМЖ"}
-                        </p>
-
-                        <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
-                          {lang === "en"
-                            ? "What to focus on next"
-                            : "Дараагийн алхам"}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <p className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                      {recommendation || t("no_recommendation")}
-                    </p>
-                  </div>
-
-                  {result.test_type === "love" &&
-                    resultData?.nameCompatibilityTitle && (
-                      <div className="rounded-2xl border border-fuchsia-400/15 bg-fuchsia-400/[0.04] p-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {/* Давуу тал */}
+                      <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.04] p-5">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/15 bg-fuchsia-400/10 text-fuchsia-400">
-                            <HeartHandshake
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/10 text-emerald-400">
+                            <ShieldCheck
                               className="h-5 w-5"
                               strokeWidth={1.8}
                             />
                           </div>
 
                           <div>
-                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-fuchsia-400">
-                              {lang === "en"
-                                ? "NAME COMPATIBILITY"
-                                : "НЭРНИЙ ЗОХИЦОЛ"}
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">
+                              {lang === "en" ? "STRENGTHS" : "ДАВУУ ТАЛ"}
                             </p>
 
-                            <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
-                              {resultData.nameCompatibilityTitle}
+                            <h3 className="mt-1 font-bold text-gray-900 dark:text-white">
+                              {lang === "en"
+                                ? "What is working well"
+                                : "Таны харилцааны хүчтэй талууд"}
                             </h3>
                           </div>
                         </div>
 
-                        {resultData.nameCompatibilitySummary && (
-                          <p className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                            {resultData.nameCompatibilitySummary}
-                          </p>
-                        )}
-
-                        {resultData.nameCompatibilityAdvice && (
-                          <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
-                            {resultData.nameCompatibilityAdvice}
-                          </p>
-                        )}
-
-                        <p className="mt-4 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                          {lang === "en"
-                            ? "This section is for entertainment and does not affect your relationship score."
-                            : "Энэ хэсэг нь сонирхлын зориулалттай бөгөөд харилцааны үндсэн үнэлгээнд нөлөөлөхгүй."}
-                        </p>
+                        <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                          {strengths.length ? (
+                            strengths.map((item: string) => (
+                              <li key={item}>• {item}</li>
+                            ))
+                          ) : (
+                            <li>{t("no_strengths_data")}</li>
+                          )}
+                        </ul>
                       </div>
-                    )}
 
-                  {result.test_type === "love" &&
-                    !isPairLoveResult &&
-                    Array.isArray(resultData?.detailedSections) &&
-                    resultData.detailedSections.length > 0 && (
-                      <LoveDimensionsResult
-                        sections={resultData.detailedSections}
-                        mode="solo"
-                      />
-                    )}
-                </div>
+                      {/* Анхаарах зүйл */}
+                      <div className="rounded-2xl border border-amber-400/15 bg-amber-400/[0.04] p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/15 bg-amber-400/10 text-amber-400">
+                            <TriangleAlert
+                              className="h-5 w-5"
+                              strokeWidth={1.8}
+                            />
+                          </div>
+
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-400">
+                              {lang === "en" ? "WATCH-OUTS" : "АНХААРАХ ТАЛ"}
+                            </p>
+
+                            <h3 className="mt-1 font-bold text-gray-900 dark:text-white">
+                              {lang === "en"
+                                ? "Areas worth paying attention to"
+                                : "Анхаарах хэрэгтэй зүйлс"}
+                            </h3>
+                          </div>
+                        </div>
+
+                        <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                          {weaknesses.length ? (
+                            weaknesses.map((item: string) => (
+                              <li key={item}>• {item}</li>
+                            ))
+                          ) : (
+                            <li>{t("no_weaknesses_data")}</li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-violet-400/15 bg-violet-400/[0.04] p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-400/15 bg-violet-400/10 text-violet-400">
+                          <Compass className="h-5 w-5" strokeWidth={1.8} />
+                        </div>
+
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-400">
+                            {lang === "en" ? "GUIDANCE" : "ЗӨВЛӨМЖ"}
+                          </p>
+
+                          <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                            {lang === "en"
+                              ? "What to focus on next"
+                              : "Дараагийн алхам"}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <p className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                        {recommendation || t("no_recommendation")}
+                      </p>
+                    </div>
+
+                    {result.test_type === "love" &&
+                      resultData?.nameCompatibilityTitle && (
+                        <div className="rounded-2xl border border-fuchsia-400/15 bg-fuchsia-400/[0.04] p-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/15 bg-fuchsia-400/10 text-fuchsia-400">
+                              <HeartPulse
+                                className="h-5 w-5"
+                                strokeWidth={1.8}
+                              />
+                            </div>
+
+                            <div>
+                              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-fuchsia-400">
+                                {lang === "en"
+                                  ? "NAME COMPATIBILITY"
+                                  : "НЭРНИЙ ЗОХИЦОЛ"}
+                              </p>
+
+                              <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                                {resultData.nameCompatibilityTitle}
+                              </h3>
+                            </div>
+                          </div>
+
+                          {resultData.nameCompatibilitySummary && (
+                            <p className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                              {resultData.nameCompatibilitySummary}
+                            </p>
+                          )}
+
+                          {resultData.nameCompatibilityAdvice && (
+                            <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                              {resultData.nameCompatibilityAdvice}
+                            </p>
+                          )}
+
+                          <p className="mt-4 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                            {lang === "en"
+                              ? "This section is for entertainment and does not affect your relationship score."
+                              : "Энэ хэсэг нь сонирхлын зориулалттай бөгөөд харилцааны үндсэн үнэлгээнд нөлөөлөхгүй."}
+                          </p>
+                        </div>
+                      )}
+
+                    {result.test_type === "love" &&
+                      !isPairLoveResult &&
+                      Array.isArray(resultData?.detailedSections) &&
+                      resultData.detailedSections.length > 0 && (
+                        <LoveDimensionsResult
+                          sections={resultData.detailedSections}
+                          mode="solo"
+                          activeSection={activeLoveSection}
+                        />
+                      )}
+                  </div>
+                )}
               </div>
+            )}
+
+            {result.test_type === "love" && showLoveBackToNav && (
+              <button
+                type="button"
+                onClick={() => {
+                  const nav = loveNavRef.current;
+
+                  if (nav) {
+                    const y =
+                      nav.getBoundingClientRect().top + window.scrollY - 90;
+
+                    window.scrollTo({
+                      top: y,
+                      behavior: "smooth",
+                    });
+                  }
+                }}
+                className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 shadow-lg backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/10 dark:bg-slate-900/90 dark:text-white"
+                aria-label={
+                  lang === "en"
+                    ? "Back to relationship sections"
+                    : "Харилцааны хэсэг рүү буцах"
+                }
+              >
+                <ArrowUp className="h-5 w-5" strokeWidth={2} />
+              </button>
             )}
           </div>
         </div>
@@ -2556,6 +2623,25 @@ export default function ResultDetailPage() {
           )}
         </div>
       </div>
+      {result.test_type === "love" && typeof result.score === "number" && (
+        <div
+          className="pointer-events-none fixed left-[-9999px] top-0"
+          style={{
+            width: "1200px",
+            height: "630px",
+          }}
+        >
+          <div
+            ref={loveShareRef}
+            style={{
+              width: "1200px",
+              height: "630px",
+            }}
+          >
+            <LoveShareCard score={result.score} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,11 +8,18 @@ type LoveDetailedSection = {
   advice: string;
 };
 
+type LovePattern = {
+  key: string;
+  title: string;
+  description: string;
+};
+
 type LoveLocalizedResult = {
   nameCompatibilityTitle: string;
   nameCompatibilitySummary: string;
   nameCompatibilityAdvice: string;
 
+  relationshipPattern: LovePattern;
   detailedSections: LoveDetailedSection[];
 
   summary: string;
@@ -36,6 +43,7 @@ type LoveCalculationResult = {
   person1CategoryScores?: Record<LoveCategory, number>;
   person2CategoryScores?: Record<LoveCategory, number>;
   categoryGaps?: Record<LoveCategory, number>;
+  relationshipPattern: LovePattern;
   detailedSections: LoveDetailedSection[];
 
   summary: string;
@@ -271,6 +279,97 @@ function calculateOverallScore(categoryScores: Record<LoveCategory, number>) {
       0,
     ) / loveCategoryOrder.length,
   );
+}
+
+function buildRelationshipPattern(
+  categoryScores: Record<LoveCategory, number>,
+  overall: number,
+): LovePattern {
+  const { emotion, communication, trust, conflict, intimacy, future } =
+    categoryScores;
+
+  const values = Object.values(categoryScores);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+
+  if (overall >= 80 && min >= 70) {
+    return {
+      key: "balanced_strong",
+      title: "Тэнцвэртэй, хүчтэй холбоо",
+      description:
+        "Та хоёрын харилцааны үндсэн чиглэлүүд жигд сайн харагдаж байна. Нэг хүчтэй талдаа хэт түшиглэхээс илүү харилцааны олон хэсэг зэрэг сайн суурьтай байна.",
+    };
+  }
+
+  if (emotion >= 70 && intimacy >= 70 && conflict < 60) {
+    return {
+      key: "connected_but_conflicted",
+      title: "Ойр холбоотой ч зөрчил дээр эмзэг",
+      description:
+        "Сэтгэл хөдлөл, дотно холбоо сайн боловч санал зөрөх үед харилцах арга барил харилцаанд дарамт үүсгэж магадгүй.",
+    };
+  }
+
+  if (emotion >= 70 && intimacy >= 70 && future < 60) {
+    return {
+      key: "connected_but_uncertain_future",
+      title: "Ойр холбоотой ч ирээдүйн чиглэл тодорхойгүй",
+      description:
+        "Та хоёрын хооронд ойр дотно холбоо байгаа ч урт хугацааны зорилго, амьдралын чиглэл дээр илүү тодорхой ярилцах хэрэгтэй байна.",
+    };
+  }
+
+  if (trust >= 70 && (emotion < 60 || intimacy < 60)) {
+    return {
+      key: "trusting_but_distant",
+      title: "Итгэлтэй ч дотно холбоо сулрах хандлагатай",
+      description:
+        "Итгэлцлийн суурь сайн боловч сэтгэл хөдлөл эсвэл хайр халамжийн илэрхийлэл харьцангуй бага байж магадгүй.",
+    };
+  }
+
+  if (communication >= 70 && trust < 60) {
+    return {
+      key: "communicative_but_insecure",
+      title: "Ярилцаж чаддаг ч итгэлцэл эмзэг",
+      description:
+        "Та хоёр асуудлаа ярилцах чадвартай боловч найдвартай байдал, аюулгүй мэдрэмж дээр илүү их тогтвортой байдал хэрэгтэй байна.",
+    };
+  }
+
+  if (communication < 55 && conflict < 55) {
+    return {
+      key: "fragile_communication",
+      title: "Харилцааны хэв маяг эмзэг",
+      description:
+        "Ярилцах болон зөрчил шийдвэрлэх хоёр чиглэл зэрэг сул байгаа тул жижиг асуудал ч хуримтлагдах эрсдэлтэй.",
+    };
+  }
+
+  if (max - min >= 30) {
+    return {
+      key: "uneven",
+      title: "Жигд бус харилцааны зураглал",
+      description:
+        "Зарим чиглэл маш сайн боловч зарим нь мэдэгдэхүйц сул байна. Нийт онооноос илүү энэ ялгааг анзаарах нь чухал.",
+    };
+  }
+
+  if (overall < 55) {
+    return {
+      key: "rebuilding",
+      title: "Анхаарч сэргээх шаардлагатай холбоо",
+      description:
+        "Харилцааны хэд хэдэн үндсэн хэсэгт анхаарах хэрэгцээ харагдаж байна. Нэг дор бүгдийг засах гэж яарахгүй, хамгийн эмзэг хэсгээс эхлэх нь зөв.",
+    };
+  }
+
+  return {
+    key: "developing",
+    title: "Хөгжиж буй харилцааны хэв маяг",
+    description:
+      "Та хоёрын харилцаанд сайн суурь болон хөгжүүлэх боломжтой хэсгүүд зэрэгцэн байна. Яг аль хэсэг хүчтэй, аль хэсэгт илүү анхаарахыг 6 хэмжээсээс хараарай.",
+  };
 }
 
 type LoveScoreBand =
@@ -1082,6 +1181,11 @@ export function buildPairLoveResult(
   const psychologyScore = calculateOverallScore(categoryScores);
   const finalScore = psychologyScore;
 
+  const relationshipPattern = buildRelationshipPattern(
+    categoryScores,
+    finalScore,
+  );
+
   const detailedSections = buildDetailedSections(categoryScores);
   const text = buildResultText(finalScore, categoryScores);
 
@@ -1097,6 +1201,7 @@ export function buildPairLoveResult(
     detailedSections,
     finalScore,
     categoryScores,
+    relationshipPattern,
   );
 
   return {
@@ -1109,10 +1214,106 @@ export function buildPairLoveResult(
     person1CategoryScores,
     person2CategoryScores,
     categoryGaps,
+    relationshipPattern,
     detailedSections,
     ...nameText,
     ...text,
     localized,
+  };
+}
+function buildRelationshipPatternEn(
+  categoryScores: Record<LoveCategory, number>,
+  finalScore: number,
+): LovePattern {
+  const emotion = categoryScores.emotion;
+  const communication = categoryScores.communication;
+  const trust = categoryScores.trust;
+  const conflict = categoryScores.conflict;
+  const intimacy = categoryScores.intimacy;
+  const future = categoryScores.future;
+
+  const values = [emotion, communication, trust, conflict, intimacy, future];
+
+  const minScore = Math.min(...values);
+  const maxScore = Math.max(...values);
+
+  if (finalScore >= 80 && minScore >= 70) {
+    return {
+      key: "balanced_strong",
+      title: "Balanced and strong relationship",
+      description:
+        "Your relationship appears strong across all six areas. Emotional connection, communication, trust, conflict management, intimacy, and shared direction are all relatively well balanced.",
+    };
+  }
+
+  if (emotion >= 70 && intimacy >= 70 && conflict < 60) {
+    return {
+      key: "connected_but_conflicted",
+      title: "Close, but conflict needs attention",
+      description:
+        "There is clear emotional closeness and affection between you, but the way disagreements are handled may create unnecessary strain. Improving conflict habits could strengthen the relationship significantly.",
+    };
+  }
+
+  if (emotion >= 70 && intimacy >= 70 && future < 60) {
+    return {
+      key: "connected_but_uncertain_future",
+      title: "Close now, uncertain about the future",
+      description:
+        "You appear emotionally close and affectionate, but your long-term expectations or future direction may not be fully aligned yet. Clear conversations about plans and priorities could be important.",
+    };
+  }
+
+  if (trust >= 70 && (emotion < 60 || intimacy < 60)) {
+    return {
+      key: "trusting_but_distant",
+      title: "Secure, but emotionally distant",
+      description:
+        "Trust appears to be a strength in your relationship, while emotional or intimate closeness may feel weaker. The relationship may benefit from more intentional connection and affection.",
+    };
+  }
+
+  if (communication >= 70 && trust < 60) {
+    return {
+      key: "communicative_but_insecure",
+      title: "Open communication, fragile trust",
+      description:
+        "You may be able to talk openly with each other, but trust or emotional security still appears vulnerable. Consistent actions and reliability may matter more than words here.",
+    };
+  }
+
+  if (communication < 55 && conflict < 55) {
+    return {
+      key: "fragile_communication",
+      title: "Communication under strain",
+      description:
+        "Communication and conflict management both appear difficult at the moment. Misunderstandings can build quickly when important issues are hard to discuss or repair.",
+    };
+  }
+
+  if (maxScore - minScore >= 30) {
+    return {
+      key: "uneven",
+      title: "Uneven relationship pattern",
+      description:
+        "Some parts of the relationship appear much stronger than others. Looking at the strongest and weakest areas separately may be more useful than relying on the overall score alone.",
+    };
+  }
+
+  if (finalScore < 55) {
+    return {
+      key: "rebuilding",
+      title: "Relationship needs rebuilding",
+      description:
+        "Several areas of the relationship appear to need meaningful attention. Rebuilding trust, communication, emotional safety, and everyday consistency may be more important than focusing on the total score.",
+    };
+  }
+
+  return {
+    key: "developing",
+    title: "Developing relationship pattern",
+    description:
+      "Your relationship shows a mix of strengths and areas that can still grow. Use the six dimensions below to see where the connection feels strongest and where more attention may help.",
   };
 }
 
@@ -1130,20 +1331,25 @@ function buildLocalizedResult(
   mnDetailedSections: LoveDetailedSection[],
   finalScore: number,
   categoryScores: Record<LoveCategory, number>,
+  relationshipPattern: LovePattern,
 ): {
   mn: LoveLocalizedResult;
   en: LoveLocalizedResult;
 } {
   const enText = buildResultTextEn(finalScore, categoryScores);
   const enDetailedSections = buildDetailedSectionsEn(categoryScores);
+  const enRelationshipPattern = buildRelationshipPatternEn(
+    categoryScores,
+    finalScore,
+  );
 
   return {
     mn: {
       ...mnNameText,
       detailedSections: mnDetailedSections,
+      relationshipPattern,
       ...mnText,
     },
-
     en: {
       nameCompatibilityTitle: "Name compatibility",
       nameCompatibilitySummary:
@@ -1152,7 +1358,7 @@ function buildLocalizedResult(
         "Treat this section as a fun extra rather than evidence about the relationship. Real compatibility depends far more on trust, communication, emotional safety, shared expectations, and how both people consistently treat each other.",
 
       detailedSections: enDetailedSections,
-
+      relationshipPattern: enRelationshipPattern,
       ...enText,
     },
   };
@@ -1168,6 +1374,12 @@ export function buildSoloLoveResult(
   const psychologyScore = calculateOverallScore(categoryScores);
 
   const finalScore = psychologyScore;
+
+  const relationshipPattern = buildRelationshipPattern(
+    categoryScores,
+    finalScore,
+  );
+
   const detailedSections = buildDetailedSections(categoryScores);
 
   const text = buildResultText(finalScore, categoryScores);
@@ -1183,6 +1395,7 @@ export function buildSoloLoveResult(
     detailedSections,
     finalScore,
     categoryScores,
+    relationshipPattern,
   );
 
   return {
@@ -1192,6 +1405,7 @@ export function buildSoloLoveResult(
     reduced1: nameData.r1,
     reduced2: nameData.r2,
     categoryScores,
+    relationshipPattern,
     detailedSections,
     ...nameText,
     ...text,

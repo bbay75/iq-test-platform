@@ -26,7 +26,7 @@ export default function LoveShareCard({ score }: LoveShareCardProps) {
       {/* LEFT READABILITY GRADIENT */}
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.88)_0%,rgba(0,0,0,0.72)_28%,rgba(0,0,0,0.42)_48%,rgba(0,0,0,0.08)_68%,rgba(0,0,0,0)_100%)]" />
 
-      {/* SUBTLE BOTTOM GRADIENT */}
+      {/* BOTTOM GRADIENT */}
       <div className="absolute inset-x-0 bottom-0 h-[170px] bg-gradient-to-t from-black/35 to-transparent" />
 
       {/* CONTENT */}

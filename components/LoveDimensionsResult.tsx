@@ -28,6 +28,8 @@ type Props = {
   person1Scores?: Record<string, number>;
   person2Scores?: Record<string, number>;
   categoryGaps?: Record<string, number>;
+
+  activeSection?: string | null;
 };
 
 const sectionStyles: Record<
@@ -40,6 +42,7 @@ const sectionStyles: Record<
     titleEn: string;
     headerClass: string;
     iconClass: string;
+    activeClass: string;
   }
 > = {
   emotion: {
@@ -50,6 +53,7 @@ const sectionStyles: Record<
     titleEn: "How emotionally close are you?",
     headerClass: "bg-gradient-to-r from-rose-500/[0.10] to-pink-500/[0.04]",
     iconClass: "border-rose-400/20 bg-rose-400/10 text-rose-400",
+    activeClass: "border-rose-400 ring-2 ring-rose-400/25",
   },
 
   communication: {
@@ -60,6 +64,7 @@ const sectionStyles: Record<
     titleEn: "How well do you understand each other?",
     headerClass: "bg-gradient-to-r from-blue-500/[0.10] to-sky-500/[0.04]",
     iconClass: "border-blue-400/20 bg-blue-400/10 text-blue-400",
+    activeClass: "border-blue-400 ring-2 ring-blue-400/25",
   },
 
   trust: {
@@ -70,6 +75,7 @@ const sectionStyles: Record<
     titleEn: "The foundation of your trust",
     headerClass: "bg-gradient-to-r from-emerald-500/[0.10] to-teal-500/[0.04]",
     iconClass: "border-emerald-400/20 bg-emerald-400/10 text-emerald-400",
+    activeClass: "border-emerald-400 ring-2 ring-emerald-400/25",
   },
 
   conflict: {
@@ -80,6 +86,7 @@ const sectionStyles: Record<
     titleEn: "How do you work through problems?",
     headerClass: "bg-gradient-to-r from-amber-500/[0.10] to-yellow-500/[0.04]",
     iconClass: "border-amber-400/20 bg-amber-400/10 text-amber-400",
+    activeClass: "border-amber-400 ring-2 ring-amber-400/25",
   },
 
   intimacy: {
@@ -90,6 +97,7 @@ const sectionStyles: Record<
     titleEn: "Your intimate connection",
     headerClass: "bg-gradient-to-r from-pink-500/[0.10] to-rose-500/[0.04]",
     iconClass: "border-pink-400/20 bg-pink-400/10 text-pink-400",
+    activeClass: "border-pink-400 ring-2 ring-pink-400/25",
   },
 
   future: {
@@ -100,6 +108,7 @@ const sectionStyles: Record<
     titleEn: "Are you moving in the same direction?",
     headerClass: "bg-gradient-to-r from-violet-500/[0.10] to-purple-500/[0.04]",
     iconClass: "border-violet-400/20 bg-violet-400/10 text-violet-400",
+    activeClass: "border-violet-400 ring-2 ring-violet-400/25",
   },
 };
 
@@ -111,6 +120,7 @@ export default function LoveDimensionsResult({
   person1Scores,
   person2Scores,
   categoryGaps,
+  activeSection,
 }: Props) {
   const { lang } = useLang();
 
@@ -131,7 +141,21 @@ export default function LoveDimensionsResult({
           <section
             key={section.key}
             id={`love-${section.key}`}
-            className="scroll-mt-24 overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm dark:border-white/[0.08] dark:bg-slate-950/70"
+            className={`scroll-mt-24 overflow-hidden rounded-[28px] border bg-white shadow-sm transition-all duration-300 dark:bg-slate-950/70 ${
+              activeSection === section.key
+                ? section.key === "emotion"
+                  ? "border-pink-400 ring-2 ring-pink-400/25"
+                  : section.key === "communication"
+                    ? "border-blue-400 ring-2 ring-blue-400/25"
+                    : section.key === "trust"
+                      ? "border-emerald-400 ring-2 ring-emerald-400/25"
+                      : section.key === "conflict"
+                        ? "border-amber-400 ring-2 ring-amber-400/25"
+                        : section.key === "intimacy"
+                          ? "border-rose-400 ring-2 ring-rose-400/25"
+                          : "border-violet-400 ring-2 ring-violet-400/25"
+                : "border-gray-200 dark:border-white/[0.08]"
+            }`}
           >
             {/* HEADER */}
             <div

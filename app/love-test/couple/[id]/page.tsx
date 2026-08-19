@@ -6,6 +6,7 @@ import { loveQuestions } from "@/data/loveQuestions";
 import { useLang } from "@/lib/LanguageProvider";
 import LovePairResult from "@/components/LovePairResult";
 import { supabase } from "@/lib/supabase";
+import LoveQuestionnaire from "@/components/LoveQuestionnaire";
 type CoupleSession = {
   id: string;
   person1_name: string;
@@ -37,34 +38,9 @@ export default function LoveCoupleInvitePage() {
 
   const [answers, setAnswers] = useState<number[]>([]);
 
-  const [selected, setSelected] = useState<number | null>(null);
-
   const [submitting, setSubmitting] = useState(false);
 
   const [result, setResult] = useState<any>(null);
-
-  const scaleOptions = [
-    {
-      value: 1,
-      label: t("love_scale_strongly_disagree"),
-    },
-    {
-      value: 2,
-      label: t("love_scale_disagree"),
-    },
-    {
-      value: 3,
-      label: t("love_scale_neutral"),
-    },
-    {
-      value: 4,
-      label: t("love_scale_agree"),
-    },
-    {
-      value: 5,
-      label: t("love_scale_strongly_agree"),
-    },
-  ];
 
   useEffect(() => {
     if (!id) return;
@@ -127,22 +103,8 @@ export default function LoveCoupleInvitePage() {
   }, [id]);
 
   const currentQuestion = loveQuestions[index];
-
-  const progress = ((index + 1) / loveQuestions.length) * 100;
-
-  async function handleNext() {
-    if (selected === null) return;
-
-    const updatedAnswers = [...answers, selected];
-
-    if (index + 1 < loveQuestions.length) {
-      setAnswers(updatedAnswers);
-      setIndex(index + 1);
-      setSelected(null);
-      return;
-    }
-
-    if (!person2Name.trim()) return;
+  const submitFinalAnswers = async (finalAnswers: number[]) => {
+    if (!person2Name.trim() || submitting) return;
 
     setSubmitting(true);
     setError(null);
@@ -155,7 +117,7 @@ export default function LoveCoupleInvitePage() {
         },
         body: JSON.stringify({
           person2Name: person2Name.trim(),
-          person2Answers: updatedAnswers,
+          person2Answers: finalAnswers,
         }),
       });
 
@@ -165,14 +127,13 @@ export default function LoveCoupleInvitePage() {
         throw new Error(data.error ?? "Failed to submit answers");
       }
 
-      setAnswers(updatedAnswers);
       setResult(data.result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit answers");
     } finally {
       setSubmitting(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -199,7 +160,18 @@ export default function LoveCoupleInvitePage() {
   }
 
   if (!session) return null;
-
+  if (submitting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-pink-500" />
+          <p className="mt-4 font-semibold text-gray-700 dark:text-gray-200">
+            Үр дүнг тооцоолж байна...
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (result && !session.result_unlocked) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
@@ -209,21 +181,20 @@ export default function LoveCoupleInvitePage() {
           </p>
 
           <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
-            Таны хэсэг дууслаа
+            {t("love_pair_part_complete")}
           </h1>
 
           <p className="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-300">
-            Та хоёрын хамтарсан үр дүн бэлэн боллоо.
+            {t("love_pair_result_ready")}
           </p>
 
           <div className="mt-6 rounded-2xl bg-pink-50 p-5 dark:bg-pink-950/20">
             <p className="font-semibold text-gray-900 dark:text-white">
-              Үр дүнг тест эхлүүлсэн хүн нээнэ
+              {t("love_pair_result_owner_unlock")}
             </p>
 
             <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-              Хамтрагч тань үр дүнгээ нээсний дараа та энэ урилгын линкээр дахин
-              орж хамтарсан үр дүнгээ харах боломжтой.
+              {t("love_pair_waiting_desc")}
             </p>
           </div>
         </div>
@@ -248,23 +219,22 @@ export default function LoveCoupleInvitePage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
         <div className="w-full max-w-xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-center text-sm font-medium text-pink-600 dark:text-pink-300">
-            Couple Compatibility Test
+            {t("love_both_title")}
           </p>
 
           <h1 className="mt-3 text-center text-2xl font-bold text-gray-900 dark:text-white">
-            {session.person1_name} таныг хамтдаа тест бөглөхөөр урьжээ
+            {session.person1_name} {t("love_pair_invite_title")}
           </h1>
 
           <p className="mt-4 text-center text-sm leading-6 text-gray-600 dark:text-gray-300">
-            Та 30 богино асуултад тусдаа хариулна. Дараа нь та хоёрын 6
-            хэмжээсийн хамтарсан үр дүн гарна.
+            {t("love_pair_invite_desc")}
           </p>
 
           <input
             type="text"
             value={person2Name}
             onChange={(e) => setPerson2Name(e.target.value)}
-            placeholder="Таны нэр"
+            placeholder={t("love_name1_placeholder")}
             className="mt-6 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
           />
 
@@ -274,7 +244,7 @@ export default function LoveCoupleInvitePage() {
             onClick={() => setStarted(true)}
             className="mt-4 w-full rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Тест эхлэх
+            {t("love_start_button")}
           </button>
         </div>
       </div>
@@ -283,66 +253,42 @@ export default function LoveCoupleInvitePage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div className="mb-7">
-          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-            <span>Couple Compatibility</span>
+      <LoveQuestionnaire
+        title={t("love_both_title")}
+        questionLabel={t("love_question")}
+        questionText={t(currentQuestion.question)}
+        index={index}
+        total={loveQuestions.length}
+        selected={answers[index] ?? null}
+        stronglyDisagreeLabel={t("love_scale_strongly_disagree")}
+        stronglyAgreeLabel={t("love_scale_strongly_agree")}
+        previousLabel={t("love_previous")}
+        nextLabel={t("love_next")}
+        hideNext={index + 1 === loveQuestions.length}
+        submitting={submitting}
+        onSelect={(value) => {
+          const nextAnswers = [...answers];
+          nextAnswers[index] = value;
 
-            <span>
-              {index + 1} / {loveQuestions.length}
-            </span>
-          </div>
-
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-            <div
-              className="h-full rounded-full bg-pink-500 transition-all duration-300"
-              style={{
-                width: `${progress}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="min-h-[120px]">
-          <h1 className="text-center text-xl font-semibold leading-8 text-gray-900 dark:text-white md:text-2xl">
-            {t(currentQuestion.question)}
-          </h1>
-        </div>
-
-        <div className="mt-7 space-y-3">
-          {scaleOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setSelected(option.value)}
-              className={`w-full rounded-xl border px-4 py-3 text-center font-medium transition ${
-                selected === option.value
-                  ? "border-pink-500 bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300"
-                  : "border-gray-300 bg-white text-gray-800 hover:border-pink-300 hover:bg-pink-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-700"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        {error && (
-          <p className="mt-4 text-center text-sm text-red-500">{error}</p>
-        )}
-
-        <button
-          type="button"
-          onClick={handleNext}
-          disabled={selected === null || submitting}
-          className="mt-7 w-full rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {submitting
-            ? "Үр дүн гаргаж байна..."
-            : index + 1 === loveQuestions.length
-              ? "Үр дүн харах"
-              : "Дараах"}
-        </button>
-      </div>
+          setAnswers(nextAnswers);
+          if (index + 1 === loveQuestions.length) {
+            submitFinalAnswers(nextAnswers);
+          } else {
+            setTimeout(() => {
+              setIndex(index + 1);
+            }, 180);
+          }
+        }}
+        onPrevious={() => {
+          if (index === 0) return;
+          setIndex((prev) => prev - 1);
+        }}
+        onNext={() => {
+          if (index < loveQuestions.length - 1) {
+            setIndex(index + 1);
+          }
+        }}
+      />
     </div>
   );
 }

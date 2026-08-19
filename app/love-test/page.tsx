@@ -9,17 +9,12 @@ import { useRouter } from "next/navigation";
 import { useLang } from "@/lib/LanguageProvider";
 import { supabase } from "@/lib/supabase";
 import { UserRound, UsersRound } from "lucide-react";
+import LoveQuestionnaire from "@/components/LoveQuestionnaire";
 type LoveMode = "solo" | "both" | null;
 
 export default function LoveTestPage() {
   const { t } = useLang();
-  const scaleOptions = [
-    { label: t("love_scale_strongly_disagree"), value: 1 },
-    { label: t("love_scale_disagree"), value: 2 },
-    { label: t("love_scale_neutral"), value: 3 },
-    { label: t("love_scale_agree"), value: 4 },
-    { label: t("love_scale_strongly_agree"), value: 5 },
-  ];
+
   const [mode, setMode] = useState<LoveMode>("solo");
 
   const [name1, setName1] = useState("");
@@ -46,41 +41,6 @@ export default function LoveTestPage() {
     const saved = localStorage.getItem("loveResult");
     if (saved) setSavedResult(saved);
   }, []);
-
-  useEffect(() => {
-    if (mode !== "both" || !inviteUrl) return;
-
-    const sessionId = inviteUrl.split("/").pop();
-    if (!sessionId) return;
-
-    const channel = supabase
-      .channel(`love-couple-${sessionId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "love_couple_sessions",
-          filter: `id=eq.${sessionId}`,
-        },
-        (payload) => {
-          const updated = payload.new as {
-            result_id?: string | null;
-            person2_completed?: boolean;
-          };
-
-          if (updated.person2_completed && updated.result_id) {
-            setPairResultId(updated.result_id);
-            window.location.href = `/my-results/${updated.result_id}`;
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [mode, inviteUrl]);
 
   const currentQuestion = loveQuestions[index];
 
@@ -115,7 +75,7 @@ export default function LoveTestPage() {
           console.log("LOVE REALTIME P1:", updated);
 
           if (updated.person2_completed && updated.result_id) {
-            setPairResultId(updated.result_id);
+            window.location.href = `/my-results/${updated.result_id}`;
           }
         },
       )
@@ -289,22 +249,21 @@ export default function LoveTestPage() {
         <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-7 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <div className="text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-pink-500">
-              ХОСЫН НИЙЦЛИЙН ҮР ДҮН
+              {t("love_result_title")}
             </p>
 
             <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
-              Таны хэсэг дууслаа
+              {t("love_pair_part_complete")}
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
-              Одоо энэ холбоосыг хамтрагчдаа явуулна. Тэр 30 асуултад тусдаа
-              хариулсны дараа та хоёрын хамтарсан үр дүн гарна.
+              {t("love_both_process_desc")}
             </p>
           </div>
 
           <div className="mt-7 rounded-2xl border border-pink-200 bg-pink-50 p-5 dark:border-pink-900 dark:bg-pink-950/20">
             <p className="text-xs font-semibold uppercase tracking-wider text-pink-600 dark:text-pink-300">
-              УРЬЖ ОРОЛЦУУЛАХ ЛИНК
+              {t("love_invite_link")}
             </p>
 
             <p className="mt-2 break-all text-sm leading-6 text-gray-700 dark:text-gray-200">
@@ -318,7 +277,7 @@ export default function LoveTestPage() {
               onClick={copyInviteLink}
               className="rounded-xl bg-pink-500 px-5 py-3 font-semibold text-white transition hover:bg-pink-600"
             >
-              {copyDone ? "Хуулагдлаа ✓" : "Линк хуулах"}
+              {copyDone ? t("love_copied") : t("love_copy_link")}
             </button>
 
             {pairResultId ? (
@@ -329,7 +288,7 @@ export default function LoveTestPage() {
                 }}
                 className="rounded-xl bg-pink-500 px-5 py-3 font-semibold text-white transition hover:bg-pink-600"
               >
-                Үр дүнгээ нээх
+                {t("love_open_result")}
               </button>
             ) : (
               <button
@@ -362,23 +321,20 @@ export default function LoveTestPage() {
                 }}
                 className="rounded-xl border border-gray-600 px-6 py-3 font-semibold text-white"
               >
-                Үр дүн шалгах
+                {t("love_check_result")}
               </button>
             )}
           </div>
 
           <p className="mt-6 rounded-2xl bg-gray-50 p-4 text-sm leading-6 text-gray-600 dark:bg-gray-900 dark:text-gray-300">
-            {name1} Таны хариулт хадгалагдлаа. Хамтрагч тань тестээ бөглөсний
-            дараа та хоёрын 6 хэмжээсийн үнэлгээ, хоорондын зөрүү, нийт оноо
-            болон харилцааны хэв маяг тооцогдоно.
+            {name1} {t("love_both_result_note")}
           </p>
-
           <button
             type="button"
             onClick={resetTest}
             className="mt-6 w-full rounded-xl bg-gray-700 px-5 py-3 font-semibold text-white transition hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500"
           >
-            Шинэ тест эхлүүлэх
+            {t("love_restart")}
           </button>
         </div>
       </div>
@@ -454,7 +410,7 @@ export default function LoveTestPage() {
                   {resultData.reduced1} + {resultData.reduced2}
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Нэрний бууруулсан тоо
+                  {t("love_reduced_name_number")}
                 </p>
               </div>
             </div>
@@ -587,23 +543,57 @@ export default function LoveTestPage() {
           </div>
 
           {mode && (
-            <div className="mt-6 grid gap-4">
-              <input
-                type="text"
-                placeholder={t("love_name1_placeholder")}
-                value={name1}
-                onChange={(e) => setName1(e.target.value)}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
-              />
+            <div className="mt-6 space-y-5">
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-900/60">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pink-100 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400">
+                    {mode === "solo" ? (
+                      <UserRound className="h-5 w-5" />
+                    ) : (
+                      <UsersRound className="h-5 w-5" />
+                    )}
+                  </div>
 
-              {mode === "solo" && (
+                  <div>
+                    <p className="font-bold text-gray-900 dark:text-white">
+                      {mode === "solo"
+                        ? t("love_solo_title")
+                        : t("love_both_title")}
+                    </p>
+
+                    <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                      {mode === "solo"
+                        ? t("love_mode_solo_desc")
+                        : t("love_mode_both_desc")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4">
                 <input
                   type="text"
-                  placeholder={t("love_name2_placeholder")}
-                  value={name2}
-                  onChange={(e) => setName2(e.target.value)}
+                  placeholder={t("love_name1_placeholder")}
+                  value={name1}
+                  onChange={(e) => setName1(e.target.value)}
                   className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
                 />
+
+                {mode === "solo" && (
+                  <input
+                    type="text"
+                    placeholder={t("love_name2_placeholder")}
+                    value={name2}
+                    onChange={(e) => setName2(e.target.value)}
+                    className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition focus:border-pink-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                  />
+                )}
+              </div>
+
+              {mode === "both" && (
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800 dark:border-blue-900 dark:bg-blue-950/20 dark:text-blue-300">
+                  {t("love_both_process_desc")}
+                </div>
               )}
 
               <button
@@ -620,7 +610,7 @@ export default function LoveTestPage() {
                 disabled={
                   !mode || !name1.trim() || (mode === "solo" && !name2.trim())
                 }
-                className="rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl bg-pink-500 px-6 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t("love_start_button")}
               </button>
@@ -639,128 +629,51 @@ export default function LoveTestPage() {
         ← {t("back_home")}
       </Link>
 
-      <div className="w-full max-w-3xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
-          {mode === "solo"
+      <LoveQuestionnaire
+        title={
+          mode === "solo"
             ? t("love_solo_page_title")
-            : t("love_both_page_title")}
-        </h1>
-
-        {/* PROGRESS */}
-        <div className="mt-6">
-          <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-            <div
-              className="h-full rounded-full bg-pink-500 transition-all"
-              style={{
-                width: `${((index + 1) / loveQuestions.length) * 100}%`,
-              }}
-            />
-          </div>
-
-          <div className="mt-3 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-            <span>
-              {t("love_question")} {index + 1} / {loveQuestions.length}
-            </span>
-
-            <span>
-              {Math.round(((index + 1) / loveQuestions.length) * 100)}%
-            </span>
-          </div>
-        </div>
-
-        {/* QUESTION */}
-        <div className="mt-7 rounded-2xl bg-gray-100 p-7 text-center dark:bg-gray-900">
-          <p className="text-lg font-bold leading-8 text-gray-900 dark:text-white md:text-xl">
-            {t(currentQuestion.question)}
-          </p>
-        </div>
-
-        {/* SCALE */}
-        <div className="mt-8">
-          <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
-            {scaleOptions.map((option) => {
-              const active = selected1 === option.value;
-
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    const value = option.value;
-
-                    setSelected1(value);
-
-                    setTimeout(() => {
-                      handleNext(value);
-                    }, 120);
-                  }}
-                  aria-label={option.label}
-                  className={`flex items-center justify-center rounded-full border-2 transition ${
-                    active
-                      ? "border-pink-500 bg-pink-500 text-white"
-                      : "border-gray-500 bg-transparent hover:border-pink-400"
-                  } ${
-                    option.value === 1 || option.value === 5
-                      ? "h-12 w-12"
-                      : option.value === 2 || option.value === 4
-                        ? "h-10 w-10"
-                        : "h-8 w-8"
-                  }`}
-                >
-                  {active && <span className="text-lg font-bold">✓</span>}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mx-auto mt-3 flex max-w-xl justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>{t("love_scale_strongly_disagree")}</span>
-            <span>{t("love_scale_strongly_agree")}</span>
-          </div>
-        </div>
-
-        {submitError && (
-          <p className="mt-4 text-center text-sm text-red-500">{submitError}</p>
-        )}
-
-        {/* NEXT */}
-        <div className="mt-8 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              if (index === 0) return;
-
-              const previousIndex = index - 1;
-
-              setIndex(previousIndex);
-              setSelected1(answers1[previousIndex] ?? null);
-            }}
-            disabled={index === 0 || submitting}
-            className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            {t("love_previous")}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleNext()}
-            disabled={selected1 === null || submitting}
-            className="rounded-xl bg-pink-500 px-7 py-3 font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-pink-600 dark:hover:bg-pink-500"
-          >
-            {submitting
+            : t("love_both_page_title")
+        }
+        questionLabel={t("love_question")}
+        questionText={t(currentQuestion.question)}
+        index={index}
+        total={loveQuestions.length}
+        selected={selected1}
+        stronglyDisagreeLabel={t("love_scale_strongly_disagree")}
+        stronglyAgreeLabel={t("love_scale_strongly_agree")}
+        previousLabel={t("love_previous")}
+        nextLabel={
+          submitting
+            ? mode === "both"
+              ? t("love_creating_invite")
+              : t("love_calculating_result")
+            : index + 1 === loveQuestions.length
               ? mode === "both"
-                ? "Invite үүсгэж байна..."
-                : "Үр дүн гаргаж байна..."
-              : index + 1 === loveQuestions.length
-                ? mode === "both"
-                  ? "Invite link авах"
-                  : "Үр дүн харах"
-                : `${t("love_next")} →`}
-          </button>
-        </div>
-      </div>
+                ? t("love_get_invite_link")
+                : t("love_view_result")
+              : t("love_next")
+        }
+        submitting={submitting}
+        onSelect={(value) => {
+          setSelected1(value);
 
-      <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+          setTimeout(() => {
+            handleNext(value);
+          }, 120);
+        }}
+        onPrevious={() => {
+          if (index === 0) return;
+
+          const previousIndex = index - 1;
+
+          setIndex(previousIndex);
+          setSelected1(answers1[previousIndex] ?? null);
+        }}
+        onNext={() => handleNext()}
+      />
+
+      <p className="text-center text-xs text-gray-500 dark:text-gray-400">
         {mode === "both"
           ? t("love_both_result_note")
           : t("love_solo_result_note")}
