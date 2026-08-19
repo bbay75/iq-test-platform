@@ -981,13 +981,22 @@ export default function ResultDetailPage() {
             <button
               type="button"
               onClick={() => {
-                if (result.test_type !== "mbti") {
-                  const url = encodeURIComponent(window.location.href);
+                if (result.test_type === "love") {
+                  const score = Math.max(
+                    0,
+                    Math.min(100, Math.round(result.score ?? 0)),
+                  );
+
+                  const shareUrl = `${window.location.origin}/share/love/${score}`;
+
                   window.open(
-                    `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      shareUrl,
+                    )}`,
                     "_blank",
                     "noopener,noreferrer",
                   );
+
                   return;
                 }
 
