@@ -493,8 +493,8 @@ export default function MBTITest() {
                             : "border-gray-400 bg-white text-transparent hover:border-purple-400 dark:border-gray-500 dark:bg-gray-800"
                         }`}
                         style={{
-                          width: `min(${option.visualSize}px, 10vw)`,
-                          height: `min(${option.visualSize}px, 10vw)`,
+                          width: `${option.visualSize * 0.78}px`,
+                          height: `${option.visualSize * 0.78}px`,
                         }}
                       >
                         {isSelected ? "✓" : ""}
