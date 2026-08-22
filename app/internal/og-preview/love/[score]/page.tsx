@@ -5,10 +5,18 @@ type PageProps = {
   params: Promise<{
     score: string;
   }>;
+  searchParams: Promise<{
+    mode?: string;
+  }>;
 };
 
-export default async function LoveOgPreviewPage({ params }: PageProps) {
+export default async function LoveOgPreviewPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { score } = await params;
+  const { mode } = await searchParams;
+
   const numericScore = Number(score);
 
   if (
@@ -19,9 +27,11 @@ export default async function LoveOgPreviewPage({ params }: PageProps) {
     notFound();
   }
 
+  const shareMode: "solo" | "pair" = mode === "pair" ? "pair" : "solo";
+
   return (
     <main className="min-h-screen bg-[#151515] p-8">
-      <LoveShareCard score={numericScore} />
+      <LoveShareCard score={numericScore} mode={shareMode} />
     </main>
   );
 }

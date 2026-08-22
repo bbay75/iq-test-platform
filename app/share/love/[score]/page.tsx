@@ -6,6 +6,10 @@ type PageProps = {
   params: Promise<{
     score: string;
   }>;
+
+  searchParams: Promise<{
+    mode?: string;
+  }>;
 };
 
 function normalizeScore(value: string) {
@@ -18,52 +22,85 @@ function normalizeScore(value: string) {
   return score;
 }
 
+function normalizeMode(value?: string): "solo" | "pair" {
+  return value === "pair" ? "pair" : "solo";
+}
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { score } = await params;
+  const { mode } = await searchParams;
+
   const numericScore = normalizeScore(score);
 
   if (numericScore === null) {
     return {};
   }
 
-  const imageUrl = `/share/love-final/${numericScore}.jpg`;
+  const shareMode = normalizeMode(mode);
+
+  const imageUrl = `/share/love-final/${shareMode}/${numericScore}.jpg`;
+
+  const title =
+    shareMode === "pair"
+      ? `Бидний нийцэл ${numericScore}%`
+      : `Миний нийцэл ${numericScore}%`;
+
+  const description =
+    shareMode === "pair"
+      ? "Та хоёрын харилцааны нийцлийг шалгаарай."
+      : "Харилцаан дахь өөрийн нийцлийн үр дүнгээ үзээрэй.";
 
   return {
-    title: `Бидний нийцэл ${numericScore}%`,
-    description: "Та хоёрын харилцааны нийцлийг шалгаарай.",
+    title,
+    description,
 
     openGraph: {
-      title: `Бидний нийцэл ${numericScore}%`,
-      description: "Та хоёрын харилцааны нийцлийг шалгаарай.",
+      title,
+      description,
       type: "website",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: `${numericScore}% Love Test result`,
+          alt:
+            shareMode === "pair"
+              ? `${numericScore}% Love Match result`
+              : `${numericScore}% Love Test result`,
         },
       ],
     },
 
     twitter: {
       card: "summary_large_image",
-      title: `Бидний нийцэл ${numericScore}%`,
-      description: "Та хоёрын харилцааны нийцлийг шалгаарай.",
+      title,
+      description,
       images: [imageUrl],
     },
   };
 }
 
-export default async function LoveSharePage({ params }: PageProps) {
+export default async function LoveSharePage({
+  params,
+  searchParams,
+}: PageProps) {
   const { score } = await params;
+  const { mode } = await searchParams;
+
   const numericScore = normalizeScore(score);
 
   if (numericScore === null) {
     notFound();
   }
+
+  const shareMode = normalizeMode(mode);
+
+  const imageUrl = `/share/love-final/${shareMode}/${numericScore}.jpg`;
+
+  const isPair = shareMode === "pair";
 
   return (
     <main className="min-h-screen bg-[#020617] text-white">
@@ -71,8 +108,12 @@ export default async function LoveSharePage({ params }: PageProps) {
         {/* SHARE IMAGE */}
         <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-2xl">
           <img
-            src={`/share/love-final/${numericScore}.jpg`}
-            alt={`${numericScore}% Love Test result`}
+            src={imageUrl}
+            alt={
+              isPair
+                ? `${numericScore}% Love Match result`
+                : `${numericScore}% Love Test result`
+            }
             className="block h-auto w-full"
           />
         </div>
@@ -80,16 +121,17 @@ export default async function LoveSharePage({ params }: PageProps) {
         {/* RESULT */}
         <section className="mx-auto mt-10 w-full max-w-[720px] text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-pink-300">
-            LOVE TEST
+            {isPair ? "LOVE MATCH" : "LOVE TEST"}
           </p>
 
           <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
-            Бидний нийцэл {numericScore}%
+            {isPair ? "Бидний нийцэл" : "Миний нийцэл"} {numericScore}%
           </h1>
 
           <p className="mx-auto mt-5 max-w-[620px] text-lg leading-8 text-slate-300">
-            Харилцааны ойр байдал, ойлголцол, итгэлцэл болон хамтын мэдрэмжийг
-            шалгах Love Test.
+            {isPair
+              ? "Хосын ойлголцол, итгэлцэл, ойр дотно байдал болон хамтын мэдрэмжийн нийцлийг шалгах Love Match."
+              : "Харилцааны ойр байдал, ойлголцол, итгэлцэл болон өөрийн мэдрэмжийг таних Love Test."}
           </p>
 
           {/* CTA */}

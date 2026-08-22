@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+
 import { loveQuestions } from "@/data/loveQuestions";
 import { useLang } from "@/lib/LanguageProvider";
 import LovePairResult from "@/components/LovePairResult";
 import { supabase } from "@/lib/supabase";
 import LoveQuestionnaire from "@/components/LoveQuestionnaire";
+import { useParams, useRouter } from "next/navigation";
 type CoupleSession = {
   id: string;
   person1_name: string;
@@ -20,6 +21,7 @@ type CoupleSession = {
 };
 
 export default function LoveCoupleInvitePage() {
+  const router = useRouter();
   const params = useParams();
   const id = String(params.id ?? "");
 
@@ -41,6 +43,11 @@ export default function LoveCoupleInvitePage() {
   const [submitting, setSubmitting] = useState(false);
 
   const [result, setResult] = useState<any>(null);
+  useEffect(() => {
+    if (session?.result_unlocked && session?.result_id) {
+      router.replace(`/my-results/${session.result_id}`);
+    }
+  }, [session?.result_unlocked, session?.result_id, router]);
 
   useEffect(() => {
     if (!id) return;
@@ -197,19 +204,6 @@ export default function LoveCoupleInvitePage() {
               {t("love_pair_waiting_desc")}
             </p>
           </div>
-        </div>
-      </div>
-    );
-  }
-  if (result && session.result_unlocked) {
-    return (
-      <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
-        <div className="mx-auto w-full max-w-5xl">
-          <LovePairResult
-            result={result}
-            person1Name={session.person1_name}
-            person2Name={session.person2_name || "Хүн 2"}
-          />
         </div>
       </div>
     );

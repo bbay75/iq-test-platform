@@ -1,21 +1,28 @@
 export type UnlockMode = "credit" | "paid_demo";
 
-function getDeviceId() {
+function getOrCreateDeviceId() {
   if (typeof window === "undefined") {
     return null;
   }
 
-  return localStorage.getItem("test_device_id");
+  let deviceId = localStorage.getItem("test_device_id");
+
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem("test_device_id", deviceId);
+  }
+
+  return deviceId;
 }
 
 export async function unlockResult(
   resultId: string,
   mode: UnlockMode = "paid_demo",
 ) {
-  const deviceId = getDeviceId();
+  const deviceId = getOrCreateDeviceId();
 
   if (!deviceId) {
-    throw new Error("Device ID олдсонгүй.");
+    throw new Error("Device ID үүсгэж чадсангүй.");
   }
 
   const response = await fetch("/api/unlock", {

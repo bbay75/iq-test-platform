@@ -826,11 +826,15 @@ export default function ResultDetailPage() {
       : rawResultData;
   const isPairLoveResult =
     result.test_type === "love" && rawResultData?.mode === "both";
+  const loveShareMode = isPairLoveResult ? "pair" : "solo";
   const weaknesses = resultData?.weaknesses ?? resultData?.challenges ?? [];
 
   const recommendation = resultData?.recommendation ?? resultData?.advice ?? "";
   const summary = resultData?.summary ?? "";
-
+  const loveTemplate =
+    result.test_type === "love" && typeof result.score === "number"
+      ? getLoveShareTemplate(result.score)
+      : null;
   const strengths = resultData?.strengths ?? [];
   const careerAdvice = resultData?.careerAdvice ?? "";
   const relationshipAdvice = resultData?.relationshipAdvice ?? "";
@@ -987,7 +991,7 @@ export default function ResultDetailPage() {
                     Math.min(100, Math.round(result.score ?? 0)),
                   );
 
-                  const shareUrl = `${window.location.origin}/share/love/${score}`;
+                  const shareUrl = `${window.location.origin}/share/love/${score}?mode=${loveShareMode}`;
 
                   window.open(
                     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -1046,7 +1050,7 @@ export default function ResultDetailPage() {
                     );
 
                     const response = await fetch(
-                      `/share/love-final/${score}.jpg`,
+                      `/share/love-final/${loveShareMode}/${score}.jpg`,
                     );
 
                     if (!response.ok) {
@@ -1118,7 +1122,9 @@ export default function ResultDetailPage() {
 
                 <div className="mx-auto w-full max-w-[600px] overflow-hidden rounded-2xl bg-black shadow-2xl">
                   <img
-                    src={`/share/love-final/${Math.max(
+                    src={`/share/love-final/${
+                      isPairLoveResult ? "pair" : "solo"
+                    }/${Math.max(
                       0,
                       Math.min(100, Math.round(result.score)),
                     )}.jpg`}
@@ -2410,6 +2416,28 @@ export default function ResultDetailPage() {
 
                 {!isPairLoveResult && (
                   <div className="space-y-5">
+                    <div className="rounded-3xl border border-rose-200 bg-gradient-to-br from-rose-50 via-white to-pink-50 p-6 shadow-sm dark:border-rose-500/20 dark:from-rose-500/10 dark:via-gray-900 dark:to-pink-500/10">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-rose-500">
+                        {lang === "en"
+                          ? "RELATIONSHIP OVERVIEW"
+                          : "ХАРИЛЦААНЫ ЕРӨНХИЙ ДҮГНЭЛТ"}
+                      </p>
+
+                      <h2 className="mt-3 text-2xl font-black text-gray-900 dark:text-white">
+                        {loveTemplate?.title}
+                      </h2>
+
+                      <div className="mt-3 flex items-end gap-2">
+                        <span className="text-5xl font-black text-gray-900 dark:text-white">
+                          {result.score ?? "-"}%
+                        </span>
+                      </div>
+
+                      <p className="mt-4 leading-7 text-gray-700 dark:text-gray-300">
+                        {summary}
+                      </p>
+                    </div>
+
                     <div
                       id="love-dimensions-nav"
                       className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"

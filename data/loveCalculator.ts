@@ -1039,9 +1039,63 @@ const categoryRiskTextEn: Record<LoveCategory, string> = {
     "Differences in values, life goals, or long-term expectations may become more important over time",
 };
 
+type LoveResultMode = "solo" | "pair";
+
+function getOverallSummaryMn(score: number, mode: LoveResultMode): string {
+  const prefix =
+    mode === "pair" ? "Та хоёрын хариултаар" : "Таны өгсөн хариултаар";
+
+  if (score >= 95) {
+    return `${prefix} энэ харилцааны суурь маш хүчтэй, олон чиглэлд тогтвортой нийцэж байна. Сэтгэл хөдлөл, ойлголцол, итгэлцэл болон хамтын чиглэл сайн түвшинд байгаа ч хүчтэй холбоог хадгалахад өдөр тутмын анхаарал, хүндлэл үргэлж чухал хэвээр байна.`;
+  }
+
+  if (score >= 90) {
+    return `${prefix} энэ харилцааны нийт суурь маш өндөр түвшинд харагдаж байна. Ихэнх чиглэлд сайн нийцэл байгаа бөгөөд харьцангуй бага оноотой хэсгүүдээ анзаарч чадвал холбоогоо улам тогтвортой болгох боломжтой.`;
+  }
+
+  if (score >= 85) {
+    return `${prefix} энэ харилцаа хүчтэй суурьтай байна. Ойр дотно байдал, ойлголцол болон хамтын мэдрэмж сайн боловч зарим хэрэгцээ, хүлээлт дээр ялгаа байж болох тул тэдгээрийг нээлттэй ярилцах нь чухал.`;
+  }
+
+  if (score >= 80) {
+    return `${prefix} энэ харилцаанд бат бөх суурь харагдаж байна. Та хоёрын хооронд олон сайн тал байгаа ч зарим чиглэл бусдаасаа сул байж болох тул нийт онооноос гадна 6 хэсгийн ялгааг хамт хараарай.`;
+  }
+
+  if (score >= 75) {
+    return `${prefix} энэ харилцаа ерөнхийдөө сайн тохирсон харагдаж байна. Ойлголцол, халамж болон хамтын ажиллагааны суурь байгаа ч тодорхой нөхцөлд ялгаатай хэрэгцээ, хандлага илэрч болно.`;
+  }
+
+  if (score >= 70) {
+    return `${prefix} энэ харилцаанд хөгжих сайн боломж байна. Хүчтэй талууд нь холбоог дэмжиж байгаа боловч харьцангуй сул хэсгүүд дээр тогтвортой ойлголцол, ярилцах дадал хэрэгтэй.`;
+  }
+
+  if (score >= 65) {
+    return `${prefix} энэ харилцаанд сайн болон анхаарах талууд нэлээд тэнцүү харагдаж байна. Нийт онооноос илүү аль чиглэл дээр амархан ойлголцдог, аль хэсэг дээр зөрүү гардагийг ажиглах нь хэрэгтэй.`;
+  }
+
+  if (score >= 60) {
+    return `${prefix} энэ харилцаанд сайжруулах боломж хангалттай байна. Зарим хэсэг сайн суурьтай боловч бусад хэсэгт илүү их ойлголцол, тогтвортой харилцаа болон бодит үйлдэл шаардагдаж магадгүй.`;
+  }
+
+  if (score >= 55) {
+    return `${prefix} энэ харилцаанд хүчтэй болон эмзэг талууд зэрэгцэн байна. Одоогийн зөрүүг үл тоохоос илүү аль хэсэгт асуудал төвлөрч байгааг тодорхойлж, жижиг өөрчлөлтөөс эхлэх нь илүү үр дүнтэй.`;
+  }
+
+  if (score >= 50) {
+    return `${prefix} энэ харилцааг тогтвортой байлгахад хоёр талаас илүү их хүчин чармайлт хэрэгтэй харагдаж байна. Зарим сайн суурь байгаа ч харилцааны хэд хэдэн чиглэлд ойлголцол, итгэлцэл эсвэл ойр байдлыг нэмэх шаардлага байж болно.`;
+  }
+
+  if (score >= 40) {
+    return `${prefix} та хоёрын харилцааны зарим үндсэн хэрэгцээ, хүлээлт нэлээд зөрүүтэй байж болохоор харагдаж байна. Энэ нь шууд бүтэхгүй гэсэн үг биш боловч асуудлыг үл тоохгүй, аль хэсэг дээр хамгийн их зөрүү байгааг бодитоор харах хэрэгтэй.`;
+  }
+
+  return `${prefix} харилцааны хэд хэдэн үндсэн чиглэлд томоохон зөрүү эсвэл хангагдаагүй хэрэгцээ харагдаж байна. Нийт оноогоор шууд шийдвэр гаргахын оронд итгэлцэл, харилцаа, аюулгүй байдал болон ирээдүйн хүлээлтүүд үнэхээр нийцэж байгаа эсэхийг тус тусад нь авч үзээрэй.`;
+}
+
 function buildResultText(
   finalScore: number,
   categoryScores: Record<LoveCategory, number>,
+  mode: LoveResultMode,
 ): Pick<
   LoveCalculationResult,
   "summary" | "strengths" | "challenges" | "advice"
@@ -1075,22 +1129,7 @@ function buildResultText(
     })
     .join(" ");
 
-  let summary = "";
-
-  if (finalScore >= 85) {
-    summary =
-      "Таны өгсөн хариултаар энэ харилцааны нийт суурь маш хүчтэй харагдаж байна. Гэхдээ нийт онооноос илүү 6 чиглэлийн ялгааг харах нь чухал. Таны өндөр оноотой хэсгүүд харилцааны гол давуу тал болж байгаа бол харьцангуй бага оноотой хэсгүүд нь цааш анхаарч хөгжүүлэх боломжийг харуулна.";
-  } else if (finalScore >= 70) {
-    summary =
-      "Таны өгсөн хариултаар энэ харилцаа сайн суурьтай харагдаж байна. Зарим чиглэл бусдаасаа илүү хүчтэй бөгөөд харьцангуй сул хэсгүүд дээр ойлголцол, тогтвортой дадал нэмэх боломж байна.";
-  } else if (finalScore >= 55) {
-    summary =
-      "Таны өгсөн хариултаар энэ харилцаанд хүчтэй болон анхаарах талууд зэрэгцэн байна. Аль хэсэг сайн, аль хэсэг эмзэг байгааг ялгаж харах нь нийт онооноос илүү хэрэгтэй мэдээлэл өгнө.";
-  } else {
-    summary =
-      "Таны өгсөн хариултаар харилцааны хэд хэдэн хэсэгт бодитоор анхаарах шаардлага харагдаж байна. Энэ нь харилцаа заавал бүтэлгүй гэсэн дүгнэлт биш; харин яг аль чиглэлд асуудал төвлөрч байгааг тодорхой харах нь чухал.";
-  }
-
+  const summary = getOverallSummaryMn(finalScore, mode);
   return {
     summary,
     strengths,
@@ -1098,9 +1137,61 @@ function buildResultText(
     advice: attentionAdvice,
   };
 }
+function getOverallSummaryEn(score: number, mode: LoveResultMode): string {
+  const prefix =
+    mode === "pair" ? "Based on both of your answers" : "Based on your answers";
+
+  if (score >= 95) {
+    return `${prefix}, this relationship appears to have an exceptionally strong and well-balanced foundation across many areas. Emotional connection, communication, trust, and shared direction all look highly compatible, although even strong relationships still benefit from everyday care and mutual respect.`;
+  }
+
+  if (score >= 90) {
+    return `${prefix}, the overall foundation of this relationship appears very strong. Most areas show high compatibility, and paying attention to the relatively lower-scoring areas could make the relationship even more stable.`;
+  }
+
+  if (score >= 85) {
+    return `${prefix}, this relationship appears to have a strong foundation. Closeness, understanding, and a sense of partnership are present, although some differences in needs or expectations may still benefit from open discussion.`;
+  }
+
+  if (score >= 80) {
+    return `${prefix}, this relationship appears to have a solid foundation. There are many clear strengths between you, although some areas may be weaker than others, so it is useful to look beyond the total score and compare all six dimensions.`;
+  }
+
+  if (score >= 75) {
+    return `${prefix}, this relationship appears generally well matched. There is a healthy base of understanding, care, and cooperation, although different needs or reactions may become more noticeable in certain situations.`;
+  }
+
+  if (score >= 70) {
+    return `${prefix}, this relationship shows good potential for growth. Your stronger areas support the connection, while the relatively weaker areas may benefit from more consistent communication and mutual understanding.`;
+  }
+
+  if (score >= 65) {
+    return `${prefix}, this relationship shows a fairly balanced mix of strengths and areas that need attention. Rather than focusing only on the total score, notice where you naturally connect and where differences are most likely to appear.`;
+  }
+
+  if (score >= 60) {
+    return `${prefix}, there is meaningful room for improvement in this relationship. Some areas have a healthy base, while others may require more understanding, consistency, and practical effort.`;
+  }
+
+  if (score >= 55) {
+    return `${prefix}, this relationship contains both strengths and vulnerable areas. Instead of ignoring the differences, it may help to identify where the main difficulties are concentrated and begin with small, realistic changes.`;
+  }
+
+  if (score >= 50) {
+    return `${prefix}, maintaining this relationship may require more intentional effort from both sides. There are still some positive foundations, but several areas may need greater understanding, trust, or emotional closeness.`;
+  }
+
+  if (score >= 40) {
+    return `${prefix}, some important needs and expectations in this relationship may differ significantly. This does not automatically mean the relationship cannot work, but it is important to identify where the biggest differences are rather than ignoring them.`;
+  }
+
+  return `${prefix}, several core areas of this relationship appear to show major differences or unmet needs. Rather than making a decision based only on the total score, consider trust, communication, emotional safety, and long-term expectations separately.`;
+}
+
 function buildResultTextEn(
   finalScore: number,
   categoryScores: Record<LoveCategory, number>,
+  mode: LoveResultMode,
 ): Pick<
   LoveCalculationResult,
   "summary" | "strengths" | "challenges" | "advice"
@@ -1134,22 +1225,7 @@ function buildResultTextEn(
     })
     .join(" ");
 
-  let summary = "";
-
-  if (finalScore >= 85) {
-    summary =
-      "Based on your answers, the overall foundation of this relationship appears very strong. However, the six individual areas are more informative than the total score alone. Your highest-scoring areas show the strongest parts of the relationship, while the relatively lower areas show where additional attention may help the relationship grow.";
-  } else if (finalScore >= 70) {
-    summary =
-      "Based on your answers, this relationship appears to have a healthy overall foundation. Some areas are clearly stronger than others, while the relatively weaker areas show where greater understanding, consistency, or intentional effort may be useful.";
-  } else if (finalScore >= 55) {
-    summary =
-      "Based on your answers, this relationship contains both meaningful strengths and areas that deserve attention. Looking at which areas are strongest and which are more fragile gives more useful information than relying on the overall score alone.";
-  } else {
-    summary =
-      "Based on your answers, several areas of the relationship may need meaningful attention. This does not automatically mean the relationship will fail. The important point is to identify where the main difficulties are concentrated and whether both people are willing to work on them.";
-  }
-
+  const summary = getOverallSummaryEn(finalScore, mode);
   return {
     summary,
     strengths,
@@ -1187,7 +1263,7 @@ export function buildPairLoveResult(
   );
 
   const detailedSections = buildDetailedSections(categoryScores);
-  const text = buildResultText(finalScore, categoryScores);
+  const text = buildResultText(finalScore, categoryScores, "pair");
 
   const nameText = buildNameCompatibilityText(
     nameData.score,
@@ -1202,6 +1278,7 @@ export function buildPairLoveResult(
     finalScore,
     categoryScores,
     relationshipPattern,
+    "pair",
   );
 
   return {
@@ -1332,11 +1409,12 @@ function buildLocalizedResult(
   finalScore: number,
   categoryScores: Record<LoveCategory, number>,
   relationshipPattern: LovePattern,
+  mode: LoveResultMode,
 ): {
   mn: LoveLocalizedResult;
   en: LoveLocalizedResult;
 } {
-  const enText = buildResultTextEn(finalScore, categoryScores);
+  const enText = buildResultTextEn(finalScore, categoryScores, mode);
   const enDetailedSections = buildDetailedSectionsEn(categoryScores);
   const enRelationshipPattern = buildRelationshipPatternEn(
     categoryScores,
@@ -1382,7 +1460,7 @@ export function buildSoloLoveResult(
 
   const detailedSections = buildDetailedSections(categoryScores);
 
-  const text = buildResultText(finalScore, categoryScores);
+  const text = buildResultText(finalScore, categoryScores, "solo");
   const nameText = buildNameCompatibilityText(
     nameData.score,
     nameData.r1,
@@ -1396,6 +1474,7 @@ export function buildSoloLoveResult(
     finalScore,
     categoryScores,
     relationshipPattern,
+    "solo",
   );
 
   return {
