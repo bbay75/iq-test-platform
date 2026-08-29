@@ -10,7 +10,15 @@ import { useLang } from "@/lib/LanguageProvider";
 import { scoreMbti, validateMbtiBlueprint } from "@/lib/mbtiScoring";
 import type { MbtiAnswerValue, MbtiAnswers } from "@/lib/mbtiScoring";
 import { runMbtiScoringTests } from "@/lib/testMbtiScoring";
-import { Venus, Mars } from "lucide-react";
+import {
+  Venus,
+  Mars,
+  Sparkles,
+  CheckCircle2,
+  Rocket,
+  Target,
+} from "lucide-react";
+
 const scaleOptions: {
   value: MbtiAnswerValue;
   visualSize: number;
@@ -23,60 +31,60 @@ const scaleOptions: {
     value: -3,
     visualSize: 52,
     label: {
-      mn: "Огт санал нийлэхгүй",
-      en: "Strongly disagree",
+      mn: "Зүүн талтай маш ойр",
+      en: "Strongly closer to the left option",
     },
   },
   {
     value: -2,
     visualSize: 46,
     label: {
-      mn: "Санал нийлэхгүй",
-      en: "Disagree",
+      mn: "Зүүн талтай ойр",
+      en: "Closer to the left option",
     },
   },
   {
     value: -1,
     visualSize: 40,
     label: {
-      mn: "Бага зэрэг санал нийлэхгүй",
-      en: "Slightly disagree",
+      mn: "Зүүн талтай бага зэрэг ойр",
+      en: "Slightly closer to the left option",
     },
   },
   {
     value: 0,
     visualSize: 34,
     label: {
-      mn: "Саармаг",
-      en: "Neutral",
+      mn: "Аль аль нь адил",
+      en: "Both equally",
     },
   },
   {
     value: 1,
     visualSize: 40,
     label: {
-      mn: "Бага зэрэг санал нийлнэ",
-      en: "Slightly agree",
+      mn: "Баруун талтай бага зэрэг ойр",
+      en: "Slightly closer to the right option",
     },
   },
   {
     value: 2,
     visualSize: 46,
     label: {
-      mn: "Санал нийлнэ",
-      en: "Agree",
+      mn: "Баруун талтай ойр",
+      en: "Closer to the right option",
     },
   },
   {
     value: 3,
     visualSize: 52,
     label: {
-      mn: "Бүрэн санал нийлнэ",
-      en: "Strongly agree",
+      mn: "Баруун талтай маш ойр",
+      en: "Strongly closer to the right option",
     },
   },
 ];
-
+type ToastIcon = "start" | "progress" | "almost" | "last";
 export default function MBTITest() {
   const [index, setIndex] = useState(0);
 
@@ -91,11 +99,78 @@ export default function MBTITest() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [resultError, setResultError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    icon: ToastIcon;
+  } | null>(null);
+
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const shownMilestones = useRef<Set<number>>(new Set());
 
   const router = useRouter();
   const autoNextTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { lang } = useLang();
+
+  function showToast(message: string, icon: ToastIcon, duration = 2200) {
+    if (toastTimer.current) {
+      clearTimeout(toastTimer.current);
+    }
+
+    setToast({ message, icon });
+
+    toastTimer.current = setTimeout(() => {
+      setToast(null);
+      toastTimer.current = null;
+    }, duration);
+  }
+
+  useEffect(() => {
+    if (!gender) return;
+
+    const questionNumber = index + 1;
+
+    const milestoneMessages: Record<
+      number,
+      {
+        mn: string;
+        en: string;
+        icon: ToastIcon;
+      }
+    > = {
+      13: {
+        mn: "Сайн явж байна",
+        en: "You're doing great",
+        icon: "progress",
+      },
+      25: {
+        mn: "Талаас илүү гарлаа",
+        en: "You're past halfway",
+        icon: "progress",
+      },
+      37: {
+        mn: "Бараг дууслаа",
+        en: "Almost there",
+        icon: "almost",
+      },
+      48: {
+        mn: "Сүүлийн асуулт",
+        en: "Last question",
+        icon: "last",
+      },
+    };
+
+    const milestone = milestoneMessages[questionNumber];
+
+    if (!milestone || shownMilestones.current.has(questionNumber)) {
+      return;
+    }
+
+    shownMilestones.current.add(questionNumber);
+
+    showToast(milestone[lang], milestone.icon);
+  }, [index, gender, lang]);
 
   useEffect(() => {
     const saved = localStorage.getItem("mbtiResult");
@@ -106,7 +181,7 @@ export default function MBTITest() {
   }, []);
 
   /**
-   * Development үед 60-question blueprint
+   * Development үед 48-question blueprint
    * алдаагүй байгаа эсэхийг шалгана.
    */
   useEffect(() => {
@@ -130,9 +205,13 @@ export default function MBTITest() {
   }, []);
 
   const q = mbtiQuestions[index];
-
   const selected = answers[q.id] ?? null;
 
+  const leftLabel =
+    q.direction === 1 ? q.secondLabel[lang] : q.firstLabel[lang];
+
+  const rightLabel =
+    q.direction === 1 ? q.firstLabel[lang] : q.secondLabel[lang];
   const progress = ((index + 1) / mbtiQuestions.length) * 100;
 
   async function finishTest(finalAnswers: MbtiAnswers) {
@@ -145,7 +224,7 @@ export default function MBTITest() {
     const result = scoreMbti(mbtiQuestions, finalAnswers);
 
     /**
-     * Бүх 60 асуулт хариулагдаагүй бол
+     * Бүх 48 асуулт хариулагдаагүй бол
      * result гаргахгүй.
      */
     if (!result.complete) {
@@ -184,7 +263,7 @@ export default function MBTITest() {
 
     try {
       /**
-       * 60 хариултыг facet-тай нь хадгална.
+       * 48 хариултыг facet-тай нь хадгална.
        *
        * Premium personalized тайлалд
        * дараа ашиглана.
@@ -214,7 +293,7 @@ export default function MBTITest() {
 
           /**
            * ШИНЭ:
-           * 60 бодит answer.
+           * 48 бодит answer.
            */
           answers: answerData,
 
@@ -222,7 +301,7 @@ export default function MBTITest() {
            * Дараа scoring system өөрчлөгдвөл
            * хуучин result-оос ялгахад хэрэгтэй.
            */
-          scoringVersion: "mbti_60_v1",
+          scoringVersion: "mbti_48_v1",
 
           /**
            * Хуучин profile data-г
@@ -387,6 +466,33 @@ export default function MBTITest() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 px-4 py-8 dark:bg-gray-900 sm:px-6">
+      {toast && (
+        <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-3 sm:top-5 sm:px-4">
+          <div className="flex w-max max-w-[calc(100vw-24px)] items-center gap-3 rounded-xl border border-purple-200 bg-white/95 px-4 py-3 text-gray-900 shadow-xl backdrop-blur-md dark:border-purple-400/20 dark:bg-gray-950/95 dark:text-white sm:max-w-[360px]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-300">
+              {toast.icon === "start" && (
+                <Sparkles className="h-4 w-4" strokeWidth={2} />
+              )}
+
+              {toast.icon === "progress" && (
+                <CheckCircle2 className="h-4 w-4" strokeWidth={2} />
+              )}
+
+              {toast.icon === "almost" && (
+                <Rocket className="h-4 w-4" strokeWidth={2} />
+              )}
+
+              {toast.icon === "last" && (
+                <Target className="h-4 w-4" strokeWidth={2} />
+              )}
+            </div>
+
+            <p className="max-w-[285px] text-sm font-medium leading-5">
+              {toast.message}
+            </p>
+          </div>
+        </div>
+      )}
       <div className="mb-5 flex w-full max-w-2xl">
         <Link
           href="/"
@@ -398,7 +504,7 @@ export default function MBTITest() {
 
       <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-7">
         <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
-          {lang === "en" ? "MBTI Personality Test" : "MBTI зан төлөвийн тест"}
+          {lang === "en" ? "MBTI Personality Test" : "MBTI Зан төлөвийн тест"}
         </h1>
 
         {!gender && (
@@ -412,7 +518,17 @@ export default function MBTITest() {
             <div className="grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={() => setGender("female")}
+                onClick={() => {
+                  setGender("female");
+
+                  showToast(
+                    lang === "en"
+                      ? "Let's begin. No right or wrong answers. Choose the side that feels more like you."
+                      : "Эхэллээ. Зөв, буруу хариулт байхгүй. Өөрт хамгийн ойр талыг сонгоорой.",
+                    "start",
+                    3500,
+                  );
+                }}
                 className="group flex items-center justify-center gap-3 rounded-2xl border border-pink-300 bg-pink-50 px-5 py-4 font-semibold text-pink-700 transition hover:border-pink-400 hover:bg-pink-100 dark:border-pink-500/30 dark:bg-pink-500/[0.08] dark:text-pink-300 dark:hover:bg-pink-500/[0.12]"
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-300">
@@ -426,7 +542,17 @@ export default function MBTITest() {
 
               <button
                 type="button"
-                onClick={() => setGender("male")}
+                onClick={() => {
+                  setGender("male");
+
+                  showToast(
+                    lang === "en"
+                      ? "Let's begin. No right or wrong answers. Choose the side that feels more like you."
+                      : "Эхэллээ. Зөв, буруу хариулт байхгүй. Өөрт хамгийн ойр талыг сонгоорой.",
+                    "start",
+                    3500,
+                  );
+                }}
                 className="group flex items-center justify-center gap-3 rounded-2xl border border-blue-300 bg-blue-50 px-5 py-4 font-semibold text-blue-700 transition hover:border-blue-400 hover:bg-blue-100 dark:border-blue-500/30 dark:bg-blue-500/[0.08] dark:text-blue-300 dark:hover:bg-blue-500/[0.12]"
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300">
@@ -445,7 +571,7 @@ export default function MBTITest() {
             <div className="mt-7">
               <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
-                  className="h-full rounded-full bg-purple-500 transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-emerald-500 transition-all duration-300"
                   style={{
                     width: `${progress}%`,
                   }}
@@ -472,46 +598,89 @@ export default function MBTITest() {
 
             {/* Scale */}
             <div className="mt-9">
-              <div className="flex items-center justify-between gap-0.5 sm:gap-2">
-                {scaleOptions.map((option) => {
-                  const isSelected = selected === option.value;
+              <div className="relative">
+                {/* 7 choices */}
+                <div className="grid grid-cols-7 items-center">
+                  {scaleOptions.map((option) => {
+                    const isSelected = selected === option.value;
 
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      aria-label={option.label[lang]}
-                      title={option.label[lang]}
-                      onClick={() => handleAnswer(option.value)}
-                      disabled={isSubmitting}
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:w-14"
-                    >
-                      <span
-                        className={`flex items-center justify-center rounded-full border-2 transition-all duration-150 ${
-                          isSelected
-                            ? "border-purple-600 bg-purple-600 text-white shadow-md"
-                            : "border-gray-400 bg-white text-transparent hover:border-purple-400 dark:border-gray-500 dark:bg-gray-800"
-                        }`}
-                        style={{
-                          width: `${option.visualSize * 0.78}px`,
-                          height: `${option.visualSize * 0.78}px`,
-                        }}
+                    const isLeft = option.value < 0;
+                    const isRight = option.value > 0;
+                    const isCenter = option.value === 0;
+
+                    const selectedClass = isLeft
+                      ? "border-blue-500 bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                      : isRight
+                        ? "border-purple-500 bg-purple-500 text-white shadow-md shadow-purple-500/20"
+                        : "border-gray-500 bg-gray-500 text-white shadow-md";
+
+                    const idleClass = isLeft
+                      ? "border-blue-400 bg-white text-transparent hover:border-blue-500 hover:bg-blue-50 dark:bg-gray-800 dark:hover:border-blue-400 dark:hover:bg-gray-800"
+                      : isRight
+                        ? "border-purple-400 bg-white text-transparent hover:border-purple-500 hover:bg-purple-50 dark:bg-gray-800 dark:hover:border-purple-400 dark:hover:bg-gray-800"
+                        : "border-gray-400 bg-white text-transparent hover:border-gray-500 hover:bg-gray-50 dark:border-gray-500 dark:bg-gray-800 dark:hover:border-gray-400 dark:hover:bg-gray-800";
+
+                    return (
+                      <div
+                        key={option.value}
+                        className="relative flex h-14 items-center justify-center"
                       >
-                        {isSelected ? "✓" : ""}
-                      </span>
-                    </button>
-                  );
-                })}
+                        {/* LEFT GROUP CONNECTORS */}
+                        {option.value === -3 && (
+                          <div className="absolute left-1/2 right-0 h-[2px] bg-blue-400/50" />
+                        )}
+
+                        {option.value === -2 && (
+                          <div className="absolute inset-x-0 h-[2px] bg-blue-400/50" />
+                        )}
+
+                        {option.value === -1 && (
+                          <div className="absolute left-0 right-1/2 h-[2px] bg-blue-400/50" />
+                        )}
+
+                        {/* RIGHT GROUP CONNECTORS */}
+                        {option.value === 1 && (
+                          <div className="absolute left-1/2 right-0 h-[2px] bg-purple-400/50" />
+                        )}
+
+                        {option.value === 2 && (
+                          <div className="absolute inset-x-0 h-[2px] bg-purple-400/50" />
+                        )}
+
+                        {option.value === 3 && (
+                          <div className="absolute left-0 right-1/2 h-[2px] bg-purple-400/50" />
+                        )}
+
+                        <button
+                          type="button"
+                          aria-label={option.label[lang]}
+                          title={option.label[lang]}
+                          onClick={() => handleAnswer(option.value)}
+                          disabled={isSubmitting}
+                          className="relative z-10 flex h-14 w-14 items-center justify-center transition-transform duration-150 hover:scale-110 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <span
+                            className={`flex items-center justify-center rounded-full border-2 transition-all duration-150 ${
+                              isSelected ? selectedClass : idleClass
+                            }`}
+                            style={{
+                              width: `${option.visualSize * 0.78}px`,
+                              height: `${option.visualSize * 0.78}px`,
+                            }}
+                          >
+                            {isSelected ? "✓" : ""}
+                          </span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="mt-3 flex items-start justify-between gap-4 text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">
-                <span className="max-w-[42%] text-left">
-                  {lang === "en" ? "Disagree" : "Санал нийлэхгүй"}
-                </span>
+              <div className="mt-4 flex items-start justify-between gap-4 text-xs font-semibold text-gray-600 dark:text-gray-300 sm:text-sm">
+                <span className="max-w-[43%] text-left">{leftLabel}</span>
 
-                <span className="max-w-[42%] text-right">
-                  {lang === "en" ? "Agree" : "Санал нийлнэ"}
-                </span>
+                <span className="max-w-[43%] text-right">{rightLabel}</span>
               </div>
             </div>
 
@@ -537,7 +706,7 @@ export default function MBTITest() {
                 type="button"
                 onClick={handleNext}
                 disabled={selected === null || isSubmitting}
-                className="rounded-xl bg-purple-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-xl bg-emerald-500/85 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isSubmitting
                   ? lang === "en"

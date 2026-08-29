@@ -157,6 +157,102 @@ export function runMbtiScoringTests() {
   }
 
   // -----------------------------------------
+  // TEST 5:
+  // Дутуу хариулт -> complete false байх ёстой.
+  // -----------------------------------------
+
+  const incompleteAnswers = createAnswersForType("INTJ");
+  delete incompleteAnswers[1];
+
+  const incompleteResult = scoreMbti(mbtiQuestions, incompleteAnswers);
+
+  if (incompleteResult.complete !== false) {
+    errors.push("Incomplete answers should produce complete=false");
+  }
+
+  if (!incompleteResult.missingQuestionIds.includes(1)) {
+    errors.push("Missing question id 1 was not detected");
+  }
+
+  // -----------------------------------------
+  // TEST 6:
+  // Core tie + borderline strong answer
+  // тухайн axis-ийг шийдэх ёстой.
+  // -----------------------------------------
+
+  for (const axis of ["EI", "SN", "TF", "JP"] as const) {
+    const answers = createAnswersForType("ESTJ");
+
+    const coreQuestions = mbtiQuestions.filter(
+      (q) => q.axis === axis && q.role === "core",
+    );
+
+    const borderlineQuestion = mbtiQuestions.find(
+      (q) => q.axis === axis && q.role === "borderline",
+    );
+
+    // Core-ийг бүгд neutral болгоно -> coreScore = 0
+    for (const q of coreQuestions) {
+      answers[q.id] = 0;
+    }
+
+    if (borderlineQuestion) {
+      // first-letter тал руу хүчтэй хариулна
+      answers[borderlineQuestion.id] = (3 * borderlineQuestion.direction) as
+        | -3
+        | 3;
+    }
+
+    const result = scoreMbti(mbtiQuestions, answers);
+    const axisResult = result.axes[axis];
+
+    if (!axisResult.resolvedByBorderline) {
+      errors.push(`${axis}: borderline did not resolve core tie`);
+    }
+
+    if (axisResult.status !== "borderline_resolved") {
+      errors.push(`${axis}: expected borderline_resolved`);
+    }
+  }
+
+  // -----------------------------------------
+  // TEST 7:
+  // Core tie + borderline neutral -> unresolved.
+  // -----------------------------------------
+
+  const tieAnswers = createAnswersForType("ESTJ");
+
+  for (const q of mbtiQuestions.filter((q) => q.axis === "EI")) {
+    tieAnswers[q.id] = 0;
+  }
+
+  const tieResult = scoreMbti(mbtiQuestions, tieAnswers);
+
+  if (tieResult.axes.EI.letter !== null) {
+    errors.push("EI tie with neutral borderline should remain unresolved");
+  }
+
+  if (tieResult.type !== null) {
+    errors.push("Unresolved EI axis should prevent final MBTI type");
+  }
+
+  // -----------------------------------------
+  // TEST 8:
+  // Extreme first/second preference percentage.
+  // -----------------------------------------
+
+  const extremeAnswers = createAnswersForType("ESTJ");
+  const extremeResult = scoreMbti(mbtiQuestions, extremeAnswers);
+
+  for (const axis of ["EI", "SN", "TF", "JP"] as const) {
+    if (extremeResult.axes[axis].percent !== 100) {
+      errors.push(
+        `${axis}: extreme preference should be 100%, received ${extremeResult.axes[axis].percent}%`,
+      );
+    }
+  }
+
+  // -----------------------------------------
   // FINAL
   // -----------------------------------------
 

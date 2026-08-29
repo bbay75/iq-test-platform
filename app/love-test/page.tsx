@@ -238,7 +238,7 @@ export default function LoveTestPage() {
 
   if (mode === "both" && finished && inviteUrl) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-3 dark:bg-gray-900 sm:gap-6 sm:p-6">
         <Link
           href="/"
           className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
@@ -343,7 +343,7 @@ export default function LoveTestPage() {
 
   if (finished && resultData && savedResult) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-3 dark:bg-gray-900 sm:gap-6 sm:p-6">
         <Link
           href="/"
           className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
@@ -489,7 +489,7 @@ export default function LoveTestPage() {
 
   if (!started) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-3 dark:bg-gray-900 sm:gap-6 sm:p-6">
         <Link
           href="/"
           className="text-sm font-medium text-pink-600 hover:underline dark:text-pink-300"
@@ -506,7 +506,7 @@ export default function LoveTestPage() {
             {t("love_test_desc")}
           </p>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <button
               type="button"
               onClick={() => setMode("solo")}
@@ -517,11 +517,14 @@ export default function LoveTestPage() {
               }`}
             >
               <p className="flex items-center justify-center gap-2 text-lg font-bold">
-                <UserRound className="h-5 w-5" />
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+                  <UserRound
+                    className="h-5 w-5 scale-[0.9]"
+                    strokeWidth={2.2}
+                  />
+                </span>
                 {t("love_solo_title")}
               </p>
-
-              <p className="mt-2 text-sm">{t("love_mode_solo_desc")}</p>
             </button>
 
             <button
@@ -537,37 +540,25 @@ export default function LoveTestPage() {
                 <UsersRound className="h-5 w-5" />
                 {t("love_both_title")}
               </p>
-
-              <p className="mt-2 text-sm">{t("love_mode_both_desc")}</p>
             </button>
           </div>
 
           {mode && (
             <div className="mt-6 space-y-5">
-              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-900/60">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pink-100 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400">
-                    {mode === "solo" ? (
-                      <UserRound className="h-5 w-5" />
-                    ) : (
-                      <UsersRound className="h-5 w-5" />
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="font-bold text-gray-900 dark:text-white">
-                      {mode === "solo"
-                        ? t("love_solo_title")
-                        : t("love_both_title")}
-                    </p>
-
-                    <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
-                      {mode === "solo"
-                        ? t("love_mode_solo_desc")
-                        : t("love_mode_both_desc")}
-                    </p>
-                  </div>
+              <div className="flex items-start gap-1.5 px-1">
+                <div className="mt-[4px] shrink-0 text-pink-500">
+                  {mode === "solo" ? (
+                    <UserRound className="h-3 w-3" />
+                  ) : (
+                    <UsersRound className="h-3 w-3" />
+                  )}
                 </div>
+
+                <p className="text-xs leading-5 text-gray-500 dark:text-gray-400 sm:text-sm">
+                  {mode === "solo"
+                    ? t("love_mode_solo_desc")
+                    : t("love_mode_both_desc")}
+                </p>
               </div>
 
               <div className="grid gap-4">
@@ -589,12 +580,6 @@ export default function LoveTestPage() {
                   />
                 )}
               </div>
-
-              {mode === "both" && (
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800 dark:border-blue-900 dark:bg-blue-950/20 dark:text-blue-300">
-                  {t("love_both_process_desc")}
-                </div>
-              )}
 
               <button
                 type="button"

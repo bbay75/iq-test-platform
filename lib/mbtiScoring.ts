@@ -38,7 +38,7 @@ export type MbtiAxisResult = {
   letter: MbtiLetter | null;
 
   /**
-   * Core 14 асуултын нийлбэр.
+   * Core 11 асуултын нийлбэр.
    */
   coreScore: number;
 
@@ -46,12 +46,12 @@ export type MbtiAxisResult = {
    * Core асуултуудаас авах боломжтой
    * хамгийн их absolute score.
    *
-   * 14 × 3 = 42
+   * 11 × 3 = 33
    */
   coreMaxScore: number;
 
   /**
-   * Tie үед ашигласан borderline item-ийн score.
+   * Core score яг 0 үед ашигласан borderline item-ийн score.
    * Ердийн үед 0.
    */
   borderlineScore: number;
@@ -82,6 +82,9 @@ export type MbtiAxisResult = {
   answeredCore: number;
   neutralCore: number;
 
+  /**
+   * Core score яг 0 үед borderline item шийдсэн эсэх.
+   */
   resolvedByBorderline: boolean;
 
   status: MbtiAxisStatus;
@@ -99,7 +102,7 @@ export type MbtiScoreResult = {
   axes: Record<MbtiAxis, MbtiAxisResult>;
 
   /**
-   * 60 асуултад бүгдэд нь хариулсан эсэх.
+   * 48 асуултад бүгдэд нь хариулсан эсэх.
    */
   complete: boolean;
 
@@ -213,7 +216,7 @@ function buildAxisResult(
   /**
    * Blueprint зөв үед:
    *
-   * 14 core × max 3 = 42
+   * 11 core × max 3 = 33
    */
   const coreMaxScore = coreQuestions.length * 3;
 
@@ -271,11 +274,11 @@ function buildAxisResult(
    * 50/50 дээр жижигхэн бодит хөдөлгөөн өгнө.
    *
    * Borderline item max ±3,
-   * нийт theoretical axis max = 45.
+   * нийт theoretical axis max = 36
    *
-   * +1 → ойролцоогоор 51%
-   * +2 → ойролцоогоор 52%
-   * +3 → ойролцоогоор 53%
+ +1 → ойролцоогоор 51%
++2 → ойролцоогоор 53%
++3 → ойролцоогоор 54%
    *
    * Ингэснээр ганц tie item
    * 60%, 70% гэх мэт хэт хүчтэй
@@ -339,7 +342,7 @@ function buildAxisResult(
  * MAIN SCORING FUNCTION
  * ============================================================
  *
- * 60 хариултаас:
+ * 48 хариултаас:
  *
  * EI
  * SN
@@ -400,7 +403,7 @@ export function scoreMbti(
  * QUESTION BLUEPRINT VALIDATOR
  * ============================================================
  *
- * Development үед 60-question data
+ * Development үед 48-question data (11 core + 1 borderline / axis)
  * санамсаргүй эвдэрсэн эсэхийг шалгана.
  */
 export function validateMbtiBlueprint(questions: MbtiScoringQuestion[]) {
@@ -468,26 +471,26 @@ export function validateMbtiBlueprint(questions: MbtiScoringQuestion[]) {
     }
   }
 
-  if (questions.length !== 60) {
-    errors.push(`Expected 60 questions, found ${questions.length}.`);
+  if (questions.length !== 48) {
+    errors.push(`Expected 48 questions, found ${questions.length}.`);
   }
 
   for (const axis of MBTI_AXES) {
     const stat = stats[axis];
 
-    if (stat.core !== 14) {
-      errors.push(`${axis}: expected 14 core questions, found ${stat.core}.`);
+    if (stat.core !== 11) {
+      errors.push(`${axis}: expected 11 core questions, found ${stat.core}.`);
     }
 
-    if (stat.positiveCore !== 7) {
-      errors.push(
-        `${axis}: expected 7 positive core questions, found ${stat.positiveCore}.`,
-      );
-    }
+    // 11 core item учраас direction яг 50/50 болох боломжгүй.
+    // Тиймээс нэг тал 6, нөгөө тал 5 байхыг зөвшөөрнө.
+    const directionBalanced =
+      (stat.positiveCore === 6 && stat.negativeCore === 5) ||
+      (stat.positiveCore === 5 && stat.negativeCore === 6);
 
-    if (stat.negativeCore !== 7) {
+    if (!directionBalanced) {
       errors.push(
-        `${axis}: expected 7 negative core questions, found ${stat.negativeCore}.`,
+        `${axis}: expected core direction balance 6/5 or 5/6, found ${stat.positiveCore}/${stat.negativeCore}.`,
       );
     }
 

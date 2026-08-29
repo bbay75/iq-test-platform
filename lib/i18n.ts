@@ -302,162 +302,196 @@ export const translations = {
     iq_e_visual_8:
       "The first two rows follow a pattern of large shape, small shape, then combined shape. The last row must continue that same rule with triangles.",
 
-    iq_q_number_1: "What number comes next in the sequence: 2, 4, 8, 16, ?",
-    iq_e_number_1: "Each number is multiplied by 2.",
-    iq_opt_number_1_a: "20",
-    iq_opt_number_1_b: "24",
-    iq_opt_number_1_c: "32",
-    iq_opt_number_1_d: "30",
+    // NUMBER 1 — EASY
+    iq_q_number_1: "What number comes next: 4, 8, 12, 16, ?",
+    iq_e_number_1: "The sequence increases by 4 each step.",
+    iq_opt_number_1_a: "20", // ✅ CORRECT
+    iq_opt_number_1_b: "18",
+    iq_opt_number_1_c: "22",
+    iq_opt_number_1_d: "24",
 
-    iq_q_number_2: "What number comes next in the sequence: 5, 10, 20, 40, ?",
-    iq_e_number_2: "Each number is doubled.",
-    iq_opt_number_2_a: "60",
-    iq_opt_number_2_b: "80",
-    iq_opt_number_2_c: "70",
-    iq_opt_number_2_d: "90",
+    // NUMBER 2 — EASY
+    iq_q_number_2: "What number comes next: 1, 4, 9, 16, ?",
+    iq_e_number_2: "These are square numbers: 1², 2², 3², 4². The next is 5².",
+    iq_opt_number_2_a: "24",
+    iq_opt_number_2_b: "25", // ✅ CORRECT
+    iq_opt_number_2_c: "30",
+    iq_opt_number_2_d: "36",
 
-    iq_q_number_3: "Find the next number in the sequence: 3, 6, 9, 12, ?",
-    iq_e_number_3: "The pattern increases by 3 each step.",
-    iq_opt_number_3_a: "13",
-    iq_opt_number_3_b: "14",
-    iq_opt_number_3_c: "15",
-    iq_opt_number_3_d: "18",
+    // NUMBER 3 — EASY
+    iq_q_number_3: "What number comes next: 5, 10, 20, 40, ?",
+    iq_e_number_3: "Each number is doubled.",
+    iq_opt_number_3_a: "60",
+    iq_opt_number_3_b: "70",
+    iq_opt_number_3_c: "80", // ✅ CORRECT
+    iq_opt_number_3_d: "90",
 
-    iq_q_number_4: "Find the missing number in the sequence: 10, 8, 6, 4, ?",
-    iq_e_number_4: "The pattern decreases by 2 each step.",
-    iq_opt_number_4_a: "1",
-    iq_opt_number_4_b: "2",
-    iq_opt_number_4_c: "3",
-    iq_opt_number_4_d: "5",
+    // NUMBER 4 — MEDIUM
+    iq_q_number_4: "What number comes next: 2, 6, 5, 15, 14, 42, ?",
+    iq_e_number_4:
+      "The operations alternate: ×3, then −1. Therefore, 42 − 1 = 41.",
+    iq_opt_number_4_a: "39",
+    iq_opt_number_4_b: "40",
+    iq_opt_number_4_c: "126",
+    iq_opt_number_4_d: "41", // ✅ CORRECT
 
-    iq_q_number_5: "Which number completes the pattern: 1, 4, 9, 16, ?",
-    iq_e_number_5: "These are square numbers: 1², 2², 3², 4², 5².",
-    iq_opt_number_5_a: "20",
-    iq_opt_number_5_b: "25",
-    iq_opt_number_5_c: "36",
-    iq_opt_number_5_d: "18",
+    // NUMBER 5 — MEDIUM
+    iq_q_number_5: "What number comes next: 2, 6, 12, 20, 30, ?",
+    iq_e_number_5: "The terms follow 1×2, 2×3, 3×4, 4×5, 5×6. The next is 6×7.",
+    iq_opt_number_5_a: "42", // ✅ CORRECT
+    iq_opt_number_5_b: "36",
+    iq_opt_number_5_c: "40",
+    iq_opt_number_5_d: "48",
 
-    iq_q_number_6: "What is the next number in the sequence: 7, 14, 21, 28, ?",
-    iq_e_number_6: "The pattern increases by 7 each step.",
-    iq_opt_number_6_a: "32",
-    iq_opt_number_6_b: "35",
-    iq_opt_number_6_c: "36",
-    iq_opt_number_6_d: "30",
+    // NUMBER 6 — HARD
+    iq_q_number_6: "What number comes next: 3, 5, 9, 17, 33, ?",
+    iq_e_number_6:
+      "The differences are 2, 4, 8, and 16, doubling each time. The next difference is 32, so 33 + 32 = 65.",
+    iq_opt_number_6_a: "61",
+    iq_opt_number_6_b: "64",
+    iq_opt_number_6_c: "65", // ✅ CORRECT
+    iq_opt_number_6_d: "66",
 
-    iq_q_number_7: "Find the missing number: 30, 25, 20, 15, ?",
-    iq_e_number_7: "The pattern decreases by 5 each step.",
-    iq_opt_number_7_a: "5",
-    iq_opt_number_7_b: "10",
-    iq_opt_number_7_c: "12",
-    iq_opt_number_7_d: "8",
+    // NUMBER 7 — HARD
+    iq_q_number_7: "What number comes next: 3, 4, 7, 11, 18, 29, ?",
+    iq_e_number_7:
+      "From the third term onward, each number is the sum of the previous two. 18 + 29 = 47.",
+    iq_opt_number_7_a: "41",
+    iq_opt_number_7_b: "45",
+    iq_opt_number_7_c: "46",
+    iq_opt_number_7_d: "47", // ✅ CORRECT
 
+    // LOGIC 1 — EASY
     iq_q_logic_1:
-      "All cats are animals. Some animals are dogs. What can you conclude?",
+      "All doctors have higher education. Bat is a doctor. What can be concluded about Bat?",
     iq_e_logic_1:
-      "From the given statements, there is not enough information to prove any direct relationship between cats and dogs.",
-    iq_opt_logic_1_a: "All dogs are cats",
-    iq_opt_logic_1_b: "Some cats are dogs",
-    iq_opt_logic_1_c: "No definite conclusion can be made",
-    iq_opt_logic_1_d: "All animals are cats",
+      "Since all doctors have higher education and Bat is a doctor, Bat must have higher education.",
+    iq_opt_logic_1_a: "He has secondary education",
+    iq_opt_logic_1_b: "He has higher education", // ✅ CORRECT
+    iq_opt_logic_1_c: "He has no education",
+    iq_opt_logic_1_d: "It cannot be determined",
 
-    iq_q_logic_2: "If A > B and B > C, which statement is true?",
+    // LOGIC 2 — EASY
+    iq_q_logic_2:
+      "Naraa is older than Bold. Bold is older than Temuujin. Who is the youngest?",
     iq_e_logic_2:
-      "If A is greater than B and B is greater than C, then A must be greater than C.",
-    iq_opt_logic_2_a: "A < C",
-    iq_opt_logic_2_b: "A > C",
-    iq_opt_logic_2_c: "A = C",
-    iq_opt_logic_2_d: "Cannot be determined",
+      "The order is Naraa > Bold > Temuujin, so Temuujin is the youngest.",
+    iq_opt_logic_2_a: "Naraa",
+    iq_opt_logic_2_b: "Bold",
+    iq_opt_logic_2_c: "Naraa and Bold",
+    iq_opt_logic_2_d: "Temuujin", // ✅ CORRECT
 
+    // LOGIC 3 — EASY
     iq_q_logic_3:
-      "All roses are flowers. Some flowers are red. What can be concluded?",
+      "All apples are fruit. Some fruit is green. Which statement must be true?",
     iq_e_logic_3:
-      "It is possible that some roses are red, but it is not guaranteed that all roses are red.",
-    iq_opt_logic_3_a: "All roses are red",
-    iq_opt_logic_3_b: "Some roses may be red",
-    iq_opt_logic_3_c: "No roses are red",
-    iq_opt_logic_3_d: "All red things are roses",
+      "The statement that all apples are fruit is directly guaranteed by the information given.",
+    iq_opt_logic_3_a: "All apples are fruit", // ✅ CORRECT
+    iq_opt_logic_3_b: "All fruit are apples",
+    iq_opt_logic_3_c: "All apples are green",
+    iq_opt_logic_3_d: "No apples are green",
 
-    iq_q_logic_4: "If today is Monday, what day will it be in 2 days?",
-    iq_e_logic_4: "Two days after Monday is Wednesday.",
-    iq_opt_logic_4_a: "Tuesday",
-    iq_opt_logic_4_b: "Wednesday",
-    iq_opt_logic_4_c: "Thursday",
-    iq_opt_logic_4_d: "Friday",
+    // LOGIC 4 — MEDIUM
+    iq_q_logic_4:
+      "Four people stand in a line. Anar is ahead of Bat, Bat is ahead of Saruul, and Saruul is ahead of Dulguun. Who is second?",
+    iq_e_logic_4:
+      "The order is Anar → Bat → Saruul → Dulguun, so Bat is second.",
+    iq_opt_logic_4_a: "Anar",
+    iq_opt_logic_4_b: "Saruul",
+    iq_opt_logic_4_c: "Bat", // ✅ CORRECT
+    iq_opt_logic_4_d: "Dulguun",
 
+    // LOGIC 5 — MEDIUM
     iq_q_logic_5:
-      "If 3 people can complete 3 tasks in 3 hours, how long does it take 1 person to complete 1 task?",
-    iq_e_logic_5: "Each person completes one task in 3 hours.",
-    iq_opt_logic_5_a: "1 hour",
-    iq_opt_logic_5_b: "2 hours",
-    iq_opt_logic_5_c: "3 hours",
-    iq_opt_logic_5_d: "9 hours",
+      "If it rains, the road becomes wet. The road is not wet. Which conclusion is best supported?",
+    iq_e_logic_5:
+      "If rain necessarily makes the road wet, then a road that is not wet implies that it did not rain.",
+    iq_opt_logic_5_a: "It rained",
+    iq_opt_logic_5_b: "The road was dried",
+    iq_opt_logic_5_c: "It is about to rain",
+    iq_opt_logic_5_d: "It did not rain", // ✅ CORRECT
 
+    // LOGIC 6 — HARD
     iq_q_logic_6:
-      "Erdene is taller than Bat. Bat is taller than Temuujin. Who is the tallest?",
+      "A prize is hidden in exactly one of three boxes: A, B, or C. Box A says “The prize is not here.” Box B says “The prize is in C.” Box C says “The prize is here.” If exactly one statement is true, where is the prize?",
     iq_e_logic_6:
-      "If Erdene is taller than Bat, and Bat is taller than Temuujin, then Erdene is the tallest.",
-    iq_opt_logic_6_a: "Temuujin",
-    iq_opt_logic_6_b: "Erdene",
-    iq_opt_logic_6_c: "Bat",
-    iq_opt_logic_6_d: "Cannot be determined",
+      "If the prize is in B, A's statement is true while B's and C's statements are false. That gives exactly one true statement.",
+    iq_opt_logic_6_a: "Box B", // ✅ CORRECT
+    iq_opt_logic_6_b: "Box A",
+    iq_opt_logic_6_c: "Box C",
+    iq_opt_logic_6_d: "It cannot be determined",
 
-    iq_q_logic_7: "All X are Y. All Y are Z. What can be concluded?",
+    // LOGIC 7 — HARD
+    iq_q_logic_7:
+      "Four people — Anar, Bat, Saruul, and Temuujin — meet on different days from Monday to Thursday. Anar is not on Monday. Bat meets before Anar. Saruul meets on Thursday. Temuujin meets after Bat but before Anar. On which day does Anar meet?",
     iq_e_logic_7:
-      "If all X are inside Y, and all Y are inside Z, then all X must also be inside Z.",
-    iq_opt_logic_7_a: "All Z are X",
-    iq_opt_logic_7_b: "All X are Z",
-    iq_opt_logic_7_c: "Some X are not Y",
-    iq_opt_logic_7_d: "No conclusion can be made",
+      "Saruul is Thursday. Bat must be Monday, Temuujin Tuesday, leaving Wednesday for Anar.",
+    iq_opt_logic_7_a: "Monday",
+    iq_opt_logic_7_b: "Tuesday",
+    iq_opt_logic_7_c: "Wednesday", // ✅ CORRECT
+    iq_opt_logic_7_d: "Thursday",
 
-    iq_q_verbal_1: "What is the opposite of 'Cold'?",
-    iq_e_verbal_1: "The direct opposite of cold is hot.",
-    iq_opt_verbal_1_a: "Cool",
-    iq_opt_verbal_1_b: "Hot",
-    iq_opt_verbal_1_c: "Warm",
-    iq_opt_verbal_1_d: "Wind",
+    // VERBAL 1 — EASY
+    iq_q_verbal_1: "Which word is closest in meaning to 'generous'?",
+    iq_e_verbal_1: "Generous means willing to give or share freely.",
+    iq_opt_verbal_1_a: "Harsh",
+    iq_opt_verbal_1_b: "Stingy",
+    iq_opt_verbal_1_c: "Giving", // ✅ CORRECT
+    iq_opt_verbal_1_d: "Stubborn",
 
-    iq_q_verbal_2: "Dog : Puppy = Cat : ?",
-    iq_e_verbal_2: "A puppy is a young dog, just as a kitten is a young cat.",
-    iq_opt_verbal_2_a: "Cat",
-    iq_opt_verbal_2_b: "Kitten",
-    iq_opt_verbal_2_c: "Animal",
-    iq_opt_verbal_2_d: "Small cat",
+    // VERBAL 2 — EASY
+    iq_q_verbal_2: "Bird : Nest = Person : ?",
+    iq_e_verbal_2: "A bird lives in a nest, just as a person lives in a home.",
+    iq_opt_verbal_2_a: "Home", // ✅ CORRECT
+    iq_opt_verbal_2_b: "Road",
+    iq_opt_verbal_2_c: "Tree",
+    iq_opt_verbal_2_d: "Window",
 
-    iq_q_verbal_3: "What is the opposite of 'Day'?",
-    iq_e_verbal_3: "The direct opposite of day is night.",
-    iq_opt_verbal_3_a: "Morning",
-    iq_opt_verbal_3_b: "Night",
-    iq_opt_verbal_3_c: "Evening",
-    iq_opt_verbal_3_d: "Time",
+    // VERBAL 3 — EASY
+    iq_q_verbal_3: "What is the opposite of 'beginning'?",
+    iq_e_verbal_3: "The direct opposite of beginning is end.",
+    iq_opt_verbal_3_a: "Continuation",
+    iq_opt_verbal_3_b: "Pause",
+    iq_opt_verbal_3_c: "Middle",
+    iq_opt_verbal_3_d: "End", // ✅ CORRECT
 
-    iq_q_verbal_4: "Book : Read = Food : ?",
-    iq_e_verbal_4: "A book is used to read, just as food is used to eat.",
-    iq_opt_verbal_4_a: "Look",
-    iq_opt_verbal_4_b: "Eat",
-    iq_opt_verbal_4_c: "Take",
-    iq_opt_verbal_4_d: "Make",
+    // VERBAL 4 — MEDIUM
+    iq_q_verbal_4: "Key : Lock = Password : ?",
+    iq_e_verbal_4:
+      "A key opens a lock, just as a password provides access to an account or system.",
+    iq_opt_verbal_4_a: "Screen",
+    iq_opt_verbal_4_b: "Account", // ✅ CORRECT
+    iq_opt_verbal_4_c: "Picture",
+    iq_opt_verbal_4_d: "Hand",
 
-    iq_q_verbal_5: "Which word is closest in meaning to 'Big'?",
-    iq_e_verbal_5: "Large is the closest synonym to big.",
-    iq_opt_verbal_5_a: "Small",
-    iq_opt_verbal_5_b: "Large",
-    iq_opt_verbal_5_c: "Few",
-    iq_opt_verbal_5_d: "Thin",
+    // VERBAL 5 — MEDIUM
+    iq_q_verbal_5: "Which pair has a different relationship from the others?",
+    iq_e_verbal_5:
+      "Doctor–hospital, teacher–school, and chef–kitchen are profession-to-workplace relationships. Writer–book is a creator-to-product relationship.",
+    iq_opt_verbal_5_a: "Doctor : Hospital",
+    iq_opt_verbal_5_b: "Teacher : School",
+    iq_opt_verbal_5_c: "Writer : Book", // ✅ CORRECT
+    iq_opt_verbal_5_d: "Chef : Kitchen",
 
-    iq_q_verbal_6: "Hand : Fingers = Tree : ?",
+    // VERBAL 6 — HARD
+    iq_q_verbal_6:
+      "Seed is related to tree in which way? Which pair has the most similar relationship?",
     iq_e_verbal_6:
-      "Fingers are parts of a hand, just as leaves are parts of a tree.",
-    iq_opt_verbal_6_a: "Leaves",
-    iq_opt_verbal_6_b: "Roots",
-    iq_opt_verbal_6_c: "Ground",
-    iq_opt_verbal_6_d: "Shadow",
+      "A tree grows from a seed. Similarly, a bird develops from an egg.",
+    iq_opt_verbal_6_a: "Leaf : Branch",
+    iq_opt_verbal_6_b: "Rain : Cloud",
+    iq_opt_verbal_6_c: "Tree : Forest",
+    iq_opt_verbal_6_d: "Egg : Bird", // ✅ CORRECT
 
-    iq_q_verbal_7: "What is the opposite of 'Fast'?",
-    iq_e_verbal_7: "The direct opposite of fast is slow.",
-    iq_opt_verbal_7_a: "Slow",
-    iq_opt_verbal_7_b: "Quick",
-    iq_opt_verbal_7_c: "Rapid",
-    iq_opt_verbal_7_d: "Near",
+    // VERBAL 7 — HARD
+    iq_q_verbal_7:
+      "If all writers read books, and some people who read books are travelers, which statement must be true?",
+    iq_e_verbal_7:
+      "Only the statement that all writers read books is guaranteed. No direct relationship between writers and travelers can be concluded.",
+    iq_opt_verbal_7_a: "All writers read books", // ✅ CORRECT
+    iq_opt_verbal_7_b: "All travelers are writers",
+    iq_opt_verbal_7_c: "Some writers are travelers",
+    iq_opt_verbal_7_d: "No writers are travelers",
 
     love_scale_strongly_disagree: "Strongly disagree",
     love_scale_disagree: "Disagree",
@@ -833,7 +867,7 @@ export const translations = {
 
     test_iq: "IQ тест",
     test_mbti: "MBTI тест",
-    test_love: "Заяаны хань",
+    test_love: "Хосын нийцэл",
     test_numerology: "Тоон зурхай",
     test_palm: "Алганы хээ",
     test_personal_color: "Хувийн өнгө",
@@ -890,7 +924,7 @@ export const translations = {
     home_iq_desc: "Логик сэтгэлгээ, анхаарал, дүгнэх чадвараа шалгаарай",
     home_mbti_title: "MBTI тест",
     home_mbti_desc: "Зан төлөв, харилцааны хэв маягаа илүү сайн тань",
-    home_love_title: "Заяаны хань",
+    home_love_title: "Хосын нийцлийн тест",
     home_love_desc: "Та хоёрын тохироо, харилцааны уур амьсгалыг шалгаарай",
     home_numerology_title: "Тоон зурхай",
     home_numerology_desc: "Төрсөн өдөр, нэр, тооны утга холбоог тайлж үзээрэй",
@@ -990,171 +1024,212 @@ export const translations = {
     iq_e_visual_8:
       "Эхний хоёр мөрөнд том дүрс, жижиг дүрс, нийлмэл дүрс гэсэн дүрэм давтагдаж байна. Сүүлийн мөр ч мөн адил энэ зарчмаар үргэлжилнэ.",
 
-    iq_q_number_1: "Дарааллын дараагийн тоо аль вэ: 2, 4, 8, 16, ?",
-    iq_e_number_1: "Тоонууд алхам бүрт 2 дахин өсөж байна.",
-    iq_opt_number_1_a: "20",
-    iq_opt_number_1_b: "24",
-    iq_opt_number_1_c: "32",
-    iq_opt_number_1_d: "30",
+    // NUMBER 1 — EASY
+    iq_q_number_1: "Дарааллын дараагийн тоо аль вэ?: 4, 8, 12, 16, ?",
+    iq_e_number_1: "Тоонууд алхам бүрт 4-өөр нэмэгдэж байна.",
+    iq_opt_number_1_a: "20", // ✅ CORRECT
+    iq_opt_number_1_b: "18",
+    iq_opt_number_1_c: "22",
+    iq_opt_number_1_d: "24",
 
-    iq_q_number_2: "Дарааллын дараагийн тоо аль вэ: 5, 10, 20, 40, ?",
-    iq_e_number_2: "Энэ дараалал мөн алхам бүрт 2 дахин өсөж байна.",
-    iq_opt_number_2_a: "60",
-    iq_opt_number_2_b: "80",
-    iq_opt_number_2_c: "70",
-    iq_opt_number_2_d: "90",
-
-    iq_q_number_3: "Дарааллын дараагийн тоо аль вэ: 3, 6, 9, 12, ?",
-    iq_e_number_3: "Тоонууд алхам бүрт 3-аар нэмэгдэж байна.",
-    iq_opt_number_3_a: "13",
-    iq_opt_number_3_b: "14",
-    iq_opt_number_3_c: "15",
-    iq_opt_number_3_d: "18",
-
-    iq_q_number_4: "Дарааллын дутуу тоо аль вэ: 10, 8, 6, 4, ?",
-    iq_e_number_4: "Тоонууд алхам бүрт 2-оор буурч байна.",
-    iq_opt_number_4_a: "1",
-    iq_opt_number_4_b: "2",
-    iq_opt_number_4_c: "3",
-    iq_opt_number_4_d: "5",
-
-    iq_q_number_5: "Дараах хээг ямар тоо гүйцээх вэ: 1, 4, 9, 16, ?",
-    iq_e_number_5:
+    // NUMBER 2 — EASY
+    iq_q_number_2: "Дарааллын дараагийн тоо аль вэ?: 1, 4, 9, 16, ?",
+    iq_e_number_2:
       "Эдгээр нь квадрат тоонууд: 1², 2², 3², 4². Дараагийнх нь 5².",
-    iq_opt_number_5_a: "20",
-    iq_opt_number_5_b: "25",
-    iq_opt_number_5_c: "36",
-    iq_opt_number_5_d: "18",
+    iq_opt_number_2_a: "24",
+    iq_opt_number_2_b: "25", // ✅ CORRECT
+    iq_opt_number_2_c: "30",
+    iq_opt_number_2_d: "36",
 
-    iq_q_number_6: "Дарааллын дараагийн тоо аль вэ: 7, 14, 21, 28, ?",
-    iq_e_number_6: "Тоонууд алхам бүрт 7-гоор нэмэгдэж байна.",
-    iq_opt_number_6_a: "32",
-    iq_opt_number_6_b: "35",
-    iq_opt_number_6_c: "36",
-    iq_opt_number_6_d: "30",
+    // NUMBER 3 — EASY
+    iq_q_number_3: "Дарааллын дараагийн тоо аль вэ?: 5, 10, 20, 40, ?",
+    iq_e_number_3: "Тоонууд алхам бүрт 2 дахин өсөж байна.",
+    iq_opt_number_3_a: "60",
+    iq_opt_number_3_b: "70",
+    iq_opt_number_3_c: "80", // ✅ CORRECT
+    iq_opt_number_3_d: "90",
 
-    iq_q_number_7: "Дарааллын дутуу тоо аль вэ: 30, 25, 20, 15, ?",
-    iq_e_number_7: "Тоонууд алхам бүрт 5-аар буурч байна.",
-    iq_opt_number_7_a: "5",
-    iq_opt_number_7_b: "10",
-    iq_opt_number_7_c: "12",
-    iq_opt_number_7_d: "8",
+    // NUMBER 4 — MEDIUM
+    iq_q_number_4: "Дарааллын дараагийн тоо аль вэ?: 2, 6, 5, 15, 14, 42, ?",
+    iq_e_number_4:
+      "Үйлдлүүд ээлжилж байна: ×3, дараа нь −1. Тиймээс 42 − 1 = 41.",
+    iq_opt_number_4_a: "39",
+    iq_opt_number_4_b: "40",
+    iq_opt_number_4_c: "126",
+    iq_opt_number_4_d: "41", // ✅ CORRECT
 
+    // NUMBER 5 — MEDIUM
+    iq_q_number_5: "Дарааллын дараагийн тоо аль вэ?: 2, 6, 12, 20, 30, ?",
+    iq_e_number_5:
+      "Тоонууд 1×2, 2×3, 3×4, 4×5, 5×6 хэлбэртэй байна. Дараагийнх нь 6×7.",
+    iq_opt_number_5_a: "42", // ✅ CORRECT
+    iq_opt_number_5_b: "36",
+    iq_opt_number_5_c: "40",
+    iq_opt_number_5_d: "48",
+
+    // NUMBER 6 — HARD
+    iq_q_number_6: "Дарааллын дараагийн тоо аль вэ?: 3, 5, 9, 17, 33, ?",
+    iq_e_number_6:
+      "Зөрүүнүүд 2, 4, 8, 16 гэж хоёр дахин өсөж байна. Дараагийн зөрүү 32 тул 33 + 32 = 65.",
+    iq_opt_number_6_a: "61",
+    iq_opt_number_6_b: "64",
+    iq_opt_number_6_c: "65", // ✅ CORRECT
+    iq_opt_number_6_d: "66",
+
+    // NUMBER 7 — HARD
+    iq_q_number_7: "Дарааллын дараагийн тоо аль вэ?: 3, 4, 7, 11, 18, 29, ?",
+    iq_e_number_7:
+      "Гурав дахь тооноос эхлэн өмнөх хоёр тооны нийлбэрээр дараагийн тоо үүсэж байна. 18 + 29 = 47.",
+    iq_opt_number_7_a: "41",
+    iq_opt_number_7_b: "45",
+    iq_opt_number_7_c: "46",
+    iq_opt_number_7_d: "47", // ✅ CORRECT
+
+    // LOGIC 1 — EASY
     iq_q_logic_1:
-      "Бүх муур амьтан. Зарим амьтан нохой. Үүнээс ямар дүгнэлт хийх боломжтой вэ?",
+      "Бүх эмч дээд боловсролтой. Бат эмч бол Бат ямар боловсролтой вэ?",
     iq_e_logic_1:
-      "Өгөгдсөн мэдээллээр муур ба нохойн хооронд шууд холбоо байгаа эсэхийг батлах боломжгүй.",
-    iq_opt_logic_1_a: "Бүх нохой муур",
-    iq_opt_logic_1_b: "Зарим муур нохой",
-    iq_opt_logic_1_c: "Тодорхой дүгнэлт хийх боломжгүй",
-    iq_opt_logic_1_d: "Бүх амьтан муур",
+      "Бүх эмч дээд боловсролтой гэж өгсөн тул Бат эмч бол дээд боловсролтой байна.",
+    iq_opt_logic_1_a: "Дунд боловсролтой",
+    iq_opt_logic_1_b: "Дээд боловсролтой", // ✅ CORRECT
+    iq_opt_logic_1_c: "Боловсролгүй",
+    iq_opt_logic_1_d: "Тодорхойлох боломжгүй",
 
-    iq_q_logic_2: "Хэрвээ A > B, B > C бол аль өгүүлбэр зөв вэ?",
-    iq_e_logic_2: "A нь B-ээс их, B нь C-ээс их тул A нь C-ээс их байна.",
-    iq_opt_logic_2_a: "A < C",
-    iq_opt_logic_2_b: "A > C",
-    iq_opt_logic_2_c: "A = C",
-    iq_opt_logic_2_d: "Тодорхойлох боломжгүй",
+    // LOGIC 2 — EASY
+    iq_q_logic_2: "Нараа Болдоос ах. Болд Тэмүүжнээс ах. Хэн хамгийн залуу вэ?",
+    iq_e_logic_2:
+      "Нараа > Болд > Тэмүүжин гэсэн дараалал үүснэ. Тиймээс Тэмүүжин хамгийн залуу.",
+    iq_opt_logic_2_a: "Нараа",
+    iq_opt_logic_2_b: "Болд",
+    iq_opt_logic_2_c: "Нараа ба Болд",
+    iq_opt_logic_2_d: "Тэмүүжин", // ✅ CORRECT
 
+    // LOGIC 3 — EASY
     iq_q_logic_3:
-      "Бүх сарнай цэцэг. Зарим цэцэг улаан. Үүнээс ямар дүгнэлт хийж болох вэ?",
+      "Бүх сарнай цэцэг. Зарим цэцэг улаан. Аль өгүүлбэр заавал үнэн бэ?",
+
     iq_e_logic_3:
-      "Зарим сарнай улаан байж болох ч бүх сарнай улаан гэж батлах мэдээлэл алга.",
-    iq_opt_logic_3_a: "Бүх сарнай улаан",
-    iq_opt_logic_3_b: "Зарим сарнай улаан байж болно",
-    iq_opt_logic_3_c: "Ямар ч сарнай улаан биш",
-    iq_opt_logic_3_d: "Бүх улаан зүйл сарнай",
+      "Өгөгдсөн мэдээллээр бүх сарнай цэцэг гэдэг нь шууд баталгаатай.",
 
+    iq_opt_logic_3_a: "Бүх сарнай цэцэг", // ✅ CORRECT
+    iq_opt_logic_3_b: "Бүх цэцэг сарнай",
+    iq_opt_logic_3_c: "Бүх сарнай улаан",
+    iq_opt_logic_3_d: "Ямар ч сарнай улаан биш",
+
+    // LOGIC 4 — MEDIUM
     iq_q_logic_4:
-      "Хэрвээ өнөөдөр Даваа гариг бол 2 хоногийн дараа ямар гариг болох вэ?",
-    iq_e_logic_4: "Даваа гарагаас хоёр хоногийн дараа Лхагва гариг болно.",
-    iq_opt_logic_4_a: "Мягмар",
-    iq_opt_logic_4_b: "Лхагва",
-    iq_opt_logic_4_c: "Пүрэв",
-    iq_opt_logic_4_d: "Баасан",
+      "4 хүн дараалж зогсжээ. Анар Батаас урд, Бат Саруулаас урд, Саруул Дөлгөөнөөс урд байна. Хоёрдугаарт хэн зогсож байна?",
+    iq_e_logic_4:
+      "Дараалал нь Анар → Бат → Саруул → Дөлгөөн. Иймээс хоёрдугаарт Бат байна.",
+    iq_opt_logic_4_a: "Анар",
+    iq_opt_logic_4_b: "Саруул",
+    iq_opt_logic_4_c: "Бат", // ✅ CORRECT
+    iq_opt_logic_4_d: "Дөлгөөн",
 
+    // LOGIC 5 — MEDIUM
     iq_q_logic_5:
-      "3 хүн 3 цагт 3 ажил хийдэг бол 1 хүн 1 ажлыг хэдэн цагт хийх вэ?",
+      "Хэрвээ бороо орвол зам норно. Зам нороогүй байна. Аль дүгнэлт хамгийн зөв вэ?",
     iq_e_logic_5:
-      "3 хүн 3 цагт 3 ажил хийж байгаа нь нэг хүн нэг ажлыг 3 цагт хийж байна гэсэн үг.",
-    iq_opt_logic_5_a: "1 цаг",
-    iq_opt_logic_5_b: "2 цаг",
-    iq_opt_logic_5_c: "3 цаг",
-    iq_opt_logic_5_d: "9 цаг",
+      "Бороо орсон бол зам норох ёстой. Зам нороогүй тул өгөгдсөн нөхцөлийн дагуу бороо ороогүй гэж дүгнэнэ.",
+    iq_opt_logic_5_a: "Бороо орсон",
+    iq_opt_logic_5_b: "Зам хатаасан",
+    iq_opt_logic_5_c: "Бороо орох гэж байна",
+    iq_opt_logic_5_d: "Бороо ороогүй", // ✅ CORRECT
 
+    // LOGIC 6 — HARD
     iq_q_logic_6:
-      "Эрдэнэ Бат-аас өндөр. Бат Тэмүүжнээс өндөр. Хамгийн өндөр нь хэн бэ?",
+      "А, Б, В гурван хайрцагны зөвхөн нэгэнд нь шагнал бий. А дээр “Шагнал энд байхгүй”, Б дээр “Шагнал В-д байна”, В дээр “Шагнал энд байна” гэж бичжээ. Зөвхөн нэг бичиг үнэн бол шагнал хаана байна?",
     iq_e_logic_6:
-      "Эрдэнэ Бат-аас өндөр, Бат Тэмүүжнээс өндөр тул Эрдэнэ хамгийн өндөр байна.",
-    iq_opt_logic_6_a: "Тэмүүжин",
-    iq_opt_logic_6_b: "Эрдэнэ",
-    iq_opt_logic_6_c: "Бат",
+      "Хэрэв шагнал А-д байвал: А-гийн бичиг худал, Б-гийн бичиг худал, В-гийн бичиг худал болно. Нэг ч үнэн биш. Харин шагнал Б-д байвал А-гийн бичиг үнэн, Б ба В-ийн бичиг худал. Яг нэг үнэн тул шагнал Б-д байна.",
+    iq_opt_logic_6_a: "Б хайрцагт", // ✅ CORRECT
+    iq_opt_logic_6_b: "А хайрцагт",
+    iq_opt_logic_6_c: "В хайрцагт",
     iq_opt_logic_6_d: "Тодорхойлох боломжгүй",
 
-    iq_q_logic_7: "Бүх X нь Y. Бүх Y нь Z бол ямар дүгнэлт зөв вэ?",
+    // LOGIC 7 — HARD
+    iq_q_logic_7:
+      "Анар, Бат, Саруул, Тэмүүжин дөрөв Даваагаас Пүрэв хүртэл өөр өөр өдөр уулзана. Саруул Пүрэв гарагт уулзана. Бат Анараас өмнө, Тэмүүжин Батаас хойш боловч Анараас өмнө уулзана. Анар ямар гарагт уулзах вэ?",
+
     iq_e_logic_7:
-      "Хэрвээ бүх X нь Y-д багтаж, бүх Y нь Z-д багтаж байвал бүх X мөн Z-д багтана.",
-    iq_opt_logic_7_a: "Бүх Z нь X",
-    iq_opt_logic_7_b: "Бүх X нь Z",
-    iq_opt_logic_7_c: "Зарим X нь Y биш",
-    iq_opt_logic_7_d: "Тодорхой дүгнэлт хийх боломжгүй",
+      "Саруул Пүрэв гарагт байна. Бат Анараас өмнө, Тэмүүжин Батаас хойш бөгөөд Анараас өмнө байх ёстой. Иймээс Бат Даваа, Тэмүүжин Мягмар, Анар Лхагва гарагт уулзана.",
 
-    iq_q_verbal_1: "“Хүйтэн” гэдэг үгийн эсрэг утга аль вэ?",
-    iq_e_verbal_1: "“Хүйтэн” гэдэг үгийн шууд эсрэг утга нь “халуун”.",
-    iq_opt_verbal_1_a: "Сэрүүн",
-    iq_opt_verbal_1_b: "Халуун",
-    iq_opt_verbal_1_c: "Дулаан",
-    iq_opt_verbal_1_d: "Салхи",
+    iq_opt_logic_7_a: "Даваа",
+    iq_opt_logic_7_b: "Мягмар",
+    iq_opt_logic_7_c: "Лхагва", // ✅ CORRECT
+    iq_opt_logic_7_d: "Пүрэв",
 
-    iq_q_verbal_2: "Нохой : Гөлөг = Муур : ?",
-    iq_e_verbal_2: "Гөлөг нь нохойн төл. Үүнтэй адил зулзага нь муурын төл юм.",
-    iq_opt_verbal_2_a: "Муур",
-    iq_opt_verbal_2_b: "Зулзага",
-    iq_opt_verbal_2_c: "Амьтан",
-    iq_opt_verbal_2_d: "Жижиг муур",
+    // VERBAL 1 — EASY
+    iq_q_verbal_1: "“Өгөөмөр” гэдэг үгтэй хамгийн ойролцоо утгатай үг аль вэ?",
+    iq_e_verbal_1:
+      "“Өгөөмөр” гэдэг нь бусдад харамгүй, элбэг дэлбэг ханддаг гэсэн утгатай.",
+    iq_opt_verbal_1_a: "Хатуу",
+    iq_opt_verbal_1_b: "Харамч",
+    iq_opt_verbal_1_c: "Харамгүй", // ✅ CORRECT
+    iq_opt_verbal_1_d: "Зөрүүд",
 
-    iq_q_verbal_3: "“Өдөр” гэдэг үгийн эсрэг утга аль вэ?",
-    iq_e_verbal_3: "“Өдөр” гэдэг үгийн шууд эсрэг утга нь “шөнө”.",
-    iq_opt_verbal_3_a: "Өглөө",
-    iq_opt_verbal_3_b: "Шөнө",
-    iq_opt_verbal_3_c: "Орой",
-    iq_opt_verbal_3_d: "Цаг",
+    // VERBAL 2 — EASY
+    iq_q_verbal_2: "Шувуу : Үүр = Хүн : ?",
+    iq_e_verbal_2: "Шувуу үүрэндээ амьдардагтай адил хүн гэртээ амьдарна.",
+    iq_opt_verbal_2_a: "Гэр", // ✅ CORRECT
+    iq_opt_verbal_2_b: "Зам",
+    iq_opt_verbal_2_c: "Мод",
+    iq_opt_verbal_2_d: "Цонх",
 
-    iq_q_verbal_4: "Ном : Унших = Хоол : ?",
-    iq_e_verbal_4: "Номыг уншдаг. Үүнтэй адил хоолыг иддэг.",
-    iq_opt_verbal_4_a: "Харах",
-    iq_opt_verbal_4_b: "Идэх",
-    iq_opt_verbal_4_c: "Авах",
-    iq_opt_verbal_4_d: "Хийх",
+    // VERBAL 3 — EASY
+    iq_q_verbal_3: "“Эхлэл” гэдэг үгийн эсрэг утга аль вэ?",
+    iq_e_verbal_3: "“Эхлэл”-ийн шууд эсрэг утга нь “төгсгөл”.",
+    iq_opt_verbal_3_a: "Үргэлжлэл",
+    iq_opt_verbal_3_b: "Завсарлага",
+    iq_opt_verbal_3_c: "Дунд",
+    iq_opt_verbal_3_d: "Төгсгөл", // ✅ CORRECT
 
-    iq_q_verbal_5: "“Их” гэдэг үгтэй хамгийн ойролцоо утгатай үг аль вэ?",
-    iq_e_verbal_5: "“Их” гэдэг үгтэй хамгийн ойролцоо утгатай нь “том”.",
-    iq_opt_verbal_5_a: "Жижиг",
-    iq_opt_verbal_5_b: "Том",
-    iq_opt_verbal_5_c: "Бага",
-    iq_opt_verbal_5_d: "Нарийн",
+    // VERBAL 4 — MEDIUM
+    iq_q_verbal_4: "Түлхүүр : Цоож = Нууц үг : ?",
+    iq_e_verbal_4:
+      "Түлхүүр цоожийг нээдэгтэй адил нууц үг бүртгэл эсвэл системд нэвтрэх боломж олгодог.",
+    iq_opt_verbal_4_a: "Дэлгэц",
+    iq_opt_verbal_4_b: "Бүртгэл", // ✅ CORRECT
+    iq_opt_verbal_4_c: "Зураг",
+    iq_opt_verbal_4_d: "Гар",
 
-    iq_q_verbal_6: "Гар : Хуруу = Мод : ?",
+    // VERBAL 5 — MEDIUM
+    iq_q_verbal_5:
+      "Доорх хос үгсээс аль нь бусдаасаа өөр төрлийн холбоотой вэ?",
+
+    iq_e_verbal_5:
+      "Эмч–эмнэлэг, багш–сургууль, тогооч–гал тогоо нь хүн ба ажилладаг газрын холбоо. Харин зохиолч–ном нь хүн ба түүний бүтээлийн холбоо.",
+
+    iq_opt_verbal_5_a: "Эмч : Эмнэлэг",
+    iq_opt_verbal_5_b: "Багш : Сургууль",
+    iq_opt_verbal_5_c: "Зохиолч : Ном", // ✅ CORRECT
+    iq_opt_verbal_5_d: "Тогооч : Гал тогоо",
+
+    // VERBAL 6 — HARD
+    iq_q_verbal_6:
+      "“Үр” нь “мод”-той ямар холбоотой вэ? Үүнтэй хамгийн адил холбоотой хос аль вэ?",
     iq_e_verbal_6:
-      "Хуруу нь гарын хэсэг. Үүнтэй адил навч нь модны нэг хэсэг юм.",
-    iq_opt_verbal_6_a: "Навч",
-    iq_opt_verbal_6_b: "Үндэс",
-    iq_opt_verbal_6_c: "Газар",
-    iq_opt_verbal_6_d: "Сүүдэр",
+      "Үрээс мод ургаж бий болдог. Үүнтэй адил өндөгнөөс шувуу бий болно.",
+    iq_opt_verbal_6_a: "Навч : Мөчир",
+    iq_opt_verbal_6_b: "Бороо : Үүл",
+    iq_opt_verbal_6_c: "Мод : Ой",
+    iq_opt_verbal_6_d: "Өндөг : Шувуу", // ✅ CORRECT
 
-    iq_q_verbal_7: "“Хурдан” гэдэг үгийн эсрэг утга аль вэ?",
-    iq_e_verbal_7: "“Хурдан” гэдэг үгийн шууд эсрэг утга нь “удаан”.",
-    iq_opt_verbal_7_a: "Удаан",
-    iq_opt_verbal_7_b: "Түргэн",
-    iq_opt_verbal_7_c: "Шуурхай",
-    iq_opt_verbal_7_d: "Ойр",
+    // VERBAL 7 — HARD
+    iq_q_verbal_7:
+      "Хэрэв “бүх зохиолч ном уншдаг”, “зарим ном уншдаг хүмүүс аялагч” бол аль өгүүлбэр заавал үнэн бэ?",
+    iq_e_verbal_7:
+      "Өгөгдсөн мэдээллээс бүх зохиолч ном уншдаг гэдэг нь л заавал үнэн. Зохиолч ба аялагчдын хооронд шууд холбоо тогтоох боломжгүй.",
+    iq_opt_verbal_7_a: "Бүх зохиолч ном уншдаг", // ✅ CORRECT
+    iq_opt_verbal_7_b: "Бүх аялагч зохиолч",
+    iq_opt_verbal_7_c: "Зарим зохиолч аялагч",
+    iq_opt_verbal_7_d: "Ямар ч зохиолч аялагч биш",
 
     love_scale_strongly_disagree: "Огт санал нийлэхгүй",
     love_scale_disagree: "Санал нийлэхгүй",
     love_scale_neutral: "Дундаж",
     love_scale_agree: "Санал нийлнэ",
     love_scale_strongly_agree: "Бүрэн санал нийлнэ",
-    love_result_title: "Заяаны хань тохироо",
+    love_result_title: "Хосын нийцлийн үр дүн",
     love_solo_mode_hint: "Ганцаар бөглөсөн • Ерөнхий тохироо",
     love_both_mode_hint: "Хоёулаа бөглөсөн • Илүү нарийвчилсан тохироо",
     love_name_match: "Нэрний тохироо",
@@ -1170,7 +1245,7 @@ export const translations = {
     love_advice: "Зөвлөмж",
     love_solo_result_note:
       "Ганцаар бөглөсөн үед үр дүн ерөнхий байдлаар тооцогдоно.",
-    love_test_title: "Заяаны хань тест",
+    love_test_title: "Хосын нийцлийн тест",
     love_test_desc:
       "Харилцааны хандлага болон нэрний зохицолд үндэслэн та хоёрын тохироог харуулна.",
     love_solo_title: "Ганцаараа",
@@ -1180,18 +1255,17 @@ export const translations = {
     love_name1_placeholder: "Таны нэр",
     love_name2_placeholder: "Хамтрагчийн нэр",
     love_start_button: "Тест эхлэх",
-    love_solo_page_title: "Ганцаараа — тест",
+    love_solo_page_title: "Хосын нийцлийн тест",
     love_question_count: "Асуулт",
     love_next: "Дараах",
     love_restart: "Дахин эхлэх",
-    love_test_name: "Заяаны хань",
-    love_both_page_title: "Хамтдаа — таны хэсэг",
+    love_test_name: "Хосын нийцэл",
+    love_both_page_title: "Хосын нийцлийн тест",
     love_both_result_note:
       "Таны хариултыг хамтрагч тань харахгүй. Хоёулаа дууссаны дараа хамтарсан үр дүн тооцогдоно.",
     love_previous: "← Өмнөх",
     love_both_process_desc:
-      "Та эхлээд 30 асуултад хариулна. Дараа нь хамтрагчдаа тусгай линк илгээж, хамтрагч тань өөрийн хариултыг бөглөнө.",
-
+      "Та эхлээд тестээ бөглөнө. Дараа нь хамтрагчдаа урилгын линк илгээж, хамтрагч тань өөрийн хэсгийг бөглөнө.",
     love_pair_invite_title: "таныг хамтдаа тест бөглөхөөр урьсан байна",
 
     love_pair_invite_desc:

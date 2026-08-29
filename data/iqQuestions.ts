@@ -145,9 +145,9 @@ export const iqQuestions: IQQuestion[] = [
     type: "number",
     explanation: "iq_e_number_1",
     options: [
-      { text: "iq_opt_number_1_a", points: 0 },
+      { text: "iq_opt_number_1_a", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_number_1_b", points: 0 },
-      { text: "iq_opt_number_1_c", points: 2 },
+      { text: "iq_opt_number_1_c", points: 0 },
       { text: "iq_opt_number_1_d", points: 0 },
     ],
   },
@@ -158,7 +158,7 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_number_2",
     options: [
       { text: "iq_opt_number_2_a", points: 0 },
-      { text: "iq_opt_number_2_b", points: 2 },
+      { text: "iq_opt_number_2_b", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_number_2_c", points: 0 },
       { text: "iq_opt_number_2_d", points: 0 },
     ],
@@ -171,7 +171,7 @@ export const iqQuestions: IQQuestion[] = [
     options: [
       { text: "iq_opt_number_3_a", points: 0 },
       { text: "iq_opt_number_3_b", points: 0 },
-      { text: "iq_opt_number_3_c", points: 2 },
+      { text: "iq_opt_number_3_c", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_number_3_d", points: 0 },
     ],
   },
@@ -182,9 +182,9 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_number_4",
     options: [
       { text: "iq_opt_number_4_a", points: 0 },
-      { text: "iq_opt_number_4_b", points: 2 },
+      { text: "iq_opt_number_4_b", points: 0 },
       { text: "iq_opt_number_4_c", points: 0 },
-      { text: "iq_opt_number_4_d", points: 0 },
+      { text: "iq_opt_number_4_d", points: 2 }, // ✅ CORRECT
     ],
   },
   {
@@ -193,8 +193,8 @@ export const iqQuestions: IQQuestion[] = [
     type: "number",
     explanation: "iq_e_number_5",
     options: [
-      { text: "iq_opt_number_5_a", points: 0 },
-      { text: "iq_opt_number_5_b", points: 2 },
+      { text: "iq_opt_number_5_a", points: 2 }, // ✅ CORRECT
+      { text: "iq_opt_number_5_b", points: 0 },
       { text: "iq_opt_number_5_c", points: 0 },
       { text: "iq_opt_number_5_d", points: 0 },
     ],
@@ -206,8 +206,8 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_number_6",
     options: [
       { text: "iq_opt_number_6_a", points: 0 },
-      { text: "iq_opt_number_6_b", points: 2 },
-      { text: "iq_opt_number_6_c", points: 0 },
+      { text: "iq_opt_number_6_b", points: 0 },
+      { text: "iq_opt_number_6_c", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_number_6_d", points: 0 },
     ],
   },
@@ -218,9 +218,9 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_number_7",
     options: [
       { text: "iq_opt_number_7_a", points: 0 },
-      { text: "iq_opt_number_7_b", points: 2 },
+      { text: "iq_opt_number_7_b", points: 0 },
       { text: "iq_opt_number_7_c", points: 0 },
-      { text: "iq_opt_number_7_d", points: 0 },
+      { text: "iq_opt_number_7_d", points: 2 }, // ✅ CORRECT
     ],
   },
 
@@ -232,8 +232,8 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_logic_1",
     options: [
       { text: "iq_opt_logic_1_a", points: 0 },
-      { text: "iq_opt_logic_1_b", points: 0 },
-      { text: "iq_opt_logic_1_c", points: 2 },
+      { text: "iq_opt_logic_1_b", points: 2 }, // ✅ CORRECT
+      { text: "iq_opt_logic_1_c", points: 0 },
       { text: "iq_opt_logic_1_d", points: 0 },
     ],
   },
@@ -244,9 +244,9 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_logic_2",
     options: [
       { text: "iq_opt_logic_2_a", points: 0 },
-      { text: "iq_opt_logic_2_b", points: 2 },
+      { text: "iq_opt_logic_2_b", points: 0 },
       { text: "iq_opt_logic_2_c", points: 0 },
-      { text: "iq_opt_logic_2_d", points: 0 },
+      { text: "iq_opt_logic_2_d", points: 2 }, // ✅ CORRECT
     ],
   },
   {
@@ -255,8 +255,8 @@ export const iqQuestions: IQQuestion[] = [
     type: "logic",
     explanation: "iq_e_logic_3",
     options: [
-      { text: "iq_opt_logic_3_a", points: 0 },
-      { text: "iq_opt_logic_3_b", points: 2 },
+      { text: "iq_opt_logic_3_a", points: 2 }, // ✅ CORRECT
+      { text: "iq_opt_logic_3_b", points: 0 },
       { text: "iq_opt_logic_3_c", points: 0 },
       { text: "iq_opt_logic_3_d", points: 0 },
     ],
@@ -268,8 +268,8 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_logic_4",
     options: [
       { text: "iq_opt_logic_4_a", points: 0 },
-      { text: "iq_opt_logic_4_b", points: 2 },
-      { text: "iq_opt_logic_4_c", points: 0 },
+      { text: "iq_opt_logic_4_b", points: 0 },
+      { text: "iq_opt_logic_4_c", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_logic_4_d", points: 0 },
     ],
   },
@@ -281,8 +281,8 @@ export const iqQuestions: IQQuestion[] = [
     options: [
       { text: "iq_opt_logic_5_a", points: 0 },
       { text: "iq_opt_logic_5_b", points: 0 },
-      { text: "iq_opt_logic_5_c", points: 2 },
-      { text: "iq_opt_logic_5_d", points: 0 },
+      { text: "iq_opt_logic_5_c", points: 0 },
+      { text: "iq_opt_logic_5_d", points: 2 }, // ✅ CORRECT
     ],
   },
   {
@@ -291,8 +291,8 @@ export const iqQuestions: IQQuestion[] = [
     type: "logic",
     explanation: "iq_e_logic_6",
     options: [
-      { text: "iq_opt_logic_6_a", points: 0 },
-      { text: "iq_opt_logic_6_b", points: 2 },
+      { text: "iq_opt_logic_6_a", points: 2 }, // ✅ CORRECT
+      { text: "iq_opt_logic_6_b", points: 0 },
       { text: "iq_opt_logic_6_c", points: 0 },
       { text: "iq_opt_logic_6_d", points: 0 },
     ],
@@ -304,8 +304,8 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_logic_7",
     options: [
       { text: "iq_opt_logic_7_a", points: 0 },
-      { text: "iq_opt_logic_7_b", points: 2 },
-      { text: "iq_opt_logic_7_c", points: 0 },
+      { text: "iq_opt_logic_7_b", points: 0 },
+      { text: "iq_opt_logic_7_c", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_logic_7_d", points: 0 },
     ],
   },
@@ -318,8 +318,8 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_verbal_1",
     options: [
       { text: "iq_opt_verbal_1_a", points: 0 },
-      { text: "iq_opt_verbal_1_b", points: 2 },
-      { text: "iq_opt_verbal_1_c", points: 1 },
+      { text: "iq_opt_verbal_1_b", points: 0 },
+      { text: "iq_opt_verbal_1_c", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_verbal_1_d", points: 0 },
     ],
   },
@@ -329,10 +329,10 @@ export const iqQuestions: IQQuestion[] = [
     type: "verbal",
     explanation: "iq_e_verbal_2",
     options: [
-      { text: "iq_opt_verbal_2_a", points: 0 },
-      { text: "iq_opt_verbal_2_b", points: 2 },
+      { text: "iq_opt_verbal_2_a", points: 2 }, // ✅ CORRECT
+      { text: "iq_opt_verbal_2_b", points: 0 },
       { text: "iq_opt_verbal_2_c", points: 0 },
-      { text: "iq_opt_verbal_2_d", points: 1 },
+      { text: "iq_opt_verbal_2_d", points: 0 },
     ],
   },
   {
@@ -342,9 +342,9 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_verbal_3",
     options: [
       { text: "iq_opt_verbal_3_a", points: 0 },
-      { text: "iq_opt_verbal_3_b", points: 2 },
+      { text: "iq_opt_verbal_3_b", points: 0 },
       { text: "iq_opt_verbal_3_c", points: 0 },
-      { text: "iq_opt_verbal_3_d", points: 0 },
+      { text: "iq_opt_verbal_3_d", points: 2 }, // ✅ CORRECT
     ],
   },
   {
@@ -354,7 +354,7 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_verbal_4",
     options: [
       { text: "iq_opt_verbal_4_a", points: 0 },
-      { text: "iq_opt_verbal_4_b", points: 2 },
+      { text: "iq_opt_verbal_4_b", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_verbal_4_c", points: 0 },
       { text: "iq_opt_verbal_4_d", points: 0 },
     ],
@@ -366,8 +366,8 @@ export const iqQuestions: IQQuestion[] = [
     explanation: "iq_e_verbal_5",
     options: [
       { text: "iq_opt_verbal_5_a", points: 0 },
-      { text: "iq_opt_verbal_5_b", points: 2 },
-      { text: "iq_opt_verbal_5_c", points: 0 },
+      { text: "iq_opt_verbal_5_b", points: 0 },
+      { text: "iq_opt_verbal_5_c", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_verbal_5_d", points: 0 },
     ],
   },
@@ -377,10 +377,10 @@ export const iqQuestions: IQQuestion[] = [
     type: "verbal",
     explanation: "iq_e_verbal_6",
     options: [
-      { text: "iq_opt_verbal_6_a", points: 2 },
+      { text: "iq_opt_verbal_6_a", points: 0 },
       { text: "iq_opt_verbal_6_b", points: 0 },
       { text: "iq_opt_verbal_6_c", points: 0 },
-      { text: "iq_opt_verbal_6_d", points: 0 },
+      { text: "iq_opt_verbal_6_d", points: 2 }, // ✅ CORRECT
     ],
   },
   {
@@ -389,7 +389,7 @@ export const iqQuestions: IQQuestion[] = [
     type: "verbal",
     explanation: "iq_e_verbal_7",
     options: [
-      { text: "iq_opt_verbal_7_a", points: 2 },
+      { text: "iq_opt_verbal_7_a", points: 2 }, // ✅ CORRECT
       { text: "iq_opt_verbal_7_b", points: 0 },
       { text: "iq_opt_verbal_7_c", points: 0 },
       { text: "iq_opt_verbal_7_d", points: 0 },

@@ -9,6 +9,15 @@ export type MbtiQuestion = {
     mn: string;
     en: string;
   };
+  firstLabel: {
+    mn: string;
+    en: string;
+  };
+
+  secondLabel: {
+    mn: string;
+    en: string;
+  };
 
   /**
    * EI = Extraversion ↔ Introversion
@@ -19,8 +28,8 @@ export type MbtiQuestion = {
   axis: MbtiAxis;
 
   /**
-   * +1 = Agree нь axis-ийн эхний үсгийг дэмжинэ.
-   * -1 = Agree нь axis-ийн хоёр дахь үсгийг дэмжинэ.
+   * +1 = Agree / right-side positive score нь axis-ийн эхний үсгийг дэмжинэ.
+   * -1 = axis-ийн хоёр дахь үсгийг дэмжинэ.
    *
    * EI: + = E, - = I
    * SN: + = S, - = N
@@ -30,18 +39,13 @@ export type MbtiQuestion = {
   direction: MbtiDirection;
 
   /**
-   * core:
-   * Үндсэн dimension score-д орно.
-   *
-   * borderline:
-   * Core score яг 0 үед л тухайн axis-ийг
-   * ялгахад ашиглана.
+   * core = үндсэн score-д орно
+   * borderline = tie-break зориулалттай хуучин бүтэц
    */
   role: MbtiQuestionRole;
 
   /**
-   * Дараа personalized premium тайлал хийхэд
-   * ашиглаж болох behavioral facet.
+   * Behavioral facet.
    */
   facet: string;
 };
@@ -50,52 +54,84 @@ export const mbtiQuestions: MbtiQuestion[] = [
   // =========================================================
   // 1–4
   // =========================================================
-
   {
     id: 1,
     question: {
-      mn: "Олон хүнтэй идэвхтэй орчинд байх нь танд ихэвчлэн эрч хүч нэмдэг.",
-      en: "Being in an active environment with many people usually gives you energy.",
+      mn: "Дадал болсон ажил хийж байхдаа?",
+      en: "When doing a familiar routine task?",
+    },
+    firstLabel: {
+      mn: "Ярингаа хийх дуртай",
+      en: "Prefer doing it while talking",
+    },
+    secondLabel: {
+      mn: "Дуугүй хийх дуртай",
+      en: "Prefer doing it quietly",
     },
     axis: "EI",
     direction: 1,
     role: "core",
-    facet: "social_energy",
+    facet: "social_stimulation",
   },
   {
     id: 2,
     question: {
-      mn: "Шийдвэр гаргахдаа та таамгаас илүү бодитоор шалгаж болох мэдээлэлд түшиглэхийг илүүд үздэг.",
-      en: "When making decisions, you prefer information that can be directly observed or verified.",
+      mn: "Шинэ юм заалгуулахдаа?",
+      en: "When learning something new?",
+    },
+    firstLabel: {
+      mn: "Хийж үзүүлбэл ойлгомжтой",
+      en: "Show me how",
+    },
+    secondLabel: {
+      mn: "Учрыг нь тайлбарлавал ойлгомжтой",
+      en: "Understand it better when the reason is explained",
     },
     axis: "SN",
     direction: 1,
     role: "core",
-    facet: "evidence",
+    facet: "learning_style",
   },
+
   {
     id: 3,
     question: {
-      mn: "Хэцүү шийдвэр гаргахдаа та эхлээд логикийн хувьд нийцтэй эсэхийг нь шалгадаг.",
-      en: "When making a difficult decision, you first consider whether it is logically consistent.",
+      mn: "Киноны дүр хэцүү сонголт хийхэд?",
+      en: "When a movie character faces a difficult choice?",
+    },
+    firstLabel: {
+      mn: "Шийдвэрийн үр дагаврыг бодно",
+      en: "Think about the consequences",
+    },
+    secondLabel: {
+      mn: "Дүрийн мэдрэмжийг ойлгоно",
+      en: "Focus on how the character feels",
     },
     axis: "TF",
     direction: 1,
     role: "core",
-    facet: "logic",
+    facet: "outcome_vs_emotional_perspective",
   },
+
   {
     id: 4,
     question: {
-      mn: "Том ажил эхлэхийн өмнө хийх дарааллаа урьдчилж тодорхойлох нь танд тухтай байдаг.",
-      en: "Before starting a major task, you prefer to define the steps in advance.",
+      mn: "Аялалд явахын өмнө авч явах юмаа?",
+      en: "Before going on a trip?",
+    },
+    firstLabel: {
+      mn: "Урьдчилаад бэлдчихдэг",
+      en: "Pack ahead of time",
+    },
+    secondLabel: {
+      mn: "Явах үедээ бэлддэг",
+      en: "Pack when it's time to go",
     },
     axis: "JP",
     direction: 1,
     role: "core",
-    facet: "planning",
+    facet: "preparation",
   },
-
   // =========================================================
   // 5–8
   // =========================================================
@@ -103,48 +139,83 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 5,
     question: {
-      mn: "Завгүй өдөр өнгөрсний дараа ганцаараа тайван байх нь танд эрч хүчээ нөхөхөд хамгийн их тусалдаг.",
-      en: "After a busy day, quiet time alone is usually the best way for you to recharge.",
+      mn: "Яриа гэнэт тасарвал?",
+      en: "If a conversation suddenly goes quiet?",
+    },
+    firstLabel: {
+      mn: "Шинэ сэдэв гаргана",
+      en: "Bring up a new topic",
+    },
+    secondLabel: {
+      mn: "Нам гүм байсан ч зүгээр",
+      en: "Be fine with the silence",
     },
     axis: "EI",
     direction: -1,
     role: "core",
-    facet: "recovery",
+    facet: "social_initiation",
   },
   {
     id: 6,
     question: {
-      mn: "Одоогийн нөхцөлөөс гадна цааш ямар боломж нээгдэж болохыг төсөөлөх нь танд сонирхолтой.",
-      en: "You enjoy imagining what possibilities might emerge beyond the current situation.",
+      mn: "Хүн аяллынхаа тухай ярихад?",
+      en: "If a friend tells you about a trip?",
     },
+
+    firstLabel: {
+      mn: "Юу үзсэнийг нь сонирхоно",
+      en: "Wonder what they saw",
+    },
+
+    secondLabel: {
+      mn: "Ямар байсан бол гэж төсөөлнө",
+      en: "Imagine what it was like",
+    },
+
     axis: "SN",
     direction: -1,
     role: "core",
-    facet: "possibilities",
+    facet: "concrete_experience_vs_imagination",
   },
+
   {
     id: 7,
     question: {
-      mn: "Шийдвэр зөв мэт санагдсан ч хүмүүст хэрхэн нөлөөлөхийг нь та заавал харгалздаг.",
-      en: "Even when a decision seems correct, you make a point of considering how it will affect people.",
+      mn: "Хүнд бэлэг сонгохдоо?",
+      en: "When choosing a gift?",
+    },
+    firstLabel: {
+      mn: "Хэрэг болохыг нь харна",
+      en: "Choose something useful",
+    },
+    secondLabel: {
+      mn: "Баярлуулахыг нь харна",
+      en: "Choose something they'll love",
     },
     axis: "TF",
     direction: -1,
     role: "core",
-    facet: "people_impact",
+    facet: "utility_vs_personal_impact",
   },
   {
     id: 8,
     question: {
-      mn: "Сонголтоо эрт хаахаас илүү шинэ мэдээлэл гарвал чиглэлээ өөрчлөх боломжтой байлгах дуртай.",
-      en: "You prefer to keep your options open so you can change direction when new information appears.",
+      mn: "Амралтын өдөр эхлэхэд?",
+      en: "When your day off begins?",
+    },
+    firstLabel: {
+      mn: "Юу хийхээ мэдэж байна",
+      en: "Already know what I'll do",
+    },
+    secondLabel: {
+      mn: "Тэр үедээ шийднэ",
+      en: "Decide as I go",
     },
     axis: "JP",
     direction: -1,
     role: "core",
-    facet: "openness",
+    facet: "planning",
   },
-
   // =========================================================
   // 9–12
   // =========================================================
@@ -152,46 +223,78 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 9,
     question: {
-      mn: "Танихгүй хүмүүстэй орчинд та өөрөө яриа эхлүүлэх нь элбэг.",
-      en: "In a group of unfamiliar people, you often initiate conversations yourself.",
+      mn: "Олуулаа ярьж байхад сонирхолтой сэдэв гарвал?",
+      en: "If an interesting topic comes up in a group conversation?",
+    },
+    firstLabel: {
+      mn: "Шууд ярианд орно",
+      en: "Jump into the conversation",
+    },
+    secondLabel: {
+      mn: "Сонсож байгаад оролцоно",
+      en: "Listen before joining in",
     },
     axis: "EI",
     direction: 1,
     role: "core",
-    facet: "social_initiation",
+    facet: "group_participation",
   },
   {
     id: 10,
     question: {
-      mn: "Та жижиг баримтуудаас илүү тэдгээрийн хоорондох нийтлэг хэв маягийг хурдан анзаардаг.",
-      en: "You tend to notice broader patterns connecting individual pieces of information.",
+      mn: "Хоёр өөр зүйлд ижил санаа байвал?",
+      en: "When two different things share a similar idea?",
+    },
+    firstLabel: {
+      mn: "Тус тусад нь авч үзнэ",
+      en: "Consider them separately",
+    },
+    secondLabel: {
+      mn: "Хооронд нь холбоод бодно",
+      en: "Think about how they connect",
     },
     axis: "SN",
-    direction: -1,
+    direction: 1,
     role: "core",
-    facet: "patterns",
+    facet: "connections",
   },
   {
     id: 11,
     question: {
-      mn: "Ижил нөхцөлд байгаа хүмүүст ижил шалгуур хэрэглэх нь танд чухал.",
-      en: "It is important to you to apply consistent criteria to people in similar situations.",
+      mn: "Тоглоомын дүрэм дээр маргалдвал?",
+      en: "If there is a disagreement about the rules of a game?",
+    },
+    firstLabel: {
+      mn: "Дүрмээр нь шийднэ",
+      en: "Go by the rules",
+    },
+    secondLabel: {
+      mn: "Бүгдээрээ тохиролцоно",
+      en: "Agree on it together",
     },
     axis: "TF",
     direction: 1,
     role: "core",
-    facet: "consistency",
+    facet: "consistency_vs_harmony",
   },
   {
     id: 12,
     question: {
-      mn: "Өдрийн төлөвлөгөө өөрчлөгдвөл шинэ нөхцөлдөө тааруулж явах нь танд ерөнхийдөө эвтэйхэн.",
-      en: "When your plans change during the day, you generally feel comfortable adapting to the new situation.",
+      mn: "Хийх зүйл олон байвал?",
+      en: "When you have many things to do?",
+    },
+    firstLabel: {
+      mn: "Дарааллыг нь гаргана",
+      en: "Decide the order first",
+    },
+    secondLabel: {
+      mn: "Аль тохирохоос нь эхэлнэ",
+      en: "Start with whatever fits the moment",
     },
     axis: "JP",
     direction: -1,
     role: "core",
-    facet: "adaptability",
+    facet: "task_structure",
   },
 
   // =========================================================
@@ -201,48 +304,82 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 13,
     question: {
-      mn: "Ярихаасаа өмнө бодлоо дотроо цэгцлэх үедээ та өөрийгөө илүү зөв илэрхийлдэг.",
-      en: "You express yourself more clearly when you organize your thoughts internally before speaking.",
+      mn: "Групп чатанд хөгжилтэй юм харагдвал?",
+      en: "If something funny pops up in a group chat?",
+    },
+    firstLabel: {
+      mn: "Шууд хариулна",
+      en: "Reply right away",
+    },
+    secondLabel: {
+      mn: "Инээгээд өнгөрнө",
+      en: "Smile and move on",
     },
     axis: "EI",
     direction: -1,
     role: "core",
-    facet: "internal_processing",
+    facet: "expression",
   },
+
   {
     id: 14,
     question: {
-      mn: "Шинэ зүйл сурахдаа бодит жишээ, дараалсан алхамтай тайлбар танд илүү ойлгомжтой байдаг.",
-      en: "When learning something new, concrete examples and step-by-step explanations are especially helpful to you.",
+      mn: "Ханын зураг эсвэл бүтээл харахдаа?",
+      en: "When looking at a painting?",
+    },
+    firstLabel: {
+      mn: "Бодит дүрслэлийг нь харна",
+      en: "Notice what is depicted",
+    },
+    secondLabel: {
+      mn: "Цаадах утгыг нь хайна",
+      en: "Look for the deeper meaning",
     },
     axis: "SN",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "concrete_learning",
+    facet: "literal_vs_symbolic",
   },
+
   {
     id: 15,
     question: {
-      mn: "Хоёр хүний нөхцөл ижил харагдсан ч тэдний хувийн нөхцөл байдлыг тусад нь харгалзах нь зөв гэж та үздэг.",
-      en: "Even when two situations look similar, you believe each person's circumstances should be considered individually.",
+      mn: "Чамайг шүүмжилбэл?",
+      en: "If someone criticizes you?",
+    },
+    firstLabel: {
+      mn: "Хэлсэн нь үнэн эсэхийг бодно",
+      en: "Think about whether it's true",
+    },
+    secondLabel: {
+      mn: "Яаж хэлснийг нь анзаарна",
+      en: "Notice how it was said",
     },
     axis: "TF",
     direction: -1,
     role: "core",
-    facet: "personal_context",
+    facet: "content_vs_tone",
   },
+
   {
     id: 16,
     question: {
-      mn: "Хангалттай мэдээлэлтэй болсон бол шийдвэрээ гаргаад дараагийн зүйлдээ орох нь танд илүү амар байдаг.",
-      en: "Once you have enough information, you prefer to make the decision and move on.",
+      mn: "Төрсөн өдөрт очихдоо бэлэг авах бол?",
+      en: "When buying a birthday gift?",
+    },
+    firstLabel: {
+      mn: "Урьдчилаад сонгочихдог",
+      en: "Choose it in advance",
+    },
+    secondLabel: {
+      mn: "Очих өдрөө сонгодог",
+      en: "Choose it on the day",
     },
     axis: "JP",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "closure",
+    facet: "decision_closure",
   },
-
   // =========================================================
   // 17–20
   // =========================================================
@@ -250,46 +387,80 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 17,
     question: {
-      mn: "Шинэ бүлэгт ороход та шууд төвд нь орохоосоо өмнө хэсэг ажиглах хандлагатай.",
-      en: "When entering a new group, you tend to observe for a while before becoming actively involved.",
+      mn: "Толгой дүүрэн бодолтой үед?",
+      en: "When your head is full of thoughts?",
+    },
+    firstLabel: {
+      mn: "Хэн нэгэнд ярьж цэгцэлнэ",
+      en: "Sort it out by talking",
+    },
+    secondLabel: {
+      mn: "Өөрөө бодож цэгцэлнэ",
+      en: "Sort it out in my head",
     },
     axis: "EI",
-    direction: -1,
+    direction: 1,
     role: "core",
-    facet: "social_observation",
+    facet: "processing_style",
   },
+
   {
     id: 18,
     question: {
-      mn: "Төлөвлөгөө гаргахдаа та эхлээд одоо байгаа нөөц, бодит хязгаарлалтыг хардаг.",
-      en: "When making a plan, you first consider the resources and practical limits that currently exist.",
+      mn: "Кино дууссаны дараа?",
+      en: "After a movie ends?",
+    },
+    firstLabel: {
+      mn: "Үйл явдлыг нь санана",
+      en: "Remember what happened",
+    },
+    secondLabel: {
+      mn: "Цаад санааг нь бодно",
+      en: "Think about the meaning",
     },
     axis: "SN",
     direction: 1,
     role: "core",
-    facet: "present_reality",
+    facet: "meaning",
   },
   {
     id: 19,
     question: {
-      mn: "Санал зөрөх үед юу хэлэхээс гадна ямар өнгөөр хэлэхээ та их анхаардаг.",
-      en: "During disagreements, you pay close attention not only to what you say but also to how you say it.",
+      mn: "Хэн нэгэн амласнаа хийж чадаагүй бол?",
+      en: "If someone couldn't keep a promise?",
+    },
+    firstLabel: {
+      mn: "Тохирсноо биелүүлээгүйг нь харна",
+      en: "Focus on what wasn't fulfilled",
+    },
+    secondLabel: {
+      mn: "Яагаад чадаагүйг нь сонсоно",
+      en: "Listen to why they couldn't",
     },
     axis: "TF",
     direction: -1,
     role: "core",
-    facet: "tact",
+    facet: "accountability_vs_context",
   },
+
   {
     id: 20,
     question: {
-      mn: "Чухал ажилд урьдчилж бэлдэж эхлэх үедээ та илүү тайван байдаг.",
-      en: "You feel more at ease when you begin preparing for important tasks ahead of time.",
+      mn: "Очсон ресторан чинь хаалттай байвал?",
+      en: "If the restaurant you went to is closed?",
+    },
+    firstLabel: {
+      mn: "Өөр газар шууд сонгоно",
+      en: "Choose another place right away",
+    },
+    secondLabel: {
+      mn: "Ойр хавиар харж байгаад шийднэ",
+      en: "Look around and decide as you go",
     },
     axis: "JP",
     direction: 1,
     role: "core",
-    facet: "preparation",
+    facet: "change_response",
   },
 
   // =========================================================
@@ -299,46 +470,79 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 21,
     question: {
-      mn: "Санаагаа бусадтай ярилцаж байх үед шинэ бодол танд амархан төрдөг.",
-      en: "New ideas often come to you while you are talking things through with other people.",
+      mn: "Ангийн уулзалт дээр?",
+      en: "At a class reunion?",
+    },
+    firstLabel: {
+      mn: "Олон ярианд идэвхтэй оролцоно",
+      en: "Join many conversations",
+    },
+    secondLabel: {
+      mn: "Нэг яриандаа төвлөрнө",
+      en: "Focus on one conversation",
     },
     axis: "EI",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "verbal_processing",
+    facet: "social_breadth",
   },
   {
     id: 22,
     question: {
-      mn: "Онол, үзэл санааг шууд практикт хэрэглэхгүй байсан ч судлах нь танд сонирхолтой.",
-      en: "You enjoy exploring theories and ideas even when they have no immediate practical use.",
+      mn: "Ямар нэг эд зүйл харахдаа?",
+      en: "When looking at an object?",
+    },
+    firstLabel: {
+      mn: "Одоо юунд хэрэгтэйг нь харна",
+      en: "Notice what it's useful for now",
+    },
+    secondLabel: {
+      mn: "Өөр юунд ашиглаж болохыг бодно",
+      en: "Think of other ways it could be used",
     },
     axis: "SN",
     direction: -1,
     role: "core",
-    facet: "abstraction",
+    facet: "practicality",
   },
+
   {
     id: 23,
     question: {
-      mn: "Хэн нэгэнд санал хэлэхдээ гол асуудлыг аль болох тодорхой хэлэх нь зөөлрүүлж тойруулахаас илүү хэрэгтэй гэж та үздэг.",
-      en: "When giving feedback, you generally value stating the main issue clearly rather than softening it too much.",
+      mn: "Хэд хэдэн санал гарвал?",
+      en: "When several suggestions come up?",
+    },
+    firstLabel: {
+      mn: "Хамгийн оновчтойг нь сонгоно",
+      en: "Choose the most effective option",
+    },
+    secondLabel: {
+      mn: "Хүмүүсийн саналыг харгалзана",
+      en: "Consider everyone's input",
     },
     axis: "TF",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "directness",
+    facet: "merit_vs_inclusion",
   },
   {
     id: 24,
     question: {
-      mn: "Яг яаж хийхээ бүрэн тогтоохоосоо өмнө эхлээд туршиж үзэх нь танд эвтэйхэн.",
-      en: "You are comfortable trying something before deciding exactly how you will approach it.",
+      mn: "Онлайнаар юм авахдаа?",
+      en: "When buying something online?",
+    },
+    firstLabel: {
+      mn: "Сонголтоо тогтоогоод авна",
+      en: "Choose one and buy it",
+    },
+    secondLabel: {
+      mn: "Өөр зүйл бас харна",
+      en: "Keep looking at other options",
     },
     axis: "JP",
     direction: -1,
     role: "core",
-    facet: "experimentation",
+    facet: "option_openness",
   },
 
   // =========================================================
@@ -348,48 +552,80 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 25,
     question: {
-      mn: "Олон өөр хүнтэй танилцаж, харилцааны хүрээгээ тэлэх нь танд таатай.",
-      en: "You enjoy meeting a variety of people and expanding your social circle.",
+      mn: "Сайхан мэдээ сонсвол?",
+      en: "If you get some good news?",
+    },
+    firstLabel: {
+      mn: "Хүнд хэлмээр санагдана",
+      en: "Share it right away",
+    },
+    secondLabel: {
+      mn: "Өөртөө түр хадгална",
+      en: "Keep it to myself for a while",
     },
     axis: "EI",
     direction: 1,
     role: "core",
-    facet: "social_breadth",
+    facet: "expression",
   },
   {
     id: 26,
     question: {
-      mn: "Та ерөнхий санаанаас гадна жижиг зөрүү, тодорхой деталиудыг анзаарах хандлагатай.",
-      en: "You tend to notice specific details and small differences as well as the overall idea.",
+      mn: "Танил асуудал дахин гарвал?",
+      en: "When a familiar problem comes up again?",
+    },
+    firstLabel: {
+      mn: "Өмнө хийж байсан аргаа хэрэглэнэ",
+      en: "Use an approach that worked before",
+    },
+    secondLabel: {
+      mn: "Өөрөөр хийж үзэхийг бодно",
+      en: "Think of a different way to do it",
     },
     axis: "SN",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "detail_attention",
+    facet: "experience_vs_new_approach",
   },
+
   {
     id: 27,
     question: {
-      mn: "Хүн яагаад тэгж авирласныг ойлгохын тулд түүний мэдрэмжийг төсөөлөхийг та хичээдэг.",
-      en: "To understand someone's behavior, you often try to imagine what they may be feeling.",
+      mn: "Гэр бүлээрээ хаашаа амрахаа шийдэхдээ?",
+      en: "When deciding where to go on a family vacation?",
+    },
+    firstLabel: {
+      mn: "Зардал, замыг нь харж сонгоно",
+      en: "Choose based on cost and travel",
+    },
+    secondLabel: {
+      mn: "Хүн бүрийн хүсэлд нийцүүлнэ",
+      en: "Consider everyone's preferences",
     },
     axis: "TF",
-    direction: -1,
+    direction: 1,
     role: "core",
-    facet: "empathy",
+    facet: "practical_criteria_vs_people_preferences",
   },
   {
     id: 28,
     question: {
-      mn: "Өдөрт хийх ажлуудаа урьдчилж жагсааж эсвэл дараалуулах нь танд тустай байдаг.",
-      en: "Organizing the day's tasks in advance tends to work well for you.",
+      mn: "Гэртээ жижиг засвар хийхдээ?",
+      en: "When doing a small repair at home?",
+    },
+    firstLabel: {
+      mn: "Эхлээд хийх дарааллаа бодно",
+      en: "Plan the steps before starting",
+    },
+    secondLabel: {
+      mn: "Хийж байхдаа дараагийнхаа алхмыг шийднэ",
+      en: "Decide the next step as I go",
     },
     axis: "JP",
     direction: 1,
     role: "core",
-    facet: "scheduling",
+    facet: "structure_vs_adaptation",
   },
-
   // =========================================================
   // 29–32
   // =========================================================
@@ -397,48 +633,80 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 29,
     question: {
-      mn: "Олон танилтай байхаас цөөн хүнтэй илүү гүн холбоотой байх нь танд таатай.",
-      en: "You generally prefer deeper connections with a few people over having many casual connections.",
+      mn: "Шинэ танилтай яриа гоё өрнөвөл?",
+      en: "If a conversation with someone new goes really well?",
+    },
+    firstLabel: {
+      mn: "Нээлттэй ярилцана",
+      en: "Open up easily",
+    },
+    secondLabel: {
+      mn: "Аажмаар нээлттэй болно",
+      en: "Open up gradually",
     },
     axis: "EI",
     direction: -1,
     role: "core",
-    facet: "relationship_depth",
+    facet: "self_disclosure",
   },
   {
     id: 30,
     question: {
-      mn: "Ямар нэг санааны цаадах холбоо, далд утгыг хайх нь танд сонирхолтой.",
-      en: "You enjoy looking for underlying connections and meanings behind ideas.",
+      mn: "Шинэ өрөөнд ороход?",
+      en: "When you enter a room for the first time?",
+    },
+    firstLabel: {
+      mn: "Жижиг зүйлс нүдэнд тусна",
+      en: "Notice the small details",
+    },
+    secondLabel: {
+      mn: "Ерөнхий төрх нь нүдэнд тусна",
+      en: "Notice the overall picture",
     },
     axis: "SN",
     direction: -1,
     role: "core",
-    facet: "hidden_connections",
+    facet: "detail_attention",
   },
   {
     id: 31,
     question: {
-      mn: "Тухайн шийдвэр танд таалагдахгүй байсан ч зарчим нь үндэслэлтэй бол дэмжиж чадна.",
-      en: "You can support a decision you do not personally like if you believe its underlying principle is sound.",
+      mn: "Хажууд чинь хүн халуун цай асгачихвал эхлээд яах вэ?",
+      en: "If someone next to you spills hot tea, what do you do first?",
+    },
+    firstLabel: {
+      mn: "Асгарсныг арчина",
+      en: "Clean up the spill",
+    },
+    secondLabel: {
+      mn: "Түлэгдсэн эсэхийг асууна",
+      en: "Ask if they got burned",
     },
     axis: "TF",
     direction: 1,
     role: "core",
-    facet: "principle",
+    facet: "problem_vs_person_focus",
   },
+
   {
     id: 32,
     question: {
-      mn: "Нэг арга дээр эрт тогтохоосоо өмнө хэд хэдэн боломжийг судлахыг та илүүд үздэг.",
-      en: "You prefer exploring several possibilities before settling on one approach.",
+      mn: "Орой юу үзэхээ?",
+      en: "When deciding what to watch in the evening?",
+    },
+    firstLabel: {
+      mn: "Урьдчилаад сонгочихдог",
+      en: "Choose it beforehand",
+    },
+    secondLabel: {
+      mn: "Тэр үедээ хайж сонгодог",
+      en: "Browse and choose at the time",
     },
     axis: "JP",
     direction: -1,
     role: "core",
-    facet: "exploration",
+    facet: "decision_timing",
   },
-
   // =========================================================
   // 33–36
   // =========================================================
@@ -446,48 +714,81 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 33,
     question: {
-      mn: "Хөдөлгөөнтэй, харилцаа ихтэй өдөр танд ихэвчлэн сонирхолтой, сэргэлэн санагддаг.",
-      en: "A busy day with plenty of interaction usually feels engaging and energizing to you.",
+      mn: "Үдэшлэг тарах дөхөхөд?",
+      en: "As a party is winding down?",
+    },
+    firstLabel: {
+      mn: "Үлдээд үргэлжлүүлмээр",
+      en: "Want to stay",
+    },
+    secondLabel: {
+      mn: "Харихад бэлэн",
+      en: "Want to head home",
     },
     axis: "EI",
     direction: 1,
     role: "core",
-    facet: "stimulation",
+    facet: "social_stamina",
   },
+
   {
     id: 34,
     question: {
-      mn: "Асуудал шийдэхдээ өмнө нь үр дүнтэй байсан аргыг эхний сонголт болгон авч үзэх нь танд түгээмэл.",
-      en: "When solving a problem, you often consider methods that have worked before as a useful starting point.",
+      mn: "Шинэ дуу сонсохдоо?",
+      en: "When listening to a new song?",
+    },
+    firstLabel: {
+      mn: "Аялгуу, хэмнэлийг нь анзаарна",
+      en: "Notice the melody and rhythm",
+    },
+    secondLabel: {
+      mn: "Цаадах санааг нь бодно",
+      en: "Think about the meaning behind it",
     },
     axis: "SN",
     direction: 1,
     role: "core",
-    facet: "proven_methods",
+    facet: "sensory_vs_meaning",
   },
+
   {
     id: 35,
     question: {
-      mn: "Шийдэл сонгохдоо аль нь илүү үр ашигтай, ажиллах боломжтой вэ гэдгийг та хүчтэй харгалздаг.",
-      en: "When choosing a solution, you place considerable weight on which option is most efficient and workable.",
+      mn: "Шинэ хүнтэй хамтарч ажиллах эсэхээ шийдэхдээ?",
+      en: "When deciding whether to work with someone new?",
+    },
+    firstLabel: {
+      mn: "Юу хийж чаддагийг нь харна",
+      en: "Consider what they can do",
+    },
+    secondLabel: {
+      mn: "Хэр ойлголцож байгаагаа харна",
+      en: "Consider how well we get along",
     },
     axis: "TF",
     direction: 1,
     role: "core",
-    facet: "efficiency",
+    facet: "competence_vs_interpersonal_fit",
   },
   {
     id: 36,
     question: {
-      mn: "Өдөр бүр яг ижил хуваарьтай байхаас бага зэрэг өөрчлөлт, сонголттой байх нь танд таатай.",
-      en: "You prefer having some variety and choice rather than following exactly the same schedule every day.",
+      mn: "Өглөө гэрээс гарахдаа?",
+      en: "When leaving home in the morning?",
+    },
+    firstLabel: {
+      mn: "Хэдэн цагт гарахаа тогтоодог",
+      en: "Decide what time to leave",
+    },
+    secondLabel: {
+      mn: "Бэлэн болсон үедээ гардаг",
+      en: "Leave when I'm ready",
     },
     axis: "JP",
     direction: -1,
     role: "core",
-    facet: "variety",
+    facet: "schedule_flexibility",
   },
-
   // =========================================================
   // 37–40
   // =========================================================
@@ -495,46 +796,81 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 37,
     question: {
-      mn: "Удаан хугацаанд төвлөрөх ажил хийхдээ чимээгүй, тасалдал багатай орчныг илүүд үздэг.",
-      en: "For work requiring long concentration, you prefer a quiet environment with few interruptions.",
+      mn: "Бүтэн өдөр хүмүүстэй байсны дараа?",
+      en: "After spending the whole day around people?",
+    },
+    firstLabel: {
+      mn: "Дахиад уулзмаар",
+      en: "Up for more company",
+    },
+    secondLabel: {
+      mn: "Ганцаараа баймаар",
+      en: "Want time alone",
     },
     axis: "EI",
     direction: -1,
     role: "core",
-    facet: "focus_environment",
+    facet: "recharge",
   },
+
   {
     id: 38,
     question: {
-      mn: "Одоогийн шийдвэр ирээдүйд ямар үр дагавар, шинэ боломж үүсгэж болохыг та их боддог.",
-      en: "You often think about what future consequences or possibilities may grow from a current decision.",
+      mn: "Шинэ боломж гарвал?",
+      en: "When a new opportunity comes up?",
+    },
+    firstLabel: {
+      mn: "Одоо хэрэг болохыг нь харна",
+      en: "Focus on how it can help now",
+    },
+    secondLabel: {
+      mn: "Цааш юу болж болохыг төсөөлнө",
+      en: "Imagine what it could lead to",
     },
     axis: "SN",
     direction: -1,
     role: "core",
-    facet: "future_projection",
+    facet: "present_vs_future_possibilities",
   },
+
   {
     id: 39,
     question: {
-      mn: "Маргаанд ялахаас илүү харилцан итгэлцлийг хадгалах нь зарим үед танд илүү чухал санагддаг.",
-      en: "At times, preserving mutual trust matters more to you than winning an argument.",
+      mn: "Нэг хүн хоёр зүйлээс сонгож чадахгүй байвал?",
+      en: "If someone can't decide between two options?",
+    },
+    firstLabel: {
+      mn: "Аль нь дээрийг нь хэлнэ",
+      en: "Tell them which seems better",
+    },
+    secondLabel: {
+      mn: "Өөрт нь юу чухлыг асууна",
+      en: "Ask what matters most to them",
     },
     axis: "TF",
     direction: -1,
     role: "core",
-    facet: "harmony",
+    facet: "solution_vs_values",
   },
+
   {
     id: 40,
     question: {
-      mn: "Ажлаа хугацаанаас өмнө дуусгаж, дараа нь санаа амрах нь танд таатай.",
-      en: "You prefer completing work ahead of the deadline so you can relax afterward.",
+      mn: "Өглөөг эхлэхдээ?",
+      en: "When starting your morning?",
+    },
+    firstLabel: {
+      mn: "Тогтсон дарааллаараа хийдэг",
+      en: "Follow my usual routine",
+    },
+    secondLabel: {
+      mn: "Өдрөөсөө хамаарч өөрчилдөг",
+      en: "Change it depending on the day",
     },
     axis: "JP",
     direction: 1,
     role: "core",
-    facet: "completion",
+    facet: "routine_flexibility",
   },
 
   // =========================================================
@@ -544,46 +880,79 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 41,
     question: {
-      mn: "Бүлгийн хэлэлцүүлэгт санаа төрөх үедээ шууд хэлж, бусадтай хамт хөгжүүлэх нь танд эвтэйхэн.",
-      en: "In group discussions, you are comfortable sharing an idea as it forms and developing it with others.",
+      mn: "Дэлгүүрээс хайсан юмаа олохгүй бол?",
+      en: "If you can't find something in a store?",
+    },
+    firstLabel: {
+      mn: "Ажилтнаас шууд асууна",
+      en: "Ask an employee right away",
+    },
+    secondLabel: {
+      mn: "Эхлээд өөрөө хайна",
+      en: "Look for it myself first",
     },
     axis: "EI",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "group_expression",
+    facet: "social_initiative",
   },
+
   {
     id: 42,
     question: {
-      mn: "Танил асуудалд ч өөр, туршиж үзээгүй шийдэл бодох нь танд сонирхолтой.",
-      en: "Even with familiar problems, you enjoy considering solutions that have not been tried before.",
+      mn: "Шинэ юм ойлгохдоо?",
+      en: "When trying to understand something new?",
+    },
+    firstLabel: {
+      mn: "Алхам алхмаар үзнэ",
+      en: "Go step by step",
+    },
+    secondLabel: {
+      mn: "Ерөнхий санааг нь барина",
+      en: "Grasp the main idea",
     },
     axis: "SN",
-    direction: -1,
+    direction: 1,
     role: "core",
-    facet: "novelty",
+    facet: "information_style",
   },
   {
     id: 43,
     question: {
-      mn: "Санал зөрөлдөх үед хүнийг нь биш, гаргаж байгаа үндэслэлийг нь тусад нь авч үзэхийг та хичээдэг.",
-      en: "During disagreements, you try to evaluate the argument separately from the person making it.",
+      mn: "Хүмүүст хийх зүйлийг нь хуваарилахдаа?",
+      en: "When dividing tasks among people?",
+    },
+    firstLabel: {
+      mn: "Хэн юуг сайн хийдгийг нь харна",
+      en: "Consider what each person does best",
+    },
+    secondLabel: {
+      mn: "Хэн юу хийхийг хүсэж байгааг нь харна",
+      en: "Consider what each person wants to do",
     },
     axis: "TF",
-    direction: 1,
+    direction: -1,
     role: "core",
-    facet: "argument_analysis",
+    facet: "competence_vs_preference",
   },
   {
     id: 44,
     question: {
-      mn: "Тодорхой хуваарь, тогтсон цагтай байх үед өдөр тань илүү эмхтэй санагддаг.",
-      en: "Your day tends to feel more manageable when it has a clear schedule and defined times.",
+      mn: "Өдрийн хийх юм өөрчлөгдвөл?",
+      en: "If your plans for the day change?",
+    },
+    firstLabel: {
+      mn: "Шинээр зохицуулна",
+      en: "Reorganize the day",
+    },
+    secondLabel: {
+      mn: "Явцдаа зохицно",
+      en: "Adapt as I go",
     },
     axis: "JP",
     direction: 1,
     role: "core",
-    facet: "routine",
+    facet: "change_response",
   },
 
   // =========================================================
@@ -593,195 +962,77 @@ export const mbtiQuestions: MbtiQuestion[] = [
   {
     id: 45,
     question: {
-      mn: "Олон уулзалт дараалсан үед та дараа нь өөртөө чимээгүй цаг гаргах хэрэгцээ мэдэрдэг.",
-      en: "After several social interactions in a row, you usually need some quiet time to yourself.",
+      mn: "Амралтын өдөр ямар ч төлөвлөгөөгүй бол?",
+      en: "If you have a completely free day with no plans?",
+    },
+    firstLabel: {
+      mn: "Хүнтэй уулзах шалтаг олно",
+      en: "Find someone to meet",
+    },
+    secondLabel: {
+      mn: "Өөрийнхөөрөө тухална",
+      en: "Enjoy the time on my own",
     },
     axis: "EI",
     direction: -1,
-    role: "core",
-    facet: "social_recovery",
-  },
-  {
-    id: 46,
-    question: {
-      mn: "Шинэ санаа сонсохдоо эхлээд бодит амьдралд яаж хэрэгжихийг нь мэдэхийг хүсдэг.",
-      en: "When hearing a new idea, you often want to know first how it could work in practice.",
-    },
-    axis: "SN",
-    direction: 1,
-    role: "core",
-    facet: "practical_application",
-  },
-  {
-    id: 47,
-    question: {
-      mn: "Хэцүү үед хүнд зөвлөгөө өгөхөөсөө өмнө түүний мэдрэмжийг ойлгож байгаагаа харуулах нь танд чухал.",
-      en: "When someone is struggling, it is important to you to show understanding of their feelings before offering advice.",
-    },
-    axis: "TF",
-    direction: -1,
-    role: "core",
-    facet: "emotional_support",
-  },
-  {
-    id: 48,
-    question: {
-      mn: "Гэнэт гарсан сонирхолтой боломжийн төлөө өмнөх төлөвлөгөөгөө өөрчлөхөд та нээлттэй.",
-      en: "You are open to changing an existing plan when an interesting unexpected opportunity appears.",
-    },
-    axis: "JP",
-    direction: -1,
-    role: "core",
-    facet: "spontaneity",
-  },
-
-  // =========================================================
-  // 49–52
-  // =========================================================
-
-  {
-    id: 49,
-    question: {
-      mn: "Чөлөөт цагаа бусадтай байнга хуваалцахаас илүү өөрийн орон зайтай байх нь танд хэрэгтэй.",
-      en: "Having some personal space in your free time is important to you.",
-    },
-    axis: "EI",
-    direction: -1,
-    role: "core",
-    facet: "personal_space",
-  },
-  {
-    id: 50,
-    question: {
-      mn: "Заавар тодорхой, үг нь шууд утгатай байх үед ажиллахад танд илүү амар байдаг.",
-      en: "You find it easier to work with instructions that are specific and directly worded.",
-    },
-    axis: "SN",
-    direction: 1,
-    role: "core",
-    facet: "precision",
-  },
-  {
-    id: 51,
-    question: {
-      mn: "Хоёр сонголт логикийн хувьд ойролцоо бол аль нь хүмүүст илүү хүнлэг санагдахыг та харгалздаг.",
-      en: "When two options are logically similar, you consider which one is likely to feel more humane to the people involved.",
-    },
-    axis: "TF",
-    direction: -1,
-    role: "core",
-    facet: "human_values",
-  },
-  {
-    id: 52,
-    question: {
-      mn: "Шаардлагатай мэдээлэл хангалттай болсон үед шийдвэрээ гаргаад цааш явахыг та илүүд үздэг.",
-      en: "Once the necessary information is available, you prefer to make the decision and move forward.",
-    },
-    axis: "JP",
-    direction: 1,
-    role: "core",
-    facet: "decisiveness",
-  },
-
-  // =========================================================
-  // 53–56
-  // =========================================================
-
-  {
-    id: 53,
-    question: {
-      mn: "Шинэ ажил эсвэл төсөл эхлэхдээ бусадтай шууд холбогдож, санал солилцох нь танд эрч өгдөг.",
-      en: "When starting a new task or project, connecting with others and exchanging ideas tends to energize you.",
-    },
-    axis: "EI",
-    direction: 1,
-    role: "core",
-    facet: "collaboration",
-  },
-  {
-    id: 54,
-    question: {
-      mn: "Зүйрлэл, бэлгэдэл, олон утгатай санааг тайлж бодох нь танд сонирхолтой.",
-      en: "You enjoy interpreting metaphors, symbols, and ideas that can have several meanings.",
-    },
-    axis: "SN",
-    direction: -1,
-    role: "core",
-    facet: "symbolism",
-  },
-  {
-    id: 55,
-    question: {
-      mn: "Хэцүү асуудлыг шийдэхдээ түр зуурын сэтгэл хөдлөлөөс зай авч, нөхцөл байдлыг хөндлөнгөөс харахыг та хичээдэг.",
-      en: "When solving a difficult problem, you try to step back from immediate emotions and view the situation objectively.",
-    },
-    axis: "TF",
-    direction: 1,
-    role: "core",
-    facet: "objectivity",
-  },
-  {
-    id: 56,
-    question: {
-      mn: "Төлөвлөгөөг ягштал дагахаас илүү явцын мэдээлэлд тохируулан өөрчлөхийг та илүүд үздэг.",
-      en: "You prefer adjusting a plan as new information appears rather than following it rigidly.",
-    },
-    axis: "JP",
-    direction: -1,
-    role: "core",
-    facet: "flexibility",
-  },
-
-  // =========================================================
-  // BORDERLINE ITEMS — 57–60
-  //
-  // Үндсэн 14 item-ийн score яг 0 болсон үед л
-  // тухайн axis дээр ашиглана.
-  // =========================================================
-
-  {
-    id: 57,
-    question: {
-      mn: "Чөлөөт өдөртөө удаан ганцаараа байхаас хүнтэй уулзаж, ямар нэг зүйл хамт хийхийг та илүүд үздэг.",
-      en: "On a free day, you generally prefer meeting people and doing something together rather than spending most of the time alone.",
-    },
-    axis: "EI",
-    direction: 1,
     role: "borderline",
     facet: "overall_social_orientation",
   },
   {
-    id: 58,
+    id: 46,
     question: {
-      mn: "Шинэ сэдэв сурахдаа эхлээд бодит жишээнээс илүү ерөнхий санаа, боломжит утгыг нь сонирхдог.",
-      en: "When learning a new subject, you are often drawn first to the broader idea and its possible meanings rather than concrete examples.",
+      mn: "Хэн нэгнээр ямар нэг зүйл хийлгэхдээ?",
+      en: "When asking someone to make something for you?",
+    },
+    firstLabel: {
+      mn: "Яг юу хийхийг нь хэлнэ",
+      en: "Explain exactly what to do",
+    },
+    secondLabel: {
+      mn: "Эцэст нь ямар болохыг хэлнэ",
+      en: "Describe what the final result should be",
     },
     axis: "SN",
     direction: -1,
     role: "borderline",
-    facet: "overall_information_style",
+    facet: "specifics_vs_overall_goal",
   },
   {
-    id: 59,
+    id: 47,
     question: {
-      mn: "Логик болон хүний мэдрэмж хоёр зөрчилдвөл та ихэвчлэн логикийн хувьд хамгийн нийцтэй сонголтыг дагадаг.",
-      en: "When logic and people's feelings point in different directions, you usually lean toward the option that is most logically consistent.",
+      mn: "Шийдвэр гаргахдаа?",
+      en: "When making a decision?",
+    },
+    firstLabel: {
+      mn: "Учир шалтгааныг нь бодно",
+      en: "Follow the reasoning",
+    },
+    secondLabel: {
+      mn: "Мэдрэмжээ дагана",
+      en: "Follow how I feel",
     },
     axis: "TF",
-    direction: 1,
+    direction: -1,
     role: "borderline",
     facet: "overall_decision_style",
   },
   {
-    id: 60,
+    id: 48,
     question: {
-      mn: "Гэнэтийн өөрчлөлт гарсан үед анхны төлөвлөгөөгөө барихаас илүү шинэ нөхцөлд тааруулж өөрчлөхийг та илүүд үздэг.",
-      en: "When an unexpected change occurs, you generally prefer adapting to the new situation rather than sticking to the original plan.",
+      mn: "Гадуур хэд хэдэн газар орохдоо?",
+      en: "When you have several places to visit while you're out?",
+    },
+    firstLabel: {
+      mn: "Явах дарааллаа урьдчилж шийднэ",
+      en: "Decide the order beforehand",
+    },
+    secondLabel: {
+      mn: "Замдаа аль руу орохоо шийднэ",
+      en: "Decide where to go as I go",
     },
     axis: "JP",
     direction: -1,
     role: "borderline",
-    facet: "overall_structure_style",
+    facet: "overall_structure",
   },
 ];

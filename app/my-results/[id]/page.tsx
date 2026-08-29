@@ -948,20 +948,21 @@ export default function ResultDetailPage() {
         </Link>
 
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {result.test_type === "personal-color"
-            ? t("test_personal_color")
-            : result.test_type === "iq"
-              ? t("test_iq")
-              : result.test_type === "mbti"
-                ? t("test_mbti")
-                : result.test_type === "love"
-                  ? t("test_love")
-                  : result.test_type === "numerology"
-                    ? t("test_numerology")
-                    : result.test_type === "palm"
-                      ? t("test_palm")
-                      : result.test_type}{" "}
-          {t("result")}
+          {result.test_type === "love"
+            ? t("love_result_title")
+            : `${
+                result.test_type === "personal-color"
+                  ? t("test_personal_color")
+                  : result.test_type === "iq"
+                    ? t("test_iq")
+                    : result.test_type === "mbti"
+                      ? t("test_mbti")
+                      : result.test_type === "numerology"
+                        ? t("test_numerology")
+                        : result.test_type === "palm"
+                          ? t("test_palm")
+                          : result.test_type
+              } ${t("result")}`}
         </h1>
 
         <div className="mt-4 flex flex-wrap gap-3">
@@ -991,7 +992,7 @@ export default function ResultDetailPage() {
                     Math.min(100, Math.round(result.score ?? 0)),
                   );
 
-                  const shareUrl = `${window.location.origin}/share/love/${score}?mode=${loveShareMode}`;
+                  const shareUrl = `${window.location.origin}/share/love/${score}`;
 
                   window.open(
                     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -1503,6 +1504,203 @@ export default function ResultDetailPage() {
                   </div>
                 )}
               </>
+            ) : result.test_type === "iq" ? (
+              <div className="space-y-5">
+                <div className="space-y-5">
+                  {/* MAIN SCORE */}
+                  <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6 shadow-xl dark:border-blue-500/20 dark:from-blue-950/30 dark:via-gray-900 dark:to-indigo-950/30">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-600 dark:text-blue-300">
+                      {lang === "en" ? "IQ ESTIMATE" : "IQ ТООЦООЛСОН ҮР ДҮН"}
+                    </p>
+
+                    <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          {lang === "en"
+                            ? "Estimated IQ score"
+                            : "Тооцоолсон IQ оноо"}
+                        </p>
+
+                        <div className="mt-1 flex items-end gap-3">
+                          <span className="text-7xl font-black tracking-tight text-gray-900 dark:text-white">
+                            {result.result_json?.iq ?? result.score ?? "-"}
+                          </span>
+
+                          <span className="mb-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-bold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
+                            {result.result_json?.label ?? "-"}
+                          </span>
+                        </div>
+
+                        <p className="mt-4 max-w-xl leading-7 text-gray-700 dark:text-gray-300">
+                          {result.result_json?.summary ?? ""}
+                        </p>
+                      </div>
+
+                      <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-1">
+                        <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 text-center dark:border-white/10 dark:bg-white/5">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {lang === "en" ? "Percentile" : "Перцентиль"}
+                          </p>
+
+                          <p className="mt-1 text-2xl font-black text-blue-600 dark:text-blue-300">
+                            {result.result_json?.percentile ?? "-"}%
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 text-center dark:border-white/10 dark:bg-white/5">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {lang === "en"
+                              ? "Estimated range"
+                              : "Тооцоолсон хүрээ"}
+                          </p>
+
+                          <p className="mt-1 text-xl font-black text-gray-900 dark:text-white">
+                            {result.result_json?.estimatedRange?.min ?? "-"}–
+                            {result.result_json?.estimatedRange?.max ?? "-"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4 DOMAINS */}
+                  <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {lang === "en"
+                        ? "Cognitive profile"
+                        : "Таны чадварын зураглал"}
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      {lang === "en"
+                        ? "Performance across the four areas measured in this test."
+                        : "Тестээр хэмжсэн 4 чиглэл дэх таны гүйцэтгэл."}
+                    </p>
+
+                    <div className="mt-6 space-y-5">
+                      {[
+                        {
+                          key: "visual",
+                          label:
+                            lang === "en"
+                              ? "Visual reasoning"
+                              : "Дүрслэлийн логик",
+                        },
+                        {
+                          key: "number",
+                          label:
+                            lang === "en"
+                              ? "Numerical reasoning"
+                              : "Тоон сэтгэлгээ",
+                        },
+                        {
+                          key: "logic",
+                          label:
+                            lang === "en"
+                              ? "Logical reasoning"
+                              : "Логик сэтгэлгээ",
+                        },
+                        {
+                          key: "verbal",
+                          label:
+                            lang === "en"
+                              ? "Verbal reasoning"
+                              : "Хэлний сэтгэлгээ",
+                        },
+                      ].map((item) => {
+                        const value = Number(
+                          result.result_json?.domains?.[item.key] ?? 0,
+                        );
+
+                        return (
+                          <div key={item.key}>
+                            <div className="mb-2 flex items-center justify-between gap-4">
+                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                {item.label}
+                              </span>
+
+                              <span className="text-sm font-bold text-blue-600 dark:text-blue-300">
+                                {value}%
+                              </span>
+                            </div>
+
+                            <div className="h-2.5 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                              <div
+                                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                                style={{
+                                  width: `${Math.max(0, Math.min(100, value))}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* STRENGTHS */}
+                  <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-6 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                    <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-300">
+                      {lang === "en" ? "Strengths" : "Давуу тал"}
+                    </h2>
+
+                    <ul className="mt-4 space-y-3">
+                      {(result.result_json?.strengths ?? []).map(
+                        (item: string, index: number) => (
+                          <li
+                            key={index}
+                            className="flex gap-3 text-gray-700 dark:text-gray-300"
+                          >
+                            <span className="font-bold text-emerald-600">
+                              ✓
+                            </span>
+                            <span>{item}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* WATCH OUT */}
+                  <div className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 dark:border-amber-500/20 dark:bg-amber-500/5">
+                    <h2 className="text-lg font-bold text-amber-800 dark:text-amber-300">
+                      {lang === "en" ? "Areas to develop" : "Хөгжүүлэх тал"}
+                    </h2>
+
+                    <ul className="mt-4 space-y-3">
+                      {(result.result_json?.weaknesses ?? []).map(
+                        (item: string, index: number) => (
+                          <li
+                            key={index}
+                            className="flex gap-3 text-gray-700 dark:text-gray-300"
+                          >
+                            <span className="font-bold text-amber-600">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* RECOMMENDATION */}
+                  <div className="rounded-3xl border border-indigo-200 bg-indigo-50/60 p-6 dark:border-indigo-500/20 dark:bg-indigo-500/5">
+                    <h2 className="text-lg font-bold text-indigo-800 dark:text-indigo-300">
+                      {lang === "en" ? "Recommendation" : "Зөвлөмж"}
+                    </h2>
+
+                    <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
+                      {result.result_json?.recommendation ?? ""}
+                    </p>
+                  </div>
+
+                  {/* DISCLAIMER */}
+                  {result.result_json?.disclaimer && (
+                    <p className="px-2 text-center text-xs leading-5 text-gray-500 dark:text-gray-400">
+                      {result.result_json.disclaimer}
+                    </p>
+                  )}
+                </div>
+              </div>
             ) : result.test_type === "mbti" ? (
               <div className="space-y-5">
                 <div className="rounded-3xl border border-indigo-300 bg-gradient-to-br from-indigo-50 via-purple-50 to-white p-6 shadow-xl dark:border-indigo-500/30 dark:from-indigo-500/10 dark:via-purple-500/10 dark:to-gray-900">

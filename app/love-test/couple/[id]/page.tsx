@@ -152,7 +152,7 @@ export default function LoveCoupleInvitePage() {
 
   if (error && !session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-3 dark:bg-gray-900 sm:p-6">
         <div className="rounded-2xl bg-white p-6 text-center shadow dark:bg-gray-800">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Invite олдсонгүй
@@ -169,7 +169,7 @@ export default function LoveCoupleInvitePage() {
   if (!session) return null;
   if (submitting) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-3 dark:bg-gray-900 sm:p-6">
         <div className="text-center">
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-pink-500" />
           <p className="mt-4 font-semibold text-gray-700 dark:text-gray-200">
@@ -181,7 +181,7 @@ export default function LoveCoupleInvitePage() {
   }
   if (result && !session.result_unlocked) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-3 dark:bg-gray-900 sm:p-6">
         <div className="w-full max-w-xl rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-semibold uppercase tracking-wider text-pink-500">
             Couple Compatibility
@@ -210,7 +210,7 @@ export default function LoveCoupleInvitePage() {
   }
   if (!started) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-3 dark:bg-gray-900 sm:p-6">
         <div className="w-full max-w-xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-center text-sm font-medium text-pink-600 dark:text-pink-300">
             {t("love_both_title")}
@@ -246,9 +246,9 @@ export default function LoveCoupleInvitePage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6 dark:bg-gray-900">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-3 dark:bg-gray-900 sm:gap-6 sm:p-6">
       <LoveQuestionnaire
-        title={t("love_both_title")}
+        title={t("love_both_page_title")}
         questionLabel={t("love_question")}
         questionText={t(currentQuestion.question)}
         index={index}
@@ -270,7 +270,7 @@ export default function LoveCoupleInvitePage() {
           } else {
             setTimeout(() => {
               setIndex(index + 1);
-            }, 180);
+            }, 120);
           }
         }}
         onPrevious={() => {
@@ -283,6 +283,10 @@ export default function LoveCoupleInvitePage() {
           }
         }}
       />
+
+      <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+        {t("love_both_result_note")}
+      </p>
     </div>
   );
 }
