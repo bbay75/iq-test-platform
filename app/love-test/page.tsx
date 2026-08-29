@@ -518,10 +518,7 @@ export default function LoveTestPage() {
             >
               <p className="flex items-center justify-center gap-2 text-lg font-bold">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center">
-                  <UserRound
-                    className="h-5 w-5 scale-[0.9]"
-                    strokeWidth={2.2}
-                  />
+                  <UserRound className="h-5 w-5 scale-[1]" strokeWidth={2.2} />
                 </span>
                 {t("love_solo_title")}
               </p>
