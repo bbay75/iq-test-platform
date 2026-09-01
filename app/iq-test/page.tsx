@@ -1,11 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { iqQuestions, type IQQuestionType } from "@/data/iqQuestions";
 import { saveTestResult } from "@/lib/saveResult";
 import { useLang } from "@/lib/LanguageProvider";
-
+import {
+  Check,
+  Shapes,
+  Calculator,
+  Brain,
+  Languages,
+  Target,
+} from "lucide-react";
 function erf(x: number) {
   const sign = x >= 0 ? 1 : -1;
   const absX = Math.abs(x);
@@ -67,135 +74,34 @@ function calculateIQDetails(totalScore: number) {
   const clampedScore = Math.max(0, Math.min(MAX_RAW_SCORE, totalScore));
 
   const iq = Math.round(65 + (clampedScore / MAX_RAW_SCORE) * 70);
-
   const percentile = iqToPercentile(iq);
 
   let label = "";
   let summary = "";
-  let strengths: string[] = [];
-  let weaknesses: string[] = [];
-  let recommendation = "";
 
   if (iq < 80) {
-    label = "Below Average";
-
-    summary =
-      "Энэ тестийн хүрээнд логик холбоо, хэв маяг болон тоон reasoning дээр илүү их дасгал хийх боломж харагдаж байна.";
-
-    strengths = [
-      "Суурь логик холбоог таних боломжтой",
-      "Энгийн хэв маягийг ялгах чадвартай",
-      "Дасгалаар хурдан ахих боломжтой",
-    ];
-
-    weaknesses = [
-      "Олон алхамт логик дээр хүндрэл гарч магадгүй",
-      "Хийсвэр pattern дээр илүү хугацаа шаардаж болно",
-      "Тоон болон дүрслэлийн reasoning-ийг хөгжүүлэх зай байна",
-    ];
-
-    recommendation =
-      "Өдөр бүр 10–15 минут pattern, тоон дараалал болон энгийн логик puzzle хийж дадлагажаарай.";
+    label = "Доогуур";
+    summary = "Логик болон тоон бодлогын сууриа илүү хөгжүүлэх боломжтой.";
   } else if (iq < 90) {
-    label = "Low Average";
-
+    label = "Дундажаас доогуур";
     summary =
-      "Таны reasoning чадварын суурь тогтвортой боловч төвөгтэй бодлого дээр илүү анхаарал, хугацаа шаардаж байна.";
-
-    strengths = [
-      "Энгийн логикийг зөв таних чадвартай",
-      "Тодорхой дүрэмтэй бодлогод тогтвортой",
-      "Суурь тоон reasoning боломжийн",
-    ];
-
-    weaknesses = [
-      "Хийсвэр pattern дээр эргэлзэх магадлалтай",
-      "Олон нөхцөлтэй логик дээр удааширч болно",
-      "Хурдтай үед жижиг алдаа гарах боломжтой",
-    ];
-
-    recommendation =
-      "Дунд түвшний pattern болон number reasoning дасгалыг тогтмол хийвэл үр дүн хурдан сайжирна.";
+      "Логик сэтгэлгээний суурь боломжийн. Төвөгтэй бодлогод арай илүү хугацаа шаардагдаж магадгүй.";
   } else if (iq < 110) {
-    label = "Average";
-
+    label = "Дундаж";
     summary =
-      "Таны логик, тоон, хэлний болон дүрслэлийн reasoning чадвар ерөнхийдөө дундаж түвшинд байна.";
-
-    strengths = [
-      "Суурь логик тогтвортой",
-      "Тоон дарааллыг ойлгох чадвар сайн",
-      "Өдөр тутмын reasoning бодлогуудыг боломжийн шийддэг",
-    ];
-
-    weaknesses = [
-      "Хэцүү abstract pattern дээр илүү хугацаа орж магадгүй",
-      "Олон алхамт бодлогод анхаарал шаардана",
-      "Яарах үед жижиг алдаа гарах боломжтой",
-    ];
-
-    recommendation =
-      "Timed puzzle, matrix reasoning болон логик бодлого тогтмол хийвэл дараагийн түвшинд гарах боломжтой.";
+      "Таны логик, тоон болон дүрслэлийн сэтгэлгээ ерөнхийдөө дундаж түвшинд байна.";
   } else if (iq < 120) {
-    label = "Above Average";
-
+    label = "Дундажаас дээгүүр";
     summary =
-      "Таны reasoning чадвар дундажаас дээгүүр бөгөөд логик холбоо, pattern болон тоон бүтэц таних чадвар сайн байна.";
-
-    strengths = [
-      "Логик холбоос хурдан олдог",
-      "Pattern recognition сайн",
-      "Тоон болон хэлний reasoning тогтвортой",
-    ];
-
-    weaknesses = [
-      "Маш төвөгтэй хийсвэр бодлогод хугацаа шаардаж магадгүй",
-      "Хэт хурдан шийдэх үед анхаарал алдах эрсдэлтэй",
-      "Зарим бодлогод overthinking хийх боломжтой",
-    ];
-
-    recommendation =
-      "Advanced matrix, strategy puzzle болон олон алхамт reasoning бодлого танд тохирно.";
+      "Та логик холбоо, тоон дараалал болон дүрсний хэв маягийг сайн таньж байна.";
   } else if (iq < 130) {
-    label = "High";
-
+    label = "Өндөр";
     summary =
-      "Таны reasoning чадвар өндөр түвшинд байна. Та төвөгтэй pattern, логик бүтэц болон тоон холбоог хурдан таних хандлагатай.";
-
-    strengths = [
-      "Хийсвэр логик сайн",
-      "Pattern recognition өндөр",
-      "Олон алхамт асуудлыг хурдан задлах чадвартай",
-    ];
-
-    weaknesses = [
-      "Хэт итгэлтэй үед энгийн алдаа гаргаж магадгүй",
-      "Хэт их анализ хийх хандлага үүсч болно",
-      "Хурдтай үед нягт нямбай байдал чухал",
-    ];
-
-    recommendation =
-      "Advanced reasoning, strategy game, complex matrix болон олимпиадын түвшний логик бодлогууд тохиромжтой.";
+      "Та төвөгтэй логик холбоо, тоон бүтэц болон дүрсний хэв маягийг хурдан таньж байна.";
   } else {
-    label = "Very High";
-
+    label = "Маш өндөр";
     summary =
-      "Энэ тестийн хүрээнд таны логик, дүрслэлийн болон тоон reasoning чадвар маш өндөр түвшинд гарлаа.";
-
-    strengths = [
-      "Маш хурдан логик анализ хийдэг",
-      "Хийсвэр pattern-ийг хүчтэй таньдаг",
-      "Төвөгтэй бүтцийг хурдан задлах чадвартай",
-    ];
-
-    weaknesses = [
-      "Энгийн бодлогыг хэт төвөгтэй болгож бодох магадлалтай",
-      "Яарах үед жижиг алдаа гаргах эрсдэлтэй",
-      "Өндөр түвшний сорил шаардлагатай",
-    ];
-
-    recommendation =
-      "Complex reasoning, advanced matrix, strategy болон өндөр түвшний problem-solving сорил танд илүү тохирно.";
+      "Энэ сорилын хүрээнд таны логик, тоон болон дүрслэлийн сэтгэлгээ маш өндөр үзүүлэлттэй гарлаа.";
   }
 
   return {
@@ -214,12 +120,9 @@ function calculateIQDetails(totalScore: number) {
 
     label,
     summary,
-    strengths,
-    weaknesses,
-    recommendation,
 
     disclaimer:
-      "Энэ нь логик, тоон, хэлний болон дүрслэлийн reasoning чадварт суурилсан онлайн тооцоолол бөгөөд клиникийн IQ үнэлгээг орлохгүй.",
+      "Энэ нь онлайн сорилын тооцоолсон үр дүн бөгөөд мэргэжлийн IQ үнэлгээг орлохгүй.",
   };
 }
 
@@ -233,7 +136,23 @@ export default function IQTest() {
   >(() => Array(iqQuestions.length).fill(null));
 
   const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<{
+    text: string;
+    icon: "visual" | "number" | "logic" | "verbal" | "last";
+  } | null>(null);
+  const showSectionToast = (
+    text: string,
+    icon: "visual" | "number" | "logic" | "verbal" | "last",
+  ) => {
+    setToast({ text, icon });
 
+    setTimeout(() => {
+      setToast(null);
+    }, 1800);
+  };
+  useEffect(() => {
+    showSectionToast("Дүрс", "visual");
+  }, []);
   const handleAnswer = async (optionIndex: number, points: number) => {
     if (submitting) return;
 
@@ -249,9 +168,23 @@ export default function IQTest() {
 
     setAnswers(updatedAnswers);
 
-    // Сүүлийн асуулт биш бол auto-next
     if (index + 1 < iqQuestions.length) {
-      setIndex(index + 1);
+      const nextIndex = index + 1;
+
+      setTimeout(() => {
+        setIndex(nextIndex);
+
+        if (nextIndex === 8) {
+          showSectionToast("Тоо", "number");
+        } else if (nextIndex === 15) {
+          showSectionToast("Логик", "logic");
+        } else if (nextIndex === 22) {
+          showSectionToast("Үгийн холбоо", "verbal");
+        } else if (nextIndex === 28) {
+          showSectionToast("Сүүлийн асуулт", "last");
+        }
+      }, 120);
+
       return;
     }
 
@@ -312,128 +245,170 @@ export default function IQTest() {
   const progress = ((index + 1) / iqQuestions.length) * 100;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-100 p-6 dark:bg-gray-900">
-      <Link
-        href="/"
-        className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-300"
-      >
-        ← {t("iq_back_home")}
-      </Link>
+    <>
+      {toast && (
+        <div className="pointer-events-none fixed inset-x-0 top-5 z-50 flex justify-center px-4">
+          <div className="flex items-center gap-2 rounded-xl border border-indigo-400/20 bg-gray-950/95 px-4 py-3 text-sm font-semibold text-white shadow-xl backdrop-blur-md">
+            {toast.icon === "visual" && (
+              <Shapes className="h-4 w-4 text-indigo-300" />
+            )}
+            {toast.icon === "number" && (
+              <Calculator className="h-4 w-4 text-indigo-300" />
+            )}
+            {toast.icon === "logic" && (
+              <Brain className="h-4 w-4 text-indigo-300" />
+            )}
+            {toast.icon === "verbal" && (
+              <Languages className="h-4 w-4 text-indigo-300" />
+            )}
+            {toast.icon === "last" && (
+              <Target className="h-4 w-4 text-indigo-300" />
+            )}
 
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t("iq_title")}
-          </h1>
-
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-            {q.type === "visual"
-              ? t("iq_type_visual")
-              : q.type === "number"
-                ? t("iq_type_number")
-                : q.type === "logic"
-                  ? t("iq_type_logic")
-                  : t("iq_type_verbal")}
-          </span>
+            <span>{toast.text}</span>
+          </div>
         </div>
+      )}
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-3 dark:bg-gray-900 sm:gap-6 sm:p-6">
+        <Link
+          href="/"
+          className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-300"
+        >
+          ← {t("iq_back_home")}
+        </Link>
 
-        <div className="mb-6">
-          <div className="h-2 w-full rounded bg-gray-200 dark:bg-gray-700">
-            <div
-              className="h-2 rounded bg-blue-500 transition-all"
-              style={{ width: `${progress}%` }}
-            />
+        <div className="w-full max-w-3xl rounded-3xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+          {/* TITLE */}
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
+              {t("iq_title")}
+            </h1>
+
+            <span className="shrink-0 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:border-indigo-400/20 dark:bg-indigo-500/10 dark:text-indigo-300">
+              {q.type === "visual"
+                ? t("iq_type_visual")
+                : q.type === "number"
+                  ? t("iq_type_number")
+                  : q.type === "logic"
+                    ? t("iq_type_logic")
+                    : t("iq_type_verbal")}
+            </span>
           </div>
 
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {t("iq_question_count")} {index + 1} / {iqQuestions.length}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-gray-50 p-5 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold leading-7 text-gray-900 dark:text-white">
-            {t(q.question)}
-          </h2>
-
-          {q.image && (
-            <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
-              <img
-                src={q.image}
-                alt={t(q.question)}
-                className="mx-auto max-h-[360px] w-full object-contain"
+          {/* PROGRESS */}
+          <div className="mt-5">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-emerald-500 transition-all duration-300"
+                style={{ width: `${progress}%` }}
               />
             </div>
-          )}
-        </div>
 
-        <div
-          className={`mt-6 grid gap-4 ${
-            q.type === "visual" ? "grid-cols-2 md:grid-cols-3" : "grid-cols-1"
-          }`}
-        >
-          {q.options.map((opt, i) => {
-            const isSelected = answers[index]?.optionIndex === i;
+            <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+              <span>
+                {t("iq_question_count")} {index + 1} / {iqQuestions.length}
+              </span>
 
-            return (
-              <button
-                key={`${q.id}-${i}`}
-                type="button"
-                disabled={submitting}
-                onClick={() => handleAnswer(i, opt.points)}
-                className={`rounded-xl border px-4 py-4 text-center font-medium transition ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20 dark:border-blue-400 dark:bg-blue-950/40 dark:text-blue-200"
-                    : "border-gray-300 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
-                }`}
-              >
-                {opt.image ? (
-                  <img
-                    src={opt.image}
-                    alt={`Option ${i + 1}`}
-                    className="w-full h-[120px] object-contain"
-                  />
-                ) : (
-                  <span>{opt.text ? t(opt.text) : ""}</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <div className="mt-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setIndex((prev) => Math.max(0, prev - 1))}
-            disabled={index === 0 || submitting}
-            className={`rounded-xl border px-5 py-3 text-sm font-semibold transition ${
-              index === 0
-                ? "cursor-not-allowed border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600"
-                : "border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              <span>{Math.round(progress)}%</span>
+            </div>
+          </div>
+
+          {/* QUESTION */}
+          <div className="mt-6 rounded-2xl bg-gray-50 p-4 text-center dark:bg-gray-900 sm:p-6">
+            <h2 className="text-base font-bold leading-7 text-gray-900 dark:text-white sm:text-lg">
+              {t(q.question)}
+            </h2>
+
+            {q.image && (
+              <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-800 sm:p-3">
+                <img
+                  src={q.image}
+                  alt={t(q.question)}
+                  className="mx-auto max-h-[280px] w-full object-contain sm:max-h-[320px]"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ANSWERS */}
+          <div
+            className={`mt-5 grid gap-3 sm:mt-6 sm:gap-4 ${
+              q.type === "visual" ? "grid-cols-3" : "grid-cols-1"
             }`}
           >
-            ← Өмнөх
-          </button>
+            {q.options.map((opt, i) => {
+              const isSelected = answers[index]?.optionIndex === i;
 
-          {index + 1 < iqQuestions.length && (
+              return (
+                <button
+                  key={`${q.id}-${i}`}
+                  type="button"
+                  disabled={submitting}
+                  onClick={() => handleAnswer(i, opt.points)}
+                  className={`min-h-[54px] rounded-xl border px-3 py-3 text-center text-sm font-semibold transition-all duration-200 sm:px-4 sm:py-4 sm:text-base ${
+                    isSelected
+                      ? "border-indigo-500 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/15 dark:border-indigo-400 dark:bg-indigo-500/10 dark:text-indigo-200"
+                      : "border-gray-300 bg-white text-gray-900 hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:hover:border-indigo-500/50 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  {opt.image ? (
+                    <img
+                      src={opt.image}
+                      alt={`Option ${i + 1}`}
+                      className="h-[80px] w-full object-contain sm:h-[135px]"
+                    />
+                  ) : (
+                    <div className="flex w-full items-center justify-between gap-3">
+                      <span>{opt.text ? t(opt.text) : ""}</span>
+
+                      {isSelected && (
+                        <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                      )}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* NAVIGATION */}
+          <div className="mt-6 flex items-center justify-between gap-3">
             <button
               type="button"
-              disabled={!answers[index] || submitting}
-              onClick={() =>
-                setIndex((prev) => Math.min(iqQuestions.length - 1, prev + 1))
-              }
-              className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
-                answers[index]
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500"
+              onClick={() => setIndex((prev) => Math.max(0, prev - 1))}
+              disabled={index === 0 || submitting}
+              className={`rounded-xl border px-4 py-3 text-sm font-semibold transition sm:px-5 ${
+                index === 0
+                  ? "cursor-not-allowed border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
-              Дараах →
+              ← Өмнөх
             </button>
-          )}
+
+            {index + 1 < iqQuestions.length && (
+              <button
+                type="button"
+                disabled={!answers[index] || submitting}
+                onClick={() =>
+                  setIndex((prev) => Math.min(iqQuestions.length - 1, prev + 1))
+                }
+                className={`rounded-xl px-4 py-3 text-sm font-semibold transition sm:px-5 ${
+                  answers[index]
+                    ? "bg-emerald-500/80 text-white hover:bg-emerald-500 dark:bg-emerald-500/75 dark:hover:bg-emerald-500"
+                    : "cursor-not-allowed bg-emerald-500/20 text-emerald-700/40 dark:bg-emerald-500/20 dark:text-emerald-300/40"
+                }`}
+              >
+                Дараах →
+              </button>
+            )}
+          </div>
+
+          <p className="mt-5 text-center text-xs leading-5 text-gray-500 dark:text-gray-400">
+            {t("iq_notice")}
+          </p>
         </div>
-        <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          {t("iq_notice")}
-        </p>
       </div>
-    </div>
+    </>
   );
 }

@@ -11,6 +11,9 @@ import { useLang } from "@/lib/LanguageProvider";
 import MbtiSharePoster from "@/components/MbtiSharePoster";
 import LoveShareCard from "@/components/LoveShareCard";
 import { generateMbtiShareImage } from "@/lib/generateMbtiShareImage";
+
+import IqShareCard from "@/components/IqShareCard";
+
 import LovePairResult from "@/components/LovePairResult";
 import LoveDimensionsResult from "@/components/LoveDimensionsResult";
 import LoveDimensionsNav from "@/components/LoveDimensionsNav";
@@ -40,6 +43,10 @@ import {
   Compass,
   ArrowRight,
   HeartPulse,
+  Shapes,
+  Calculator,
+  Brain,
+  Languages,
 } from "lucide-react";
 type TestResult = {
   id: string;
@@ -224,7 +231,40 @@ async function saveOrShareLoveImage(blob: Blob, score: number) {
   // fallback
   downloadBlob(blob, filename);
 }
+async function saveOrShareIqImage(blob: Blob, isUnlocked: boolean) {
+  const filename = isUnlocked ? "iq-result.jpg" : "iq-result-teaser.jpg";
 
+  if (!isMobileDevice()) {
+    downloadBlob(blob, filename);
+    return;
+  }
+
+  const file = new File([blob], filename, {
+    type: "image/jpeg",
+  });
+
+  try {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      await navigator.share({
+        files: [file],
+        title: isUnlocked ? "Миний IQ үр дүн" : "Миний IQ тестийн үр дүн",
+        text: isUnlocked
+          ? "Миний IQ тестийн үр дүн"
+          : "Миний IQ тестийн үр дүн ямар гарсан бол?",
+      });
+
+      return;
+    }
+  } catch (error) {
+    console.warn("IQ native share cancelled or failed:", error);
+  }
+
+  downloadBlob(blob, filename);
+}
 function formatTestTitle(testType: string) {
   switch (testType) {
     case "personal-color":
@@ -617,6 +657,7 @@ export default function ResultDetailPage() {
   const [showToast, setShowToast] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
   const loveShareRef = useRef<HTMLDivElement>(null);
+  const iqShareRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
   const [profileCredits, setProfileCredits] = useState(0);
   const [profileProgress, setProfileProgress] = useState(0);
@@ -930,6 +971,27 @@ export default function ResultDetailPage() {
   } = getMbtiReportInsights(mbtiDominantTraits, lang);
   const mbtiGender: "female" | "male" =
     result.result_json?.gender === "male" ? "male" : "female";
+  const iqScore = Number(result.result_json?.iq ?? result.score ?? 0);
+
+  const iqScalePosition = Math.max(
+    0,
+    Math.min(100, ((iqScore - 55) / (145 - 55)) * 100),
+  );
+
+  const iqLevel =
+    iqScore <= 69
+      ? { label: "Маш доогуур", range: "69 хүртэл" }
+      : iqScore <= 79
+        ? { label: "Доогуур", range: "70–79" }
+        : iqScore <= 89
+          ? { label: "Дундажаас доогуур", range: "80–89" }
+          : iqScore <= 109
+            ? { label: "Дундаж", range: "90–109" }
+            : iqScore <= 119
+              ? { label: "Дундажаас дээгүүр", range: "110–119" }
+              : iqScore <= 129
+                ? { label: "Өндөр", range: "120–129" }
+                : { label: "Маш өндөр", range: "130+" };
   return (
     <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900">
       {showToast && (
@@ -1067,7 +1129,49 @@ export default function ResultDetailPage() {
                     return;
                   }
 
-                  // MBTI хуучнаараа
+                  // IQ
+                  if (result.test_type === "iq") {
+                    const node = iqShareRef.current;
+
+                    if (!node) {
+                      throw new Error("IQ share image not ready");
+                    }
+
+                    await document.fonts.ready;
+
+                    const canvas = await html2canvas(node, {
+                      backgroundColor: null,
+                      scale: 1,
+                      useCORS: true,
+                      logging: false,
+                      width: 1200,
+                      height: 630,
+                    });
+
+                    const blob = await new Promise<Blob>((resolve, reject) => {
+                      canvas.toBlob(
+                        (generatedBlob) => {
+                          if (generatedBlob) {
+                            resolve(generatedBlob);
+                          } else {
+                            reject(
+                              new Error("IQ share image generation failed"),
+                            );
+                          }
+                        },
+                        "image/jpeg",
+                        0.95,
+                      );
+                    });
+
+                    await saveOrShareIqImage(blob, isUnlocked);
+
+                    setToast(t("image_downloaded"));
+                    setTimeout(() => setShowToast(false), 2000);
+                    return;
+                  }
+
+                  // MBTI
                   if (result.test_type === "mbti") {
                     const blob = await generateMbtiShareImage({
                       type: mbtiShareType,
@@ -1109,6 +1213,27 @@ export default function ResultDetailPage() {
                       <MbtiSharePoster
                         type={mbtiShareType}
                         gender={mbtiGender}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : result.test_type === "iq" ? (
+              <div className="mt-4 w-full">
+                <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {lang === "en" ? "Your share image" : "Таны шэйр зураг"}
+                </p>
+
+                <div className="mx-auto w-[345px] max-w-full overflow-hidden rounded-2xl bg-black shadow-2xl sm:w-[600px]">
+                  <div className="relative aspect-[1200/630] w-full overflow-hidden">
+                    <div className="pointer-events-none absolute left-0 top-0 h-[630px] w-[1200px] origin-top-left scale-[0.2875] sm:scale-50">
+                      <IqShareCard
+                        isUnlocked={isUnlocked}
+                        score={iqScore}
+                        level={iqLevel.label}
+                        levelRange={iqLevel.range}
+                        percentile={Number(result.result_json?.percentile ?? 0)}
+                        domains={result.result_json?.domains ?? {}}
                       />
                     </div>
                   </div>
@@ -1508,60 +1633,80 @@ export default function ResultDetailPage() {
               <div className="space-y-5">
                 <div className="space-y-5">
                   {/* MAIN SCORE */}
-                  <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6 shadow-xl dark:border-blue-500/20 dark:from-blue-950/30 dark:via-gray-900 dark:to-indigo-950/30">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-600 dark:text-blue-300">
-                      {lang === "en" ? "IQ ESTIMATE" : "IQ ТООЦООЛСОН ҮР ДҮН"}
+                  <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-lg dark:border-gray-700 dark:bg-gray-900 sm:p-6">
+                    <p className="text-center text-[14px] font-bold  tracking-[0.22em] text-blue-300">
+                      {lang === "en" ? "ESTIMATED IQ RESULT" : "Таны IQ үр дүн"}
                     </p>
 
-                    <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                          {lang === "en"
-                            ? "Estimated IQ score"
-                            : "Тооцоолсон IQ оноо"}
-                        </p>
-
-                        <div className="mt-1 flex items-end gap-3">
-                          <span className="text-7xl font-black tracking-tight text-gray-900 dark:text-white">
-                            {result.result_json?.iq ?? result.score ?? "-"}
-                          </span>
-
-                          <span className="mb-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-bold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
-                            {result.result_json?.label ?? "-"}
-                          </span>
-                        </div>
-
-                        <p className="mt-4 max-w-xl leading-7 text-gray-700 dark:text-gray-300">
-                          {result.result_json?.summary ?? ""}
-                        </p>
+                    <div className="mt-3 text-center">
+                      <div className="text-6xl font-black tracking-tight text-white sm:text-7xl">
+                        {iqScore || "-"}
                       </div>
 
-                      <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-1">
-                        <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 text-center dark:border-white/10 dark:bg-white/5">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {lang === "en" ? "Percentile" : "Перцентиль"}
-                          </p>
-
-                          <p className="mt-1 text-2xl font-black text-blue-600 dark:text-blue-300">
-                            {result.result_json?.percentile ?? "-"}%
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 text-center dark:border-white/10 dark:bg-white/5">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {lang === "en"
-                              ? "Estimated range"
-                              : "Тооцоолсон хүрээ"}
-                          </p>
-
-                          <p className="mt-1 text-xl font-black text-gray-900 dark:text-white">
-                            {result.result_json?.estimatedRange?.min ?? "-"}–
-                            {result.result_json?.estimatedRange?.max ?? "-"}
-                          </p>
-                        </div>
+                      <div className="mt-2 flex justify-center">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                          {iqLevel.label} ({iqLevel.range})
+                        </span>
                       </div>
                     </div>
-                  </div>
+
+                    {/* IQ SCALE */}
+                    <div className="mx-auto mt-6 max-w-xl px-1">
+                      <div className="relative pt-3">
+                        <div className="h-2 rounded-full bg-gradient-to-r from-amber-400 via-emerald-400 to-violet-500" />
+
+                        <div
+                          className="absolute top-[6px] -translate-x-1/2"
+                          style={{ left: `${iqScalePosition}%` }}
+                        >
+                          <div className="h-5 w-5 rounded-full border-[3px] border-white bg-slate-950 shadow-md" />
+                        </div>
+                      </div>
+
+                      <div className="mt-2 flex justify-between text-[10px] font-medium text-slate-500">
+                        <span>55</span>
+                        <span>80</span>
+                        <span>100</span>
+                        <span>120</span>
+                        <span>145+</span>
+                      </div>
+                    </div>
+
+                    {/* STATS */}
+                    <div className="mt-5 grid grid-cols-1 divide-y divide-white/[0.08] border-t border-white/[0.08] pt-5 sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:divide-white/[0.08]">
+                      <div className="pb-5 text-center sm:px-4 sm:pb-0">
+                        <p className="text-[11px] font-medium text-slate-500">
+                          {lang === "en" ? "Percentile" : "Харьцуулсан түвшин"}
+                        </p>
+
+                        <p className="mt-1 text-2xl font-black text-blue-300">
+                          {result.result_json?.percentile ?? "-"}%
+                        </p>
+                        <p className="text-xs font-medium leading-5 text-slate-500">
+                          100 хүнээс ойролцоогоор{" "}
+                          {result.result_json?.percentile ?? "-"} хүнийхээс
+                          өндөр оноо
+                        </p>
+                      </div>
+
+                      <div className="pt-5 text-center sm:px-4 sm:pt-0">
+                        <p className="text-[11px] font-medium text-slate-500">
+                          {lang === "en"
+                            ? "Estimated range"
+                            : "IQ онооны хүрээ"}
+                        </p>
+
+                        <p className="mt-1 text-2xl font-black text-white">
+                          {result.result_json?.estimatedRange?.min ?? "-"}–
+                          {result.result_json?.estimatedRange?.max ?? "-"}
+                        </p>
+                        <p className="text-xs font-medium leading-5 text-slate-500">
+                          Таны оноо энэ орчимд хэлбэлзэж болно
+                        </p>
+                      </div>
+                    </div>
+                  </section>
 
                   {/* 4 DOMAINS */}
                   <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-900">
@@ -1574,13 +1719,16 @@ export default function ResultDetailPage() {
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       {lang === "en"
                         ? "Performance across the four areas measured in this test."
-                        : "Тестээр хэмжсэн 4 чиглэл дэх таны гүйцэтгэл."}
+                        : "Тестийн 4 чиглэлээр таны авсан оноог харьцуулан харууллаа.."}
                     </p>
 
                     <div className="mt-6 space-y-5">
                       {[
                         {
                           key: "visual",
+                          icon: Shapes,
+                          iconClass:
+                            "bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300",
                           label:
                             lang === "en"
                               ? "Visual reasoning"
@@ -1588,6 +1736,9 @@ export default function ResultDetailPage() {
                         },
                         {
                           key: "number",
+                          icon: Calculator,
+                          iconClass:
+                            "bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-300",
                           label:
                             lang === "en"
                               ? "Numerical reasoning"
@@ -1595,6 +1746,9 @@ export default function ResultDetailPage() {
                         },
                         {
                           key: "logic",
+                          icon: Brain,
+                          iconClass:
+                            "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300",
                           label:
                             lang === "en"
                               ? "Logical reasoning"
@@ -1602,10 +1756,11 @@ export default function ResultDetailPage() {
                         },
                         {
                           key: "verbal",
+                          icon: Languages,
+                          iconClass:
+                            "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300",
                           label:
-                            lang === "en"
-                              ? "Verbal reasoning"
-                              : "Хэлний сэтгэлгээ",
+                            lang === "en" ? "Verbal reasoning" : "Үгийн холбоо",
                         },
                       ].map((item) => {
                         const value = Number(
@@ -1615,9 +1770,20 @@ export default function ResultDetailPage() {
                         return (
                           <div key={item.key}>
                             <div className="mb-2 flex items-center justify-between gap-4">
-                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                {item.label}
-                              </span>
+                              <div className="flex items-center gap-2.5">
+                                <div
+                                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.iconClass}`}
+                                >
+                                  <item.icon
+                                    className="h-4 w-4"
+                                    strokeWidth={2}
+                                  />
+                                </div>
+
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  {item.label}
+                                </span>
+                              </div>
 
                               <span className="text-sm font-bold text-blue-600 dark:text-blue-300">
                                 {value}%
@@ -1638,61 +1804,20 @@ export default function ResultDetailPage() {
                     </div>
                   </div>
 
-                  {/* STRENGTHS */}
-                  <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-6 dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                    <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-300">
-                      {lang === "en" ? "Strengths" : "Давуу тал"}
-                    </h2>
+                  {/* INTERPRETATION */}
 
-                    <ul className="mt-4 space-y-3">
-                      {(result.result_json?.strengths ?? []).map(
-                        (item: string, index: number) => (
-                          <li
-                            key={index}
-                            className="flex gap-3 text-gray-700 dark:text-gray-300"
-                          >
-                            <span className="font-bold text-emerald-600">
-                              ✓
-                            </span>
-                            <span>{item}</span>
-                          </li>
-                        ),
-                      )}
-                    </ul>
-                  </div>
-
-                  {/* WATCH OUT */}
-                  <div className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 dark:border-amber-500/20 dark:bg-amber-500/5">
-                    <h2 className="text-lg font-bold text-amber-800 dark:text-amber-300">
-                      {lang === "en" ? "Areas to develop" : "Хөгжүүлэх тал"}
-                    </h2>
-
-                    <ul className="mt-4 space-y-3">
-                      {(result.result_json?.weaknesses ?? []).map(
-                        (item: string, index: number) => (
-                          <li
-                            key={index}
-                            className="flex gap-3 text-gray-700 dark:text-gray-300"
-                          >
-                            <span className="font-bold text-amber-600">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ),
-                      )}
-                    </ul>
-                  </div>
-
-                  {/* RECOMMENDATION */}
-                  <div className="rounded-3xl border border-indigo-200 bg-indigo-50/60 p-6 dark:border-indigo-500/20 dark:bg-indigo-500/5">
-                    <h2 className="text-lg font-bold text-indigo-800 dark:text-indigo-300">
-                      {lang === "en" ? "Recommendation" : "Зөвлөмж"}
+                  {/* INTERPRETATION */}
+                  <div className="rounded-3xl border border-blue-200 bg-blue-50/60 p-6 dark:border-blue-500/20 dark:bg-blue-500/5">
+                    <h2 className="text-lg font-bold text-blue-800 dark:text-blue-300">
+                      {lang === "en"
+                        ? "What does this mean?"
+                        : "Энэ үр дүн юу гэсэн үг вэ?"}
                     </h2>
 
                     <p className="mt-3 leading-7 text-gray-700 dark:text-gray-300">
-                      {result.result_json?.recommendation ?? ""}
+                      {result.result_json?.summary ?? ""}
                     </p>
                   </div>
-
                   {/* DISCLAIMER */}
                   {result.result_json?.disclaimer && (
                     <p className="px-2 text-center text-xs leading-5 text-gray-500 dark:text-gray-400">
