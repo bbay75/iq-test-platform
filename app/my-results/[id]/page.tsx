@@ -1069,7 +1069,9 @@ export default function ResultDetailPage() {
                 if (result.test_type === "iq") {
                   const score = Math.max(0, Math.min(145, Math.round(iqScore)));
 
-                  const shareUrl = `https://iq-test-platform-rouge.vercel.app/share/iq/${score}`;
+                  const shareUrl = isUnlocked
+                    ? `https://iq-test-platform-rouge.vercel.app/share/iq/${score}`
+                    : `https://iq-test-platform-rouge.vercel.app/share/iq/teaser`;
 
                   window.open(
                     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -1150,9 +1152,11 @@ export default function ResultDetailPage() {
                       Math.min(145, Math.round(iqScore)),
                     );
 
-                    const response = await fetch(
-                      `/share/iq-final/${score}.jpg`,
-                    );
+                    const imagePath = isUnlocked
+                      ? `/share/iq-final/${score}.jpg`
+                      : `/share/iq-final/teaser.jpg`;
+
+                    const response = await fetch(imagePath);
 
                     if (!response.ok) {
                       throw new Error("IQ share image not found");
@@ -1160,7 +1164,7 @@ export default function ResultDetailPage() {
 
                     const blob = await response.blob();
 
-                    await saveOrShareIqImage(blob, true);
+                    await saveOrShareIqImage(blob, isUnlocked);
 
                     setToast(t("image_downloaded"));
                     setTimeout(() => setShowToast(false), 2000);

@@ -25,6 +25,43 @@ async function main() {
     recursive: true,
   });
 
+  console.log("Generating IQ teaser...");
+
+  const teaserTempPath = path.join(outputDirectory, "teaser-temp.png");
+  const teaserOutputPath = path.join(outputDirectory, "teaser.jpg");
+
+  await page.goto("http://localhost:3000/internal/og-preview/iq/teaser", {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
+
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+
+  const teaserCard = page.locator("div.h-\\[630px\\].w-\\[1200px\\]");
+
+  await teaserCard.screenshot({
+    path: teaserTempPath,
+    type: "png",
+  });
+
+  await sharp(teaserTempPath)
+    .resize(1200, 630, {
+      fit: "fill",
+      kernel: sharp.kernel.lanczos3,
+    })
+    .jpeg({
+      quality: 92,
+      chromaSubsampling: "4:4:4",
+      mozjpeg: true,
+    })
+    .toFile(teaserOutputPath);
+
+  await fs.unlink(teaserTempPath);
+
+  console.log("✅ IQ teaser");
+
   for (let score = 0; score <= 145; score++) {
     console.log(`Generating IQ ${score}...`);
 
