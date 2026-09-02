@@ -1145,40 +1145,22 @@ export default function ResultDetailPage() {
 
                   // IQ
                   if (result.test_type === "iq") {
-                    const node = iqShareRef.current;
+                    const score = Math.max(
+                      0,
+                      Math.min(145, Math.round(iqScore)),
+                    );
 
-                    if (!node) {
-                      throw new Error("IQ share image not ready");
+                    const response = await fetch(
+                      `/share/iq-final/${score}.jpg`,
+                    );
+
+                    if (!response.ok) {
+                      throw new Error("IQ share image not found");
                     }
 
-                    await document.fonts.ready;
+                    const blob = await response.blob();
 
-                    const canvas = await html2canvas(node, {
-                      backgroundColor: null,
-                      scale: 1,
-                      useCORS: true,
-                      logging: false,
-                      width: 1200,
-                      height: 630,
-                    });
-
-                    const blob = await new Promise<Blob>((resolve, reject) => {
-                      canvas.toBlob(
-                        (generatedBlob) => {
-                          if (generatedBlob) {
-                            resolve(generatedBlob);
-                          } else {
-                            reject(
-                              new Error("IQ share image generation failed"),
-                            );
-                          }
-                        },
-                        "image/jpeg",
-                        0.95,
-                      );
-                    });
-
-                    await saveOrShareIqImage(blob, isUnlocked);
+                    await saveOrShareIqImage(blob, true);
 
                     setToast(t("image_downloaded"));
                     setTimeout(() => setShowToast(false), 2000);
