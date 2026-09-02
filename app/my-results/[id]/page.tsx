@@ -1066,7 +1066,21 @@ export default function ResultDetailPage() {
 
                   return;
                 }
+                if (result.test_type === "iq") {
+                  const score = Math.max(0, Math.min(145, Math.round(iqScore)));
 
+                  const shareUrl = `https://iq-test-platform-rouge.vercel.app/share/iq/${score}`;
+
+                  window.open(
+                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      shareUrl,
+                    )}`,
+                    "_blank",
+                    "noopener,noreferrer",
+                  );
+
+                  return;
+                }
                 const type = String(mbtiShareType || "INTJ").toLowerCase();
                 const gender = mbtiGender;
 
