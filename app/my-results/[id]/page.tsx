@@ -13,6 +13,7 @@ import LoveShareCard from "@/components/LoveShareCard";
 import { generateMbtiShareImage } from "@/lib/generateMbtiShareImage";
 
 import IqShareCard from "@/components/IqShareCard";
+import NumerologyShareCard from "@/components/NumerologyShareCard";
 
 import LovePairResult from "@/components/LovePairResult";
 import LoveDimensionsResult from "@/components/LoveDimensionsResult";
@@ -261,6 +262,39 @@ async function saveOrShareIqImage(blob: Blob, isUnlocked: boolean) {
     }
   } catch (error) {
     console.warn("IQ native share cancelled or failed:", error);
+  }
+
+  downloadBlob(blob, filename);
+}
+
+async function saveOrShareNumerologyImage(blob: Blob, lifePath: number) {
+  const filename = `numerology-${lifePath}.jpg`;
+
+  if (!isMobileDevice()) {
+    downloadBlob(blob, filename);
+    return;
+  }
+
+  const file = new File([blob], filename, {
+    type: "image/jpeg",
+  });
+
+  try {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      await navigator.share({
+        files: [file],
+        title: `Миний үндсэн тоо ${lifePath}`,
+        text: `Миний тоон зурхайн үндсэн тоо ${lifePath}`,
+      });
+
+      return;
+    }
+  } catch (error) {
+    console.warn("Numerology native share cancelled or failed:", error);
   }
 
   downloadBlob(blob, filename);
@@ -973,6 +1007,13 @@ export default function ResultDetailPage() {
     result.result_json?.gender === "male" ? "male" : "female";
   const iqScore = Number(result.result_json?.iq ?? result.score ?? 0);
 
+  const numerologyLifePath = Number(result.result_json?.birth?.number ?? 1);
+  const numerologyNameNumber = Number(result.result_json?.name?.number ?? 1);
+  const numerologyPhoneNumber = Number(result.result_json?.phone?.number ?? 1);
+  const numerologyFinalScore = Number(
+    result.result_json?.finalScore ?? result.score ?? 0,
+  );
+
   const iqScalePosition = Math.max(
     0,
     Math.min(100, ((iqScore - 55) / (145 - 55)) * 100),
@@ -1083,7 +1124,24 @@ export default function ResultDetailPage() {
 
                   return;
                 }
+                if (result.test_type === "numerology") {
+                  const lifePath = numerologyLifePath;
+
+                  const shareUrl = `https://iq-test-platform-rouge.vercel.app/share/numerology/${lifePath}`;
+
+                  window.open(
+                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      shareUrl,
+                    )}`,
+                    "_blank",
+                    "noopener,noreferrer",
+                  );
+
+                  return;
+                }
+
                 const type = String(mbtiShareType || "INTJ").toLowerCase();
+
                 const gender = mbtiGender;
 
                 const shareUrl = `${window.location.origin}/share/mbti/${gender}/${type}`;
@@ -1171,6 +1229,27 @@ export default function ResultDetailPage() {
                     return;
                   }
 
+                  // NUMEROLOGY
+                  if (result.test_type === "numerology") {
+                    const lifePath = numerologyLifePath;
+
+                    const response = await fetch(
+                      `/share/numerology-final/${lifePath}.jpg`,
+                    );
+
+                    if (!response.ok) {
+                      throw new Error("Numerology share image not found");
+                    }
+
+                    const blob = await response.blob();
+
+                    await saveOrShareNumerologyImage(blob, lifePath);
+
+                    setToast(t("image_downloaded"));
+                    setTimeout(() => setShowToast(false), 2000);
+                    return;
+                  }
+
                   // MBTI
                   if (result.test_type === "mbti") {
                     const blob = await generateMbtiShareImage({
@@ -1234,6 +1313,26 @@ export default function ResultDetailPage() {
                         levelRange={iqLevel.range}
                         percentile={Number(result.result_json?.percentile ?? 0)}
                         domains={result.result_json?.domains ?? {}}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : result.test_type === "numerology" ? (
+              <div className="mt-4 w-full">
+                <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {lang === "en" ? "Your share image" : "Таны шэйр зураг"}
+                </p>
+
+                <div className="mx-auto w-[345px] max-w-full overflow-hidden rounded-2xl bg-black shadow-2xl sm:w-[600px]">
+                  <div className="relative aspect-[1200/630] w-full overflow-hidden">
+                    <div className="pointer-events-none absolute left-0 top-0 h-[630px] w-[1200px] origin-top-left scale-[0.2875] sm:scale-50">
+                      <NumerologyShareCard
+                        isUnlocked={isUnlocked}
+                        lifePath={numerologyLifePath}
+                        nameNumber={numerologyNameNumber}
+                        phoneNumber={numerologyPhoneNumber}
+                        finalScore={numerologyFinalScore}
                       />
                     </div>
                   </div>
